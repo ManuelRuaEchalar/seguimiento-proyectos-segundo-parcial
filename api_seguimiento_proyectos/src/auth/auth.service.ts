@@ -82,8 +82,11 @@ export class AuthService {
 
                 return user;
             });
+            //return token and rol
+            const access_token = this.signToken(result.id, result.email);
+            const rol = dto.rol;
 
-            return this.signToken(result.id, result.email);
+            return { access_token, rol };
         } catch (error) {
             // Verifica por código de error directamente
             if (error.code === 'P2002') {
@@ -115,7 +118,9 @@ export class AuthService {
             throw new ForbiddenException('Credentials incorrect');
         }
 
-        return this.signToken(user.id, user.email);
+        const rol = user.rol;
+        const access_token = this.signToken(user.id, user.email);
+        return {access_token, rol};
     }
 
     async signToken(userId: number, email: string) {

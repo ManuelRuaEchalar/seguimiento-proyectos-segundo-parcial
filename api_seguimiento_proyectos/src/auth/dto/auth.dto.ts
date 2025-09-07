@@ -8,9 +8,11 @@ export enum Rol {
 
 export class AuthDto {
   // ----------- Usuario -----------
+  @IsOptional()
   @IsString()
   nombre: string;
 
+  @IsOptional()
   @IsString()
   apellido: string;
 
@@ -20,6 +22,7 @@ export class AuthDto {
   @IsString()
   contraseña: string;
 
+  @IsOptional()
   @IsEnum(Rol)
   rol: Rol;
 
