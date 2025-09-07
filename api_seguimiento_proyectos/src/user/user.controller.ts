@@ -9,8 +9,7 @@ import { JwtGuard } from 'src/auth/guard';
 export class UserController {
     @Get('me')
     getMe(@GetUser() user: Usuario){
-
-
+        console.log("datos de usuario solicitados")
         return user;
     }
 

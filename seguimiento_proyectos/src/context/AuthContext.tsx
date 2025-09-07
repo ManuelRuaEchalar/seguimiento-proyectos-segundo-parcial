@@ -30,30 +30,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const fetchUserData = async (token: string) => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      const response = await fetch(`${apiUrl}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-      } else {
-        localStorage.removeItem('access_token');
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      localStorage.removeItem('access_token');
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    console.log('API_URL en AuthContext:', apiUrl); // Log para debug
+    if (!apiUrl) {
+      throw new Error('NEXT_PUBLIC_API_URL no está definida');
     }
-  };
+    const response = await fetch(`${apiUrl}/users/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  const login = (token: string) => {
-    localStorage.setItem('access_token', token);
-    fetchUserData(token);
-  };
+    console.log('Respuesta en fetchUserData:', response.status); // Log
+
+    if (response.ok) {
+      const userData = await response.json();
+      setUser(userData);
+    } else {
+      console.error('Error en fetchUserData:', response.status);
+      localStorage.removeItem('access_token');
+      setUser(null);
+    }
+  } catch (error) {
+    console.error('Error completo en fetchUserData:', error);
+    localStorage.removeItem('access_token');
+    setUser(null);
+  }
+};
+
+const login = (token: string) => {
+  localStorage.setItem('access_token', token);
+  fetchUserData(token);
+};
 
   const logout = () => {
     localStorage.removeItem('access_token');

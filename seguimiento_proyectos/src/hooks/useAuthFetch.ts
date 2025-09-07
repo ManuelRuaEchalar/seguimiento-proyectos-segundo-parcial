@@ -2,7 +2,7 @@
 import { useAuth } from '../context/AuthContext';
 
 export const useAuthFetch = () => {
-  const { user } = useAuth();
+  const { logout } = useAuth();
 
   const authFetch = async (url: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('access_token');
@@ -12,8 +12,13 @@ export const useAuthFetch = () => {
       'Content-Type': 'application/json',
       ...options.headers,
     };
-
+    console.log("enviando datos a api:", url);
     const response = await fetch(url, { ...options, headers });
+    
+    if (response.status === 401) {
+      logout(); // Cerrar sesión si el token es inválido
+    }
+
     return response;
   };
 

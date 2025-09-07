@@ -6,13 +6,14 @@ const DecorationPanel = () => {
     <div className="decoration-panel">
       <div className="decoration-content">
         <h1>Bienvenido</h1>
-        <p>Únete a nuestra plataforma educativa</p>
-        <div className="decoration-graphic">
-          <div className="circle"></div>
-          <div className="circle"></div>
-          <div className="circle"></div>
-        </div>
+        <p>Seguimiento de proyectos de grado para estudiantes de la USFX</p>
       </div>
+      <span className="ball"></span>
+      <span className="ball"></span>
+      <span className="ball"></span>
+      <span className="ball"></span>
+      <span className="ball"></span>
+      <span className="ball"></span>
     </div>
   );
 };

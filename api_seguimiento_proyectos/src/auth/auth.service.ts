@@ -9,14 +9,14 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
     constructor(
-        private prisma: PrismaService, 
-        private jwt: JwtService, 
+        private prisma: PrismaService,
+        private jwt: JwtService,
         private config: ConfigService
     ) { }
 
     async signup(dto: AuthDto) {
         const hash = await argon.hash(dto.contraseña);
-        
+
         try {
             // Usar transacción para crear usuario y la relación correspondiente
             const result = await this.prisma.$transaction(async (prisma) => {
@@ -43,7 +43,7 @@ export class AuthService {
                     if (!dto.cu || !dto.carrera) {
                         throw new BadRequestException('Para estudiantes se requiere: cu, carrera y grupo_id');
                     }
-                    
+
                     await prisma.estudiante.create({
                         data: {
                             id: user.id,
@@ -57,19 +57,19 @@ export class AuthService {
                     if (!dto.codigo_docente) {
                         throw new BadRequestException('Para docentes se requiere el código docente');
                     }
-                    
+
                     // Verificar que el código docente sea correcto
                     if (dto.codigo_docente !== 2636) {
                         throw new ForbiddenException('Código docente incorrecto');
                     }
-                    
+
                     // Crear grupo con el nombre del docente
                     const grupo = await prisma.grupo.create({
                         data: {
                             nombre: `${user.nombre} ${user.apellido}`,
                         },
                     });
-                    
+
                     // Crear el docente con el ID del grupo creado
                     await prisma.docente.create({
                         data: {
@@ -115,28 +115,23 @@ export class AuthService {
         // compare password
         const pwMatches = await argon.verify(user.hash, dto.contraseña);
         if (!pwMatches) {
+            console.log("datos incorrectos")
             throw new ForbiddenException('Credentials incorrect');
         }
 
         const rol = user.rol;
-        const access_token = this.signToken(user.id, user.email);
-        return {access_token, rol};
+        const access_token = await this.signToken(user.id, user.email);
+        return { access_token, rol };
     }
 
-    async signToken(userId: number, email: string) {
-        const payload = {
-            sub: userId,
-            email
-        };
+    async signToken(userId: number, email: string): Promise<string> {
+        const payload = { sub: userId, email };
         const secret = this.config.get('JWT_SECRET');
 
-        const token = await this.jwt.signAsync(payload, {
+        return this.jwt.signAsync(payload, {
             expiresIn: '15m',
             secret: secret,
         });
-
-        return {
-            access_token: token,
-        };
     }
+
 }
