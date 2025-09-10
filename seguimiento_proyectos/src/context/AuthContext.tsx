@@ -5,14 +5,14 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 interface User {
   id: string;
   email: string;
-  role: string; // Asegúrate de que esto esté incluido
+  role: string;
   nombre: string;
   apellido: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (token: string) => void;
+  login: () => void; // Cambiado: ya no recibe token
   logout: () => void;
 }
 
@@ -21,52 +21,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    // Verificar si hay un token al cargar la aplicación
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      fetchUserData(token);
-    }
-  }, []);
+  const fetchUserData = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      console.log('API_URL en AuthContext:', apiUrl);
+      if (!apiUrl) {
+        throw new Error('NEXT_PUBLIC_API_URL no está definida');
+      }
+      const response = await fetch(`${apiUrl}/users/me`, {
+        credentials: 'include', // Incluir cookies
+      });
 
-  const fetchUserData = async (token: string) => {
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    console.log('API_URL en AuthContext:', apiUrl); // Log para debug
-    if (!apiUrl) {
-      throw new Error('NEXT_PUBLIC_API_URL no está definida');
-    }
-    const response = await fetch(`${apiUrl}/users/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      console.log('Respuesta en fetchUserData:', response.status);
 
-    console.log('Respuesta en fetchUserData:', response.status); // Log
-
-    if (response.ok) {
-      const userData = await response.json();
-      setUser(userData);
-    } else {
-      console.error('Error en fetchUserData:', response.status);
-      localStorage.removeItem('access_token');
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        console.error('Error en fetchUserData:', response.status);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error completo en fetchUserData:', error);
       setUser(null);
     }
-  } catch (error) {
-    console.error('Error completo en fetchUserData:', error);
-    localStorage.removeItem('access_token');
-    setUser(null);
-  }
-};
+  };
 
-const login = (token: string) => {
-  localStorage.setItem('access_token', token);
-  fetchUserData(token);
-};
+  useEffect(() => {
+    // Ahora solo llamamos a fetchUserData, que usa las cookies
+    fetchUserData();
+  }, []);
 
-  const logout = () => {
-    localStorage.removeItem('access_token');
-    setUser(null);
+  const login = () => {
+    // Ahora login simplemente dispara la recarga de los datos del usuario
+    fetchUserData();
+  };
+
+  const logout = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      await fetch(`${apiUrl}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (

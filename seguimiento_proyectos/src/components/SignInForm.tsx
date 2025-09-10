@@ -24,25 +24,22 @@ const SignInForm = () => {
 
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-
-            // Transformar los datos para enviar "contraseña" en lugar de "password"
-            const requestData = {
-                email: formData.email,
-                contraseña: formData.password  // ← Aquí está el cambio
-            };
-
             const response = await fetch(`${apiUrl}/auth/signin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestData)  // ← Usar requestData en lugar de formData
+                body: JSON.stringify({
+                    email: formData.email,
+                    contraseña: formData.password
+                }),
+                credentials: 'include', // Incluir cookies
             });
 
             if (response.ok) {
                 const data = await response.json();
-                login(data.access_token);
-
+                login(); // Ahora no necesita parámetro
+                
                 // Redirigir según el rol
                 if (data.rol === 'docente') {
                     window.location.href = '/docente';

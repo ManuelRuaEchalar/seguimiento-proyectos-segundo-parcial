@@ -5,14 +5,22 @@ import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from '../prisma/prisma.module';
 import { GrupoModule } from '../grupo/grupo.module';
 import { JwtStrategy } from './strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-    imports: [
-        JwtModule.register({}),
-        PrismaModule,
-        GrupoModule,
-    ],
-    controllers: [AuthController],
-    providers: [AuthService, JwtStrategy],
+  imports: [
+    ConfigModule, // Asegúrate de que esto esté presente
+    JwtModule.registerAsync({
+      imports: [ConfigModule], // Añadir esto
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get('JWT_SECRET'),
+      }),
+    }),
+    PrismaModule,
+    GrupoModule,
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

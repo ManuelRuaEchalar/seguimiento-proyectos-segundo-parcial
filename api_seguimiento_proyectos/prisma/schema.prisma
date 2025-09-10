@@ -15,9 +15,9 @@ model Usuario {
   nombre      String
   apellido    String
   email       String     @unique
-  hash  String
+  hash        String
   rol         Rol
-
+  refreshToken String?   // <-- nuevo campo opcional
   estudiante  Estudiante?
   docente     Docente?
 }

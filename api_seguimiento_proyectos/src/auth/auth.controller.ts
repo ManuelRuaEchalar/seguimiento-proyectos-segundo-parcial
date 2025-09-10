@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import type { Response } from 'express';
 import  { AuthDto } from './dto';
 
 
@@ -9,14 +10,38 @@ export class AuthController {
 
 
     @Post('signup')
-    signup(@Body() dto: AuthDto) {
-        console.log(dto);
-        return this.authService.signup(dto);
-    }
+async signup(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
+  const { access_token, rol } = await this.authService.signup(dto);
+  
+  res.cookie('access_token', access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 15 * 60 * 1000, // 15 minutos
+  });
 
+  return { rol };
+}
 
-    @Post('signin')
-    signin(@Body() dto: AuthDto) {
-        return this.authService.signin(dto)    ;
-    }
+@Post('signin')
+async signin(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
+  const { access_token, rol } = await this.authService.signin(dto);
+  
+  res.cookie('access_token', access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 15 * 60 * 1000,
+  });
+
+  return { rol };
+}
+
+// Añadir endpoint de logout
+@Post('logout')
+logout(@Res({ passthrough: true }) res: Response) {
+  res.clearCookie('access_token');
+  return { message: 'Logged out' };
+}
+
 }

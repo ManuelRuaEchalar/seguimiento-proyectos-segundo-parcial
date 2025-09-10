@@ -14,7 +14,7 @@ interface DocenteData {
     apellido: string;
     email: string;
     contraseña: string;
-    codigo_docente: string;
+    codigo_docente: number;
 }
 
 interface EstudianteData {
@@ -25,6 +25,7 @@ interface EstudianteData {
     cu: string;
     carrera: string;
     contraseña: string;
+    grupo_id?: number;
 }
 
 const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
@@ -36,7 +37,7 @@ const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
         apellido: '',
         email: '',
         contraseña: '',
-        codigo_docente: ''
+        codigo_docente: 0
     });
 
     const [estudianteData, setEstudianteData] = useState<EstudianteData>({
@@ -50,9 +51,10 @@ const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
     });
 
     const handleDocenteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type } = e.target;
         setDocenteData(prev => ({
             ...prev,
-            [e.target.name]: e.target.value
+            [name]: type === 'number' ? parseInt(value) || 0 : value
         }));
     };
 
@@ -76,13 +78,14 @@ const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
+                credentials: 'include',
             });
 
             if (response.ok) {
                 const result = await response.json();
-                login(result.access_token);
-                // Redirigir según el rol
+                login();
+                
                 if (result.rol === 'docente') {
                     window.location.href = '/docente';
                 } else {
@@ -109,7 +112,6 @@ const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
 
             <form onSubmit={handleSubmit}>
                 {role === 'docente' ? (
-                    // Formulario para docente
                     <>
                         <div className="form-group">
                             <label htmlFor="nombre">Nombre</label>
@@ -162,7 +164,7 @@ const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
                         <div className="form-group">
                             <label htmlFor="codigo_docente">Código de Docente</label>
                             <input
-                                type="text"
+                                type="number"
                                 id="codigo_docente"
                                 name="codigo_docente"
                                 value={docenteData.codigo_docente}
@@ -172,7 +174,6 @@ const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
                         </div>
                     </>
                 ) : (
-                    // Formulario para estudiante
                     <>
                         <div className="form-group">
                             <label htmlFor="nombre">Nombre</label>
@@ -244,11 +245,10 @@ const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
                                 required
                             >
                                 <option value="">Selecciona tu carrera</option>
-                                <option value="ingenieria-sistemas">Ingeniería de Sistemas</option>
-                                <option value="ingenieria-civil">Ingeniería Civil</option>
-                                <option value="medicina">Medicina</option>
-                                <option value="derecho">Derecho</option>
-                                <option value="administracion">Administración de Empresas</option>
+                                <option value="cico">Ingeniería en Ciencias de la Computación</option>
+                                <option value="sis">Ingeniería de Sistemas</option>
+                                <option value="ti">Ingeniería en TI y seguridad</option>
+                                <option value="dad">Ingeniería en diseño y animación digital</option>
                             </select>
                         </div>
                     </>
