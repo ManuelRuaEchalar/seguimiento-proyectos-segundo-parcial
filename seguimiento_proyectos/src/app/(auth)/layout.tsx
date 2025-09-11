@@ -1,7 +1,7 @@
 // app/(auth)/layout.tsx
 import React from 'react';
-import DecorationPanel from '../../components/DecorationPanel';
-import AuthForm from '../../components/AuthForm';
+import DecorationPanel from '../../components/inicio-sesion/DecorationPanel';
+import AuthForm from '../../components/inicio-sesion/AuthForm';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (

@@ -2,8 +2,8 @@
 import { useAuth } from '../../../../context/AuthContext';
 import { useAuthFetch } from '../../../../hooks/useAuthFetch';
 import { useEffect, useState } from 'react';
-import Sidebar from '../../../../components/Sidebar';
-import MenuProgramacion from '../../../../components/MenuProgramacion';
+import Sidebar from '../../../../components/panel-estudiante/Sidebar';
+import MenuProgramacion from '../../../../components/panel-estudiante/MenuProgramacion';
 
 interface Grupo {
   id: number;

@@ -1,8 +1,8 @@
 // app/(auth)/sign-up/page.tsx
 'use client';
 import React, { useState } from 'react';
-import RoleSelector from '../../../components/RoleSelector';
-import SignUpForm from '../../../components/SignUpForm';
+import RoleSelector from '../../../components/inicio-sesion/RoleSelector';
+import SignUpForm from '../../../components/inicio-sesion/SignUpForm';
 
 const SignUpPage = () => {
   const [selectedRole, setSelectedRole] = useState<'estudiante' | 'docente' | null>(null);

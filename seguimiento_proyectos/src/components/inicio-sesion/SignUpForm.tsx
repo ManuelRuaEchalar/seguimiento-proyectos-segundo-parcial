@@ -1,7 +1,7 @@
 // app/(auth)/components/SignUpForm.tsx
 'use client';
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface SignUpFormProps {
     role: 'estudiante' | 'docente';
