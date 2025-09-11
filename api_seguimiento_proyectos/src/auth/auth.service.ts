@@ -18,7 +18,6 @@ export class AuthService {
         const hash = await argon.hash(dto.contraseña);
 
         try {
-            // Usar transacción para crear usuario y la relación correspondiente
             const result = await this.prisma.$transaction(async (prisma) => {
                 // Crear usuario
                 const user = await prisma.usuario.create({
@@ -29,14 +28,9 @@ export class AuthService {
                         apellido: dto.apellido,
                         rol: dto.rol,
                     },
-                    select: {
-                        id: true,
-                        email: true,
-                        nombre: true,
-                        apellido: true,
-                        rol: true,
-                    },
                 });
+
+                let grupoId: number | null = null;
 
                 // Crear la relación correspondiente según el rol
                 if (dto.rol === 'estudiante') {
@@ -52,47 +46,47 @@ export class AuthService {
                             grupo_id: dto.grupo_id,
                         },
                     });
+                    grupoId = dto.grupo_id;
                 } else if (dto.rol === 'docente') {
-                    // Verificar que se haya enviado el código docente
                     if (!dto.codigo_docente) {
                         throw new BadRequestException('Para docentes se requiere el código docente');
                     }
 
-                    // Verificar que el código docente sea correcto
                     if (dto.codigo_docente !== 2636) {
                         throw new ForbiddenException('Código docente incorrecto');
                     }
 
-                    // Crear grupo con el nombre del docente
                     const grupo = await prisma.grupo.create({
                         data: {
                             nombre: `${user.nombre} ${user.apellido}`,
                         },
                     });
 
-                    // Crear el docente con el ID del grupo creado
                     await prisma.docente.create({
                         data: {
                             id: user.id,
                             grupo_id: grupo.id,
                         },
                     });
+                    grupoId = grupo.id;
                 }
-                // Si es admin, no se crea ninguna relación adicional
 
-                return user;
+                // Retornar datos del usuario con grupo_id
+                return {
+                    id: user.id,
+                    email: user.email,
+                    nombre: user.nombre,
+                    apellido: user.apellido,
+                    rol: user.rol,
+                    grupo_id: grupoId,
+                };
             });
-            //return token and rol
-            const access_token = this.signToken(result.id, result.email);
-            const rol = dto.rol;
 
-            return { access_token, rol };
+            return result;
         } catch (error) {
-            // Verifica por código de error directamente
             if (error.code === 'P2002') {
                 throw new ForbiddenException('Credentials taken');
             }
-            // Si es un BadRequestException o ForbiddenException, lo relanzamos
             if (error instanceof BadRequestException || error instanceof ForbiddenException) {
                 throw error;
             }
@@ -101,33 +95,39 @@ export class AuthService {
     }
 
     async signin(dto: AuthDto) {
-        // find user by email
+        // Buscar usuario incluyendo relaciones
         const user = await this.prisma.usuario.findUnique({
-            where: {
-                email: dto.email,
+            where: { email: dto.email },
+            include: {
+                estudiante: true,
+                docente: true,
             },
         });
 
-        if (!user) {
-            throw new ForbiddenException('Credentials incorrect');
-        }
+        if (!user) throw new ForbiddenException('Credentials incorrect');
 
-        // compare password
         const pwMatches = await argon.verify(user.hash, dto.contraseña);
-        if (!pwMatches) {
-            console.log("datos incorrectos")
-            throw new ForbiddenException('Credentials incorrect');
+        if (!pwMatches) throw new ForbiddenException('Credentials incorrect');
+
+        // Obtener grupo_id según el rol
+        let grupoId: number | null = null;
+        if (user.rol === 'estudiante' && user.estudiante) {
+            grupoId = user.estudiante.grupo_id;
+        } else if (user.rol === 'docente' && user.docente) {
+            grupoId = user.docente.grupo_id;
         }
 
-        const rol = user.rol;
-        const access_token = await this.signToken(user.id, user.email);
-        return { access_token, rol };
+        // Retornar datos del usuario sin el hash
+        const { hash, ...userWithoutHash } = user;
+        return {
+            ...userWithoutHash,
+            grupo_id: grupoId,
+        };
     }
 
     async signToken(userId: number, email: string): Promise<string> {
         const payload = { sub: userId, email };
         const secret = this.config.get('JWT_SECRET');
-
         return this.jwt.signAsync(payload, {
             expiresIn: '15m',
             secret: secret,

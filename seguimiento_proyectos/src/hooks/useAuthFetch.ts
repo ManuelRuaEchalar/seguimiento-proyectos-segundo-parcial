@@ -1,25 +1,50 @@
 // hooks/useAuthFetch.ts
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-export const useAuthFetch = () => {
+export function useAuthFetch<T = any>(endpoint: string, options: RequestInit = {}) {
   const { logout } = useAuth();
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const authFetch = async (url: string, options: RequestInit = {}) => {
-  const response = await fetch(url, {
-    ...options,
-    credentials: 'include', // Incluir cookies en todas las requests
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
-  
-  if (response.status === 401) {
-    logout();
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (!apiUrl) {
+          throw new Error('NEXT_PUBLIC_API_URL no está definida');
+        }
 
-  return response;
-};
+        const response = await fetch(`${apiUrl}${endpoint}`, {
+          ...options,
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            ...options.headers,
+          },
+        });
 
-  return { authFetch };
-};
+        if (response.status === 401) {
+          logout();
+          throw new Error('No autorizado');
+        }
+
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`);
+        }
+
+        const json = await response.json();
+        setData(json);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [endpoint]);
+
+  return { data, loading, error };
+}

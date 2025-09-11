@@ -13,34 +13,9 @@ export class GrupoService {
         });
     }
 
-    async findAll() {
-        return await this.prisma.grupo.findMany({
-            include: {
-                estudiantes: {
-                    include: {
-                        usuario: {
-                            select: {
-                                nombre: true,
-                                apellido: true,
-                                email: true,
-                            },
-                        },
-                    },
-                },
-                docentes: {
-                    include: {
-                        usuario: {
-                            select: {
-                                nombre: true,
-                                apellido: true,
-                                email: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
-    }
+async findAll() {
+    return await this.prisma.grupo.findMany();
+}
 
     async findOne(id: number) {
         const grupo = await this.prisma.grupo.findUnique({

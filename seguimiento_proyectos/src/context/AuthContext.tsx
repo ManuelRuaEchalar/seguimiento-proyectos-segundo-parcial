@@ -3,13 +3,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface User {
-  id: string;
-  email: string;
-  role: string;
-  nombre: string;
+  user_id: string;
   apellido: string;
+  carrera: string;
+  rol: string;
+  cu: string;
+  email: string;
+  nombre: string;
+  grupo_id: string;
 }
-
 interface AuthContextType {
   user: User | null;
   login: () => void; // Cambiado: ya no recibe token

@@ -1,47 +1,47 @@
+// ===== auth.controller.ts =====
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
-import  { AuthDto } from './dto';
-
+import { AuthDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-
     @Post('signup')
-async signup(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
-  const { access_token, rol } = await this.authService.signup(dto);
-  
-  res.cookie('access_token', access_token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 15 * 60 * 1000, // 15 minutos
-  });
+    async signup(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
+        const user = await this.authService.signup(dto);
+        const access_token = await this.authService.signToken(user.id, user.email);
 
-  return { rol };
-}
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000,
+        });
 
-@Post('signin')
-async signin(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
-  const { access_token, rol } = await this.authService.signin(dto);
-  
-  res.cookie('access_token', access_token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 15 * 60 * 1000,
-  });
+        return user; // Retorna los datos del usuario incluyendo grupo_id
+    }
 
-  return { rol };
-}
+    @Post('signin')
+    async signin(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
+        const user = await this.authService.signin(dto);
+        const access_token = await this.authService.signToken(user.id, user.email);
 
-// Añadir endpoint de logout
-@Post('logout')
-logout(@Res({ passthrough: true }) res: Response) {
-  res.clearCookie('access_token');
-  return { message: 'Logged out' };
-}
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000,
+        });
 
+        return user; // Retorna los datos del usuario incluyendo grupo_id
+    }
+
+    // Añadir endpoint de logout
+    @Post('logout')
+    logout(@Res({ passthrough: true }) res: Response) {
+        res.clearCookie('access_token');
+        return { message: 'Logged out' };
+    }
 }

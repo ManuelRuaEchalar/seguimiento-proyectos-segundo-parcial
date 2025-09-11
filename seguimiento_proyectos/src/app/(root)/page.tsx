@@ -12,7 +12,7 @@ const HomePage = () => {
         <div className="user-info">
           <h2>Bienvenido, {user.nombre} {user.apellido}</h2>
           <p>Email: {user.email}</p>
-          <p>Rol: {user.role}</p>
+          <p>Rol: {user.rol}</p>
         </div>
       ) : (
         <>

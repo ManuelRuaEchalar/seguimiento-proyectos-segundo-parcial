@@ -44,7 +44,12 @@ const SignInForm = () => {
                 if (data.rol === 'docente') {
                     window.location.href = '/docente';
                 } else {
-                    window.location.href = '/estudiante';
+                    if (!data.grupo_id) {
+                        window.location.href = '/estudiante/sin-grupo';
+                    } else {
+                        window.location.href = '/estudiante/con-grupo';
+                    }
+                    
                 }
             } else {
                 alert('Credenciales incorrectas');
