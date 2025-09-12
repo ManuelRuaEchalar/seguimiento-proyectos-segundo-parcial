@@ -22,14 +22,35 @@ model Usuario {
   docente     Docente?
 }
 
-model Estudiante {
-  id       Int     @id
-  usuario  Usuario @relation(fields: [id], references: [id])
-  cu       String
-  carrera  String
-  grupo_id Int?
-  grupo    Grupo?   @relation(fields: [grupo_id], references: [id])
+model Proyecto {
+  codigoProyecto Int         @id @default(autoincrement())
+  titulo         String
+  estudiantes    Estudiante[] @relation("ProyectoEstudiantes")
+  documentos     Documento[]
 }
+
+model Documento {
+  codigoDoc Int    @id @default(autoincrement())
+  titulo    String
+  version   Int
+  file      String
+  proyecto  Proyecto @relation(fields: [proyectoId], references: [codigoProyecto])
+  proyectoId Int
+}
+
+// Ajustamos Estudiante para reflejar la relación
+model Estudiante {
+  id        Int       @id
+  usuario   Usuario   @relation(fields: [id], references: [id])
+  cu        String
+  carrera   String
+  grupo_id  Int?
+  grupo     Grupo?    @relation(fields: [grupo_id], references: [id])
+
+  proyectoId Int?       @unique
+  proyecto   Proyecto?  @relation("ProyectoEstudiantes", fields: [proyectoId], references: [codigoProyecto])
+}
+
 
 model Docente {
   id        Int     @id
