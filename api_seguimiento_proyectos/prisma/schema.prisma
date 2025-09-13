@@ -38,7 +38,6 @@ model Documento {
   proyectoId Int
 }
 
-// Ajustamos Estudiante para reflejar la relación
 model Estudiante {
   id        Int       @id
   usuario   Usuario   @relation(fields: [id], references: [id])

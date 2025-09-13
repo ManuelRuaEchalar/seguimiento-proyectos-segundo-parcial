@@ -1,121 +1,82 @@
-// components/DocentePage.tsx
+// app/(root)/docente/page.tsx
 'use client';
 import { useAuth } from '../../../context/AuthContext';
 import { useEffect, useState } from 'react';
-
-interface Estudiante {
-  user_id: number;
-  nombre: string;
-  apellido: string;
-  carrera: string;
-  cu: string;
-}
+import { useRouter } from 'next/navigation';
+import { fetchMisEstudiantes } from '@/services/estudiantes';
+import { Estudiante } from '@/types';
+import Header from '@/components/docente/Header';
+import EstudiantesList from '@/components/docente/EstudiantesList';
+import LoadingSpinner from '@/components/docente/LoadingSpinner';
+import ErrorMessage from '@/components/docente/ErrorMessage';
+import EmptyState from '@/components/docente/EmptyState';
+import NoUserMessage from '@/components/docente/NoUserMessage';
 
 const DocentePage = () => {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEstudiantes = async () => {
-      if (user && user.grupo_id) {
-        try {
-          setLoading(true);
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-          const response = await fetch(`${apiUrl}/users/mis-estudiantes`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ grupo_id: user.grupo_id }),
-            credentials: 'include',
-          });
-
-          if (response.status === 401) {
-            logout();
-            throw new Error('No autorizado');
-          }
-
-          if (!response.ok) {
-            throw new Error(`Error ${response.status}`);
-          }
-
-          const data = await response.json();
-          setEstudiantes(data);
-        } catch (err: any) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
+    const loadEstudiantes = async () => {
+      if (!user?.grupo_id) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchMisEstudiantes(user.grupo_id);
+        setEstudiantes(data);
+      } catch (err: any) {
+        console.error('Error al cargar estudiantes:', err);
+        setError(err.message);
+        if (err.message.includes('401') || err.message.includes('No autorizado')) {
+          logout();
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     if (user) {
-      fetchEstudiantes();
+      loadEstudiantes();
     }
   }, [user, logout]);
 
-  if (!user) return <div>No hay datos de usuario</div>;
-
   const handleEstudianteClick = (estudiante: Estudiante) => {
-    console.log('Estudiante seleccionado:', estudiante);
+    console.log('Navegando a proyecto de:', estudiante.nombre);
+    router.push(`/docente/proyecto/${estudiante.user_id}`);
   };
 
+  if (!user) {
+    return <NoUserMessage />;
+  }
+
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ color: '#333', marginBottom: '20px' }}>Panel del Docente</h1>
-      <p style={{ marginBottom: '30px' }}>
-        Bienvenido: <strong>{user.nombre}</strong> registrado con email: <strong>{user.email}</strong>
-      </p>
+    <div className="docente-page">
+      <Header userName={user.nombre} userEmail={user.email} />
       
-      <h2 style={{ color: '#444', marginBottom: '20px' }}>Lista de Estudiantes</h2>
-      
-      {loading && <p>Cargando estudiantes...</p>}
-      
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      
-      {!loading && !error && estudiantes.length === 0 && (
-        <p>No hay estudiantes en este grupo.</p>
-      )}
-      
-      {!loading && !error && estudiantes.length > 0 && (
-        <div style={{ display: 'grid', gap: '15px' }}>
-          {estudiantes.map(estudiante => (
-            <button
-              key={estudiante.user_id}
-              onClick={() => handleEstudianteClick(estudiante)}
-              style={{
-                padding: '15px',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                backgroundColor: '#f9f9f9',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#eaeaea';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#f9f9f9';
-              }}
-            >
-              <div style={{ fontWeight: 'bold' }}>
-                {estudiante.nombre} {estudiante.apellido}
-              </div>
-              <div style={{ marginTop: '5px' }}>
-                <span style={{ color: '#666' }}>Carrera: </span>
-                {estudiante.carrera}
-              </div>
-              <div>
-                <span style={{ color: '#666' }}>CU: </span>
-                {estudiante.cu}
-              </div>
-            </button>
-          ))}
+      <main className="docente-main">
+        <div className="docente-content">
+          <h2 className="content-title">
+            Mis Estudiantes
+          </h2>
+          
+          {loading && <LoadingSpinner />}
+          
+          {error && <ErrorMessage message={error} />}
+          
+          {!loading && !error && estudiantes.length === 0 && <EmptyState />}
+          
+          {!loading && !error && estudiantes.length > 0 && (
+            <EstudiantesList
+              estudiantes={estudiantes}
+              onEstudianteClick={handleEstudianteClick}
+            />
+          )}
         </div>
-      )}
+      </main>
     </div>
   );
 };

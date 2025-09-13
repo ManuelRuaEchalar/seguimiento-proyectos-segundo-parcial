@@ -89,7 +89,7 @@ const SignUpForm = ({ role, onBack }: SignUpFormProps) => {
                 if (result.rol === 'docente') {
                     window.location.href = '/docente';
                 } else {
-                    window.location.href = '/estudiante';
+                    window.location.href = '/estudiante/sin-grupo';
                 }
             } else {
                 const errorData = await response.json();
