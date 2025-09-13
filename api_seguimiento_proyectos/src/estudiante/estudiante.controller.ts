@@ -7,6 +7,7 @@ export class EstudianteController {
 
   @Post('view-project')
   async viewProyect(@Body('id') id: number) {
+    console.log("id ingresado: ", id);
     return this.estudianteService.viewProyect(id);
   }
 }

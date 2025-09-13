@@ -1,12 +1,12 @@
-// components/proyecto/DocumentList.tsx
 import DocumentCard from './DocumentCard';
 import { Documento } from '@/types';
 
 interface DocumentListProps {
   documentos: Documento[];
+  onDocumentClick: (documento: Documento) => void;
 }
 
-export default function DocumentList({ documentos }: DocumentListProps) {
+export default function DocumentList({ documentos, onDocumentClick }: DocumentListProps) {
   if (documentos.length === 0) {
     return (
       <div className="empty-state">
@@ -26,7 +26,11 @@ export default function DocumentList({ documentos }: DocumentListProps) {
   return (
     <div className="documents-grid">
       {documentos.map((documento) => (
-        <DocumentCard key={documento.codigoDoc} documento={documento} />
+        <DocumentCard 
+          key={documento.codigoDoc} 
+          documento={documento} 
+          onDocumentClick={onDocumentClick}
+        />
       ))}
     </div>
   );

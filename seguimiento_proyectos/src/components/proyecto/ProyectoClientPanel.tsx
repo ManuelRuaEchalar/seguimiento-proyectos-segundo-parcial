@@ -1,4 +1,3 @@
-// components/proyecto/ProyectoClientPanel.tsx
 'use client';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -28,7 +27,7 @@ const ProyectoClientPanel = () => {
         </svg>
         Volver
       </button>
-      
+
       <button
         onClick={handleLogout}
         className="client-panel-button client-panel-button--logout"

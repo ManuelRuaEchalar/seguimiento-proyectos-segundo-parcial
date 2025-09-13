@@ -1,4 +1,3 @@
-// components/docente/ErrorMessage.tsx
 interface ErrorMessageProps {
   message: string;
 }

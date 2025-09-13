@@ -1,4 +1,3 @@
-// components/docente/Header.tsx
 interface HeaderProps {
   userName: string;
   userEmail: string;

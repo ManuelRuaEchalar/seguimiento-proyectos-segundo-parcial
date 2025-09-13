@@ -1,104 +1,51 @@
-import { cookies } from 'next/headers';
-import { notFound } from 'next/navigation';
-import NavigationBar from '@/components/proyecto/NavigationBar';
-import DocumentList from '@/components/proyecto/DocumentList';
-import ErrorDisplay from '@/components/proyecto/ErrorDisplay';
-import ProyectoClientPanel from '@/components/proyecto/ProyectoClientPanel';
-import { ProyectoData } from '@/types';
+import { Metadata } from 'next';
+import { fetchProyecto } from '@/services/proyecto';
+import ProyectoContent from '@/components/proyecto/ProyectoContent';
 
-async function getProyectoData(userId: string): Promise<ProyectoData> {
-  const cookieStore = cookies();
-  const cookieHeader = (await cookieStore).getAll()
-    .map(c => `${c.name}=${c.value}`)
-    .join('; ');
-  
-  const apiUrl = process.env.API_URL;
-  
-  if (!apiUrl) {
-    throw new Error('API_URL no está configurada');
-  }
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const response = await fetch(`${apiUrl}/estudiante/view-project`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader, // Reenvía cookies para autenticación
+    const { id } = await params;
+    const proyecto = await fetchProyecto(Number(id));
+    
+    return {
+      title: `Proyecto #${proyecto.codigoProyecto} - CloudIt`,
+      description: `Proyecto: ${proyecto.titulo}`,
+      openGraph: {
+        title: `Proyecto #${proyecto.codigoProyecto} - CloudIt`,
+        description: `Proyecto: ${proyecto.titulo}`,
       },
-      body: JSON.stringify({ id: Number(userId) }),
-      cache: 'no-store', // Siempre fetch fresh data
-    });
-
-    if (response.status === 404) {
-      notFound();
-    }
-
-    if (response.status === 401) {
-      throw new Error('No autorizado');
-    }
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: No se pudo obtener el proyecto`);
-    }
-
-    return await response.json();
+    };
   } catch (error) {
-    console.error('Error fetching proyecto:', error);
-    throw error;
+    return {
+      title: 'Proyecto - CloudIt',
+      description: 'Detalles del proyecto del estudiante',
+    };
   }
 }
 
-export default async function ProyectoPage({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}) {
-  const { id } = await params;
-  
+export default async function ProyectoPage(props: PageProps) {
   try {
-    const proyectoData = await getProyectoData(id);
-
+    const { id } = await props.params;
+    console.log("id antes de enviar: ",id);
+    const proyecto = await fetchProyecto(Number(id));
+    return <ProyectoContent proyecto={proyecto} estudianteId={id} />;
+  } catch (error) {
     return (
-      <div className="proyecto-page">
-        <NavigationBar
-          codigoProyecto={proyectoData.codigoProyecto}
-          titulo={proyectoData.titulo}
-          documentosCount={proyectoData.documentos.length}
-        />
-
-        <main className="proyecto-main">
-          <div className="proyecto-content">
-            <div className="content-header">
-              <h3 className="content-title">
-                Documentos del Proyecto
-              </h3>
-              <ProyectoClientPanel />
-            </div>
-            
-            <DocumentList documentos={proyectoData.documentos} />
-          </div>
-        </main>
+      <div className="error-container">
+        <div className="error-content">
+          <h2 className="error-title">Error al cargar el proyecto</h2>
+          <p className="error-message">
+            No se pudo obtener la información del proyecto
+          </p>
+          <a href="/docente" className="error-button">
+            Volver al panel principal
+          </a>
+        </div>
       </div>
     );
-  } catch (error: any) {
-    return <ErrorDisplay error={error} />;
-  }
-}
-
-
-// Metadata para SEO (opcional)
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params; // Await the params promise
-  try {
-    const proyectoData = await getProyectoData(id);
-    return {
-      title: `Proyecto ${proyectoData.codigoProyecto} - ${proyectoData.titulo}`,
-      description: `Documentos del proyecto ${proyectoData.titulo} con ${proyectoData.documentos.length} archivo(s)`
-    };
-  } catch {
-    return {
-      title: 'Proyecto - Error',
-      description: 'No se pudo cargar el proyecto'
-    };
   }
 }

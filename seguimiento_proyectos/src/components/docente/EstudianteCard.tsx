@@ -1,4 +1,5 @@
-// components/docente/EstudianteCard.tsx
+'use client';
+
 import { Estudiante } from '@/types';
 
 interface EstudianteCardProps {
@@ -18,11 +19,11 @@ export default function EstudianteCard({ estudiante, onClick }: EstudianteCardPr
           {estudiante.cu}
         </div>
       </div>
-      
+
       <h3 className="estudiante-name">
         {estudiante.nombre} {estudiante.apellido}
       </h3>
-      
+
       <div className="estudiante-info">
         <div className="estudiante-carrera">
           <svg className="carrera-icon" fill="currentColor" viewBox="0 0 20 20">

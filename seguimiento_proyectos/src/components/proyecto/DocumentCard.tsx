@@ -1,18 +1,16 @@
-// components/proyecto/DocumentCard.tsx
 import { Documento } from '@/types';
 
 interface DocumentCardProps {
   documento: Documento;
+  onDocumentClick: (documento: Documento) => void;
 }
 
-export default function DocumentCard({ documento }: DocumentCardProps) {
+export default function DocumentCard({ documento, onDocumentClick }: DocumentCardProps) {
   const filename = documento.file.split('/').pop();
 
   return (
-    <a
-      href={documento.file}
-      target="_blank"
-      rel="noopener noreferrer"
+    <button
+      onClick={() => onDocumentClick(documento)}
       className="document-card"
       aria-label={`Abrir documento ${documento.titulo} versión ${documento.version}`}
     >
@@ -40,6 +38,6 @@ export default function DocumentCard({ documento }: DocumentCardProps) {
           </svg>
         </div>
       </div>
-    </a>
+    </button>
   );
 }

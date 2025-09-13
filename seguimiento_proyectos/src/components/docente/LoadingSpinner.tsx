@@ -1,4 +1,3 @@
-// components/docente/LoadingSpinner.tsx
 export default function LoadingSpinner() {
   return (
     <div className="loading-container">

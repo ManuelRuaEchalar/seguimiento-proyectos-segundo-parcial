@@ -10,8 +10,18 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "CloudIt",
-  description: "App de guardado de archivos en la nube",
+  title: "CloudIt - Panel del Docente",
+  description: "Sistema de gestión de proyectos para docentes",
+  openGraph: {
+    title: "CloudIt - Panel del Docente",
+    description: "Sistema de gestión de proyectos para docentes",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CloudIt - Panel del Docente",
+    description: "Sistema de gestión de proyectos para docentes",
+  },
 };
 
 export default function RootLayout({
@@ -20,9 +30,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body className={`${poppins.variable} font-poppins antialiased`}>
-                <AuthProvider>
+        <AuthProvider>
           {children}
         </AuthProvider>
       </body>

@@ -1,4 +1,5 @@
-// components/docente/EstudiantesList.tsx
+'use client';
+
 import { Estudiante } from '@/types';
 import EstudianteCard from './EstudianteCard';
 

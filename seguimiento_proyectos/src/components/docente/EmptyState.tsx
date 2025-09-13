@@ -1,4 +1,3 @@
-// components/docente/EmptyState.tsx
 export default function EmptyState() {
   return (
     <div className="empty-state">

@@ -1,4 +1,3 @@
-// components/docente/NoUserMessage.tsx
 export default function NoUserMessage() {
   return (
     <div className="no-user-container">
