@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Observacion } from '@/types';
+import { createObservacion } from '@/services/observaciones';
 
 import {
   AreaHighlight,
@@ -20,6 +22,7 @@ import { Spinner } from "./Spinner";
 
 interface VisualizadorPDFProps {
   blob: Blob | null;
+  observaciones: Observacion[] | null;
 }
 
 // Hook personalizado para el seguimiento de páginas
@@ -51,14 +54,13 @@ const usePageTracking = () => {
       },
       {
         root: null,
-        rootMargin: '-20% 0px -20% 0px', // Considera una página "actual" cuando está más centrada
+        rootMargin: '-20% 0px -20% 0px',
         threshold: [0.1, 0.25, 0.5, 0.75]
       }
     );
   }, []);
 
   const observePageElements = useCallback(() => {
-    // Buscar elementos de página usando diferentes selectores posibles
     const possibleSelectors = [
       '.react-pdf__Page',
       '[data-page-number]',
@@ -76,7 +78,6 @@ const usePageTracking = () => {
 
     if (pageElements && pageElements.length > 0) {
       pageElements.forEach((element, index) => {
-        // Si no tiene data-page-number, asignarlo
         if (!element.getAttribute('data-page-number')) {
           element.setAttribute('data-page-number', (index + 1).toString());
         }
@@ -86,7 +87,6 @@ const usePageTracking = () => {
         }
       });
 
-      // Actualizar total de páginas si es diferente
       if (totalPages !== pageElements.length) {
         setTotalPages(pageElements.length);
       }
@@ -96,7 +96,6 @@ const usePageTracking = () => {
   useEffect(() => {
     setupPageObserver();
 
-    // Configurar MutationObserver para detectar cuando se agregan nuevas páginas
     mutationObserverRef.current = new MutationObserver((mutations) => {
       let shouldReobserve = false;
 
@@ -104,7 +103,6 @@ const usePageTracking = () => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as Element;
-            // Verificar si el nodo agregado es una página o contiene páginas
             if (element.classList.contains('react-pdf__Page') || 
                 element.querySelector('.react-pdf__Page') ||
                 element.classList.contains('page') ||
@@ -118,17 +116,15 @@ const usePageTracking = () => {
       });
 
       if (shouldReobserve) {
-        setTimeout(observePageElements, 100); // Pequeño delay para asegurar renderizado
+        setTimeout(observePageElements, 100);
       }
     });
 
-    // Comenzar a observar el documento
     mutationObserverRef.current.observe(document.body, {
       childList: true,
       subtree: true
     });
 
-    // Observar páginas iniciales con múltiples intentos
     const initialObserveTimer = setTimeout(observePageElements, 500);
     const secondAttempt = setTimeout(observePageElements, 1000);
     const thirdAttempt = setTimeout(observePageElements, 2000);
@@ -166,12 +162,101 @@ const HighlightPopup = ({
     </div>
   ) : null;
 
-export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
+// Función CORREGIDA para convertir Observacion a IHighlight
+const convertObservacionToHighlight = (observacion: any): IHighlight => {
+  // Crear estructura de position usando los datos reales de la observación
+  let position;
+  
+  if (observacion.position) {
+    // Si ya tiene la estructura correcta
+    position = observacion.position;
+  } else if (observacion.boundingX1 !== undefined && observacion.boundingY1 !== undefined) {
+    // Convertir desde formato plano
+    const pageNumber = observacion.boundingPage || 1;
+    const width = 1020; // Valores por defecto del PDF
+    const height = 1320;
+    
+    position = {
+      boundingRect: {
+        x1: observacion.boundingX1,
+        y1: observacion.boundingY1,
+        x2: observacion.boundingX2,
+        y2: observacion.boundingY2,
+        width: width,
+        height: height,
+        pageNumber: pageNumber
+      },
+      rects: observacion.rects && Array.isArray(observacion.rects) ? 
+        observacion.rects.map((rect: any) => ({
+          x1: rect.x1 || rect.boundingX1 || observacion.boundingX1,
+          y1: rect.y1 || rect.boundingY1 || observacion.boundingY1,
+          x2: rect.x2 || rect.boundingX2 || observacion.boundingX2,
+          y2: rect.y2 || rect.boundingY2 || observacion.boundingY2,
+          width: rect.width || width,
+          height: rect.height || height,
+          pageNumber: rect.pageNumber || pageNumber
+        })) : [{
+          x1: observacion.boundingX1,
+          y1: observacion.boundingY1,
+          x2: observacion.boundingX2,
+          y2: observacion.boundingY2,
+          width: width,
+          height: height,
+          pageNumber: pageNumber
+        }],
+      pageNumber: pageNumber
+    };
+  } else {
+    // Posición por defecto como fallback
+    position = {
+      boundingRect: {
+        x1: 0,
+        y1: 0,
+        x2: 100,
+        y2: 20,
+        width: 1020,
+        height: 1320,
+        pageNumber: 1
+      },
+      rects: [{
+        x1: 0,
+        y1: 0,
+        x2: 100,
+        y2: 20,
+        width: 1020,
+        height: 1320,
+        pageNumber: 1
+      }],
+      pageNumber: 1
+    };
+  }
+
+  return {
+    id: observacion.id?.toString() || getNextId(),
+    // Convertir contentText a la estructura esperada
+    content: {
+      text: observacion.contentText || observacion.content?.text || ""
+    },
+    // Usar la posición construida
+    position: position,
+    // Convertir commentText a la estructura esperada
+    comment: {
+      text: observacion.commentText || observacion.comment?.text || "",
+      emoji: observacion.commentEmoji || observacion.comment?.emoji || ""
+    },
+    estado: observacion.estado || "pendiente",
+    codigoDoc: observacion.codigoDoc || 2
+  };
+};
+
+export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [error, setError] = useState<string | null>(null);
+  const [highlightsLoaded, setHighlightsLoaded] = useState(false);
   
-  // Usar el hook personalizado para seguimiento de páginas
+  console.log("Observaciones recibidas:", observaciones);
+  
   const { currentPage, totalPages, setTotalPages } = usePageTracking();
 
   // Crear URL del blob cuando cambie
@@ -180,7 +265,6 @@ export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
       const objectUrl = URL.createObjectURL(blob);
       setUrl(objectUrl);
 
-      // Limpiar la URL cuando el componente se desmonte o el blob cambie
       return () => {
         URL.revokeObjectURL(objectUrl);
       };
@@ -189,8 +273,31 @@ export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
     }
   }, [blob]);
 
+  // Cargar observaciones existentes al inicio - CORREGIDO
+  useEffect(() => {
+    if (observaciones && observaciones.length > 0 && !highlightsLoaded) {
+      console.log("Cargando observaciones existentes:", observaciones);
+      
+      try {
+        const convertedHighlights = observaciones.map(convertObservacionToHighlight);
+        console.log("Highlights convertidos:", convertedHighlights);
+        
+        setHighlights(convertedHighlights);
+        setHighlightsLoaded(true);
+        
+        console.log("Highlights cargados exitosamente:", convertedHighlights);
+      } catch (error) {
+        console.error("Error al convertir observaciones:", error);
+        setHighlightsLoaded(true); // Marcar como cargado para evitar bucles
+      }
+    } else if (!observaciones || observaciones.length === 0) {
+      setHighlightsLoaded(true);
+    }
+  }, [observaciones, highlightsLoaded]);
+
   const resetHighlights = () => {
     setHighlights([]);
+    setHighlightsLoaded(false);
   };
 
   // Suprimir errores de extensiones del navegador
@@ -210,12 +317,20 @@ export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
     };
   }, []);
 
-  const addHighlight = (highlight: NewHighlight) => {
+  const addHighlight = async (highlight: NewHighlight) => {
     console.log("Saving highlight", highlight);
-    setHighlights((prevHighlights) => [
-      { ...highlight, id: getNextId() },
-      ...prevHighlights,
-    ]);
+
+    const newHighlight = { ...highlight, id: getNextId() };
+    setHighlights((prevHighlights) => [newHighlight, ...prevHighlights]);
+
+    console.log("Nuevo highlight:", newHighlight);
+
+    try {
+      const saved = await createObservacion(newHighlight);
+      console.log("Highlight guardado en BD:", saved);
+    } catch (error) {
+      console.error("Error al guardar el highlight en BD:", error);
+    }
   };
 
   const updateHighlight = (
@@ -244,7 +359,6 @@ export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
     );
   };
 
-  // Si no hay blob, mostrar mensaje de espera
   if (!blob || !url) {
     return (
       <div className="pdf-viewer-loading">
@@ -270,7 +384,6 @@ export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
         resetHighlights={resetHighlights}
       />
       <div className="pdf-viewer-content" style={{ position: 'relative' }}>
-        {/* Indicador de página actual */}
         <div className="page-indicator">
           Página {currentPage} {totalPages > 0 && `de ${totalPages}`}
         </div>
@@ -284,21 +397,20 @@ export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
           }}
         >
           {(pdfDocument) => {
-            // Actualizar páginas totales desde el documento
-            if (pdfDocument.numPages && totalPages !== pdfDocument.numPages) {
-              setTotalPages(pdfDocument.numPages);
-            }
+            const updatePages = () => {
+              if (pdfDocument.numPages && totalPages !== pdfDocument.numPages) {
+                setTotalPages(pdfDocument.numPages);
+              }
+            };
+
+            setTimeout(updatePages, 0);
 
             return (
               <PdfHighlighter
                 pdfDocument={pdfDocument}
                 enableAreaSelection={(event) => event.altKey}
-                onScrollChange={() => {
-                  // Lógica adicional de scroll si es necesaria
-                }}
-                scrollRef={(scrollTo) => {
-                  // Implementar lógica de scroll si es necesario
-                }}
+                onScrollChange={() => {}}
+                scrollRef={(scrollTo) => {}}
                 onSelectionFinished={(
                   position,
                   content,
@@ -308,7 +420,7 @@ export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
                   <Tip
                     onOpen={transformSelection}
                     onConfirm={(comment) => {
-                      addHighlight({ content, position, comment });
+                      addHighlight({ content, position, comment, estado:"pendiente", codigoDoc:2 });
                       hideTipAndSelection();
                     }} 
                   />
@@ -328,7 +440,9 @@ export function VisualizadorPDF({ blob }: VisualizadorPDFProps) {
                     <Highlight
                       isScrolledTo={isScrolledTo}
                       position={highlight.position}
-                      comment={highlight.comment} 
+                      comment={highlight.comment}
+                      estado={highlight.estado || "pendiente"} 
+                      codigoDoc={highlight.codigoDoc || 2}
                     />
                   ) : (
                     <AreaHighlight

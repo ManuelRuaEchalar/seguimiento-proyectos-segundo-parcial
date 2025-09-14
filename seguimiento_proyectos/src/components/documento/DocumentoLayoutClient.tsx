@@ -25,20 +25,13 @@ interface DatosProyecto {
   fechaEntrega: string;
 }
 
-interface Observacion {
-  id: number;
-  titulo: string;
-  autor: string;
-  fecha: string;
-  hora: string;
-  comentario: string;
-}
+
 
 interface DocumentoLayoutClientProps {
   datosDocumento: DatosDocumento;
   datosEstudiante: DatosEstudiante;
   datosProyecto: DatosProyecto;
-  observaciones: Observacion[];
+  observaciones: any[];
   blob: Blob;
   contentType: string;
 }
@@ -51,6 +44,7 @@ export default function DocumentoLayoutClient({
   blob,
   contentType
 }: DocumentoLayoutClientProps) {
+  console.log("observaciones recibidas del padre: ", observaciones);
   return (
     <div className="documento-page-layout">
       <DocumentoNavbar
@@ -63,7 +57,7 @@ export default function DocumentoLayoutClient({
 
       <div className="documento-body">
         <div className="pdf-container">
-          <VisualizadorPDF blob={blob} />
+          <VisualizadorPDF blob={blob} observaciones={observaciones}/>
         </div>
         <SidebarDerecha
           estudiante={datosEstudiante}

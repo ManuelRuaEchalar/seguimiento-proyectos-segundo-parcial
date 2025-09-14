@@ -38,6 +38,7 @@ export function Sidebar({
             }}
           >
             <div>
+              <span className="highlight-estado">{highlight.estado}</span> <br/>
               <strong>{highlight.comment.text}</strong>
               {highlight.content.text ? (
                 <blockquote className="highlight-blockquote">

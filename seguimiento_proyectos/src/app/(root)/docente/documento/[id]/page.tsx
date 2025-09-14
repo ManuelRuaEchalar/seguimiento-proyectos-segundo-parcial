@@ -2,6 +2,7 @@
 import { Metadata } from 'next';
 import { fetchDoc } from '@/services/proyecto';
 import DocumentoLayoutClient from '@/components/documento/DocumentoLayoutClient';
+import { fetchObservaciones } from '@/services/observaciones';
 
 interface PageProps {
   params: Promise<{ id: number }>;
@@ -33,6 +34,8 @@ export default async function DocumentoPage(props: PageProps) {
     console.log("El codigo del doc de params es: ", id);
     console.log(typeof(id));
     const { blob, contentType } = await fetchDoc(Number(id));
+    const observaciones  = await fetchObservaciones(Number(id));
+    console.log("OBSERVACIONES DE LA API: ", observaciones);
     
     // Datos de ejemplo (temporales hasta recibir la info real)
     const datosDocumento = {
@@ -54,40 +57,13 @@ export default async function DocumentoPage(props: PageProps) {
       descripcion: "Desarrollo de una plataforma web para la gestión integral de procesos académicos universitarios",
       fechaEntrega: "2024-02-28"
     };
-
-    const observacionesEjemplo = [
-      {
-        id: 1,
-        titulo: "Revisión del marco teórico",
-        autor: "Dr. Carlos Mendoza",
-        fecha: "2024-01-16",
-        hora: "14:30",
-        comentario: "Es necesario ampliar la sección sobre metodologías ágiles y incluir más referencias actuales."
-      },
-      {
-        id: 2,
-        titulo: "Formato de referencias",
-        autor: "Dra. Ana López",
-        fecha: "2024-01-16",
-        hora: "16:45",
-        comentario: "Verificar el formato APA en las referencias bibliográficas de las páginas 45-50."
-      },
-      {
-        id: 3,
-        titulo: "Análisis de resultados",
-        autor: "Dr. Carlos Mendoza",
-        fecha: "2024-01-17",
-        hora: "09:15",
-        comentario: "Los gráficos del capítulo 4 necesitan mejor explicación y análisis más detallado."
-      }
-    ];
     
     return (
       <DocumentoLayoutClient
         datosDocumento={datosDocumento}
         datosEstudiante={datosEstudiante}
         datosProyecto={datosProyecto}
-        observaciones={observacionesEjemplo}
+        observaciones={observaciones}
         blob={blob}
         contentType={contentType}
       />

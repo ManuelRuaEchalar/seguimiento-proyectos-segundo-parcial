@@ -1297,6 +1297,16 @@ body {
   font-size: 10px;
 }
 
+.highlight-estado{
+  background: var(--rojo-vintage);
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-right: 6px;
+  padding-left: 6px;
+  color: var(--blanco-vintage);
+  border-radius: 5px;
+}
+
 .highlight__image {
   overflow: auto;
   max-width: 300px;

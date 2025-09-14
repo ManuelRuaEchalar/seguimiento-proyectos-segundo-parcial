@@ -29,13 +29,35 @@ model Proyecto {
   documentos     Documento[]
 }
 
+model Observacion {
+  id           String   @id            // viene del highlight generado
+  contentText  String
+  commentText  String?
+  commentEmoji String?
+  estado       String
+
+  // Datos de posición y rectángulos
+  boundingX1   Float
+  boundingY1   Float
+  boundingX2   Float
+  boundingY2   Float
+  boundingPage Int
+  rects        Json     // almacenamos el array rects como JSON nativo de Prisma
+
+  // Relación con Documento
+  codigoDoc Int
+  documento Documento @relation(fields: [codigoDoc], references: [codigoDoc])
+}
+
 model Documento {
-  codigoDoc Int    @id @default(autoincrement())
-  titulo    String
-  version   Int
-  file      String
-  proyecto  Proyecto @relation(fields: [proyectoId], references: [codigoProyecto])
-  proyectoId Int
+  codigoDoc   Int           @id @default(autoincrement())
+  titulo      String
+  version     Int
+  file        String
+  proyecto    Proyecto      @relation(fields: [proyectoId], references: [codigoProyecto])
+  proyectoId  Int
+
+  observaciones Observacion[]
 }
 
 model Estudiante {

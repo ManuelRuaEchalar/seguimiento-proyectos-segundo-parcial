@@ -9,8 +9,9 @@ interface Props {
   onClick?: () => void;
   onMouseOver?: () => void;
   onMouseOut?: () => void;
+  estado: string;
+  codigoDoc: number;
   comment: {
-    emoji: string;
     text: string;
   };
   isScrolledTo: boolean;
@@ -22,6 +23,8 @@ export function Highlight({
   onMouseOver,
   onMouseOut,
   comment,
+  estado,
+  codigoDoc,
   isScrolledTo,
 }: Props) {
   const { rects, boundingRect } = position;
@@ -30,17 +33,22 @@ export function Highlight({
     <div
       className={`Highlight ${styles.highlight} ${isScrolledTo ? styles.scrolledTo : ""}`}
     >
-      {comment ? (
+      {estado && (
         <div
-          className={`Highlight__emoji ${styles.emoji}`}
+          className={`Highlight__estado ${styles.estado}`}
           style={{
             left: 20,
             top: boundingRect.top,
           }}
         >
-          {comment.emoji}
+          <span className={`Highlight__codigo ${styles.codigo}`}>
+            {codigoDoc}
+          </span>
+          <span className={`Highlight__estado-text ${styles.estadoText}`}>
+            {estado}
+          </span>
         </div>
-      ) : null}
+      )}
       <div className={`Highlight__parts ${styles.parts}`}>
         {rects.map((rect, index) => (
           <div

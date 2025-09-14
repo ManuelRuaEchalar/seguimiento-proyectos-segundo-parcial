@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { GrupoModule } from './grupo/grupo.module';
 import { ProyectoModule } from './proyecto/proyecto.module';
 import { DocumentoModule } from './documento/documento.module';
+import { ObservacionModule } from './observacion/observacion.module';
 
 
 @Module({
@@ -19,6 +20,6 @@ AuthModule,
 UserModule, 
 EstudianteModule, 
 DocenteModule, 
-PrismaModule, GrupoModule, ProyectoModule, DocumentoModule],
+PrismaModule, GrupoModule, ProyectoModule, DocumentoModule, ObservacionModule],
 })
 export class AppModule {}

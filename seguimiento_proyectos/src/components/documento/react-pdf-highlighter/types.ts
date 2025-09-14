@@ -44,6 +44,14 @@ export interface HighlightContent {
   content: Content;
 }
 
+export interface Estado {
+  estado: string;
+}
+
+export interface CodigoDoc {
+  codigoDoc:number
+}
+
 export interface Comment {
   text: string;
   emoji: string;
@@ -53,7 +61,7 @@ export interface HighlightComment {
   comment: Comment;
 }
 
-export interface NewHighlight extends HighlightContent, HighlightComment {
+export interface NewHighlight extends HighlightContent, HighlightComment, Estado, CodigoDoc {
   position: ScaledPosition;
 }
 
@@ -61,7 +69,7 @@ export interface IHighlight extends NewHighlight {
   id: string;
 }
 
-export interface ViewportHighlight extends HighlightContent, HighlightComment {
+export interface ViewportHighlight extends HighlightContent, HighlightComment, Estado {
   position: Position;
 }
 
