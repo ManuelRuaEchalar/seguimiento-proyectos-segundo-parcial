@@ -2,8 +2,8 @@
 'use client';
 import React from 'react';
 import DocumentoNavbar from './DocumentoNavBar';
-import SidebarIzquierdo from './SidebarIzquierdo';
-import VisualizadorPDF from './VisualizadorPDF';
+import SidebarDerecha from './SidebarDerecha';
+import { VisualizadorPDF } from './VisualizadorPDF';
 import VisualizadorDocumento from './VisualizadorDocumento';
 import SidebarObservaciones from './SidebarObservaciones';
 
@@ -55,27 +55,21 @@ export default function DocumentoLayoutClient({
 }: DocumentoLayoutClientProps) {
   return (
     <div className="documento-page-layout">
-      <DocumentoNavbar 
+      <DocumentoNavbar
         nombreDocumento={datosDocumento.nombreDocumento}
         version={datosDocumento.version}
         estado={datosDocumento.estado}
         fechaSubida={datosDocumento.fechaSubida}
         numObservaciones={datosDocumento.numObservaciones}
       />
-      
+
       <div className="documento-body">
-        <SidebarIzquierdo 
+        <div className="pdf-container">
+          <VisualizadorPDF blob={blob} />
+        </div>
+        <SidebarDerecha
           estudiante={datosEstudiante}
           proyecto={datosProyecto}
-        />
-        
-        <VisualizadorPDF
-          blob={blob}
-          contentType={contentType}
-        />
-        
-        <SidebarObservaciones 
-          observaciones={observaciones}
         />
       </div>
     </div>

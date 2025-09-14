@@ -1,4 +1,4 @@
-// @/components/documento/SidebarIzquierdo.tsx
+// @/components/documento/SidebarDerecha.tsx
 'use client';
 import React from 'react';
 
@@ -14,17 +14,17 @@ interface DatosProyecto {
   fechaEntrega: string;
 }
 
-interface SidebarIzquierdoProps {
+interface SidebarDerechaProps {
   estudiante: DatosEstudiante;
   proyecto: DatosProyecto;
 }
 
-export default function SidebarIzquierdo({
+export default function SidebarDerecha({
   estudiante,
   proyecto
-}: SidebarIzquierdoProps) {
+}: SidebarDerechaProps) {
   return (
-    <aside className="sidebar-izquierdo">
+    <aside className="sidebar-derecha">
       <div className="logo-container">
         <div className="logo-placeholder">
           <span>CloudIt</span>

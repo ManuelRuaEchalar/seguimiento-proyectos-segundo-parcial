@@ -1100,21 +1100,21 @@ body {
   color: var(--casi-negro);
 }
 
-/* Body layout */
+/* Body layout - REVISADO */
 .documento-body {
   display: grid;
-  grid-template-columns: 250px 1fr 300px;
+  grid-template-columns: 1fr 250px;  /* PDF primero (1fr), sidebar segundo (250px) */
   height: calc(100vh - 60px);
-  gap: 1px;
+  gap: 0;
   background-color: var(--gris-claro);
 }
 
-/* Sidebar Izquierdo */
-.sidebar-izquierdo {
+/* Sidebar derecho - ahora va a la derecha */
+.sidebar-derecha {
   background-color: var(--blanco);
   padding: 20px;
   overflow-y: auto;
-  border-right: 1px solid var(--gris-claro);
+  border-left: 1px solid var(--gris-claro);
 }
 
 .logo-container {
@@ -1168,465 +1168,160 @@ body {
   line-height: 1.4;
 }
 
-/* Visualizador Documento */
-.visualizador-documento {
-  background-color: var(--blanco);
-  display: flex;
-  flex-direction: column;
+/* Estilos para visualizadorPDF */
+
+/* Contenedor del PDF */
+.pdf-container {
   height: 100%;
-}
-
-.documento-content {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  background-color: var(--blanco-vintage);
-}
-
-.html-content {
-  max-width: 100%;
-  line-height: 1.6;
-  color: var(--casi-negro);
-}
-
-.html-content h1,
-.html-content h2,
-.html-content h3 {
-  color: var(--azul-oscuro);
-  margin: 20px 0 10px 0;
-}
-
-.html-content p {
-  margin-bottom: 12px;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: 16px;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--gris-claro);
-  border-top: 3px solid var(--celeste-gris);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.error-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.error-message {
-  color: var(--rojo-vintage);
-  text-align: center;
-}
-
-/* Barra de herramientas */
-.barra-herramientas {
-  display: flex;
-  gap: 12px;
-  padding: 16px 20px;
-  background-color: var(--casi-blanco);
-  border-top: 1px solid var(--gris-claro);
-}
-
-.btn-herramienta {
-  padding: 8px 16px;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid;
-  font-size: 14px;
-}
-
-.btn-observar {
-  background-color: var(--rojo-vintage);
-  border-color: var(--rojo-vintage);
-  color: var(--blanco);
-}
-
-.btn-observar:hover {
-  border-color: var(--azul-oscuro);
-}
-
-.btn-anotar {
-  background-color: var(--celeste-gris);
-  border-color: var(--celeste-gris);
-  color: var(--blanco);
-}
-
-.btn-anotar:hover {
-  border-color: var(--azul-oscuro);
-}
-
-/* Sidebar Observaciones */
-.sidebar-observaciones {
-  background-color: var(--blanco);
-  padding: 20px;
-  overflow-y: auto;
-  border-left: 1px solid var(--gris-claro);
-}
-
-.sidebar-title {
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--azul-oscuro);
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--gris-claro);
-  padding-bottom: 8px;
-}
-
-.no-observaciones {
-  text-align: center;
-  color: var(--celeste-gris);
-  font-style: italic;
-  margin-top: 40px;
-}
-
-.observaciones-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.observacion-card {
-  background-color: var(--blanco-vintage);
-  padding: 16px;
-  border-radius: 2px;
-  border: 1px solid var(--blanco-vintage);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-}
-
-.observacion-card:hover {
-  border-color: var(--gris-claro);
-}
-
-.observacion-titulo {
-  font-weight: bold;
-  color: var(--casi-negro);
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-.observacion-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 12px;
-}
-
-.autor {
-  font-size: 12px;
-  color: var(--celeste-gris);
-  font-weight: 500;
-}
-
-.fecha-hora {
-  font-size: 11px;
-  color: var(--gris-claro);
-}
-
-.observacion-comentario {
-  font-size: 13px;
-  color: var(--casi-negro);
-  line-height: 1.4;
-  margin-bottom: 12px;
-}
-
-.observacion-acciones {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-accion {
-  padding: 4px 12px;
-  font-size: 12px;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid;
-}
-
-.btn-editar {
-  background-color: var(--cyan-vintage);
-  border-color: var(--cyan-vintage);
-  color: var(--blanco);
-}
-
-.btn-editar:hover {
-  border-color: var(--celeste-gris);
-}
-
-.btn-eliminar {
-  background-color: var(--rojo-vintage);
-  border-color: var(--rojo-vintage);
-  color: var(--blanco);
-}
-
-.btn-eliminar:hover {
-  border-color: var(--azul-oscuro);
-}
-
-/* Estilos para la visualización de documentos DOCX */
-.center { 
-  text-align: center; 
-}
-
-.right { 
-  text-align: right; 
-}
-
-.justify { 
-  text-align: justify; 
-}
-
-.table-grid { 
-  width: 100%; 
-  border-collapse: collapse; 
-}
-
-.table-grid td, 
-.table-grid th { 
-  border: 1px solid black; 
-  padding: 5px; 
-}
-
-.html-content p {
-  margin: 1em 0;
-}
-
-.html-content h1, 
-.html-content h2, 
-.html-content h3, 
-.html-content h4, 
-.html-content h5, 
-.html-content h6 {
-  margin: 1.5em 0 0.5em 0;
-}
-
-.html-content ul, 
-.html-content ol {
-  margin: 1em 0;
-  padding-left: 2em;
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
-  .documento-body {
-    grid-template-columns: 200px 1fr 250px;
-  }
-}
-
-@media (max-width: 768px) {
-  .documento-body {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr auto;
-  }
-  
-  .navbar-right {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .navbar-center {
-    flex-direction: column;
-    gap: 8px;
-  }
+  overflow: hidden;
 }
 
 
-/*estilos para visualizadorPDF*/
-
-/* Estilos para el Visualizador PDF */
+/* Container principal del PDF viewer */
+/* Ajustes para el visualizador PDF */
 .pdf-viewer-container {
+  display: flex;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: #f4f4f2;
-  border: 1px solid #d4cdc5;
-  border-radius: 2px;
-  box-shadow: 0 1px 3px rgba(25, 16, 19, 0.1);
+  overflow: hidden;
 }
 
-.pdf-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background-color: #d4cdc5;
-  border-bottom: 1px solid rgba(91, 136, 165, 0.2);
-  flex-shrink: 0;
-}
-
-.pdf-toolbar-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pdf-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 8px;
-  background-color: #f4f4f2;
-  border: 1px solid rgba(91, 136, 165, 0.3);
-  border-radius: 1px;
-  color: #191013;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 12px;
-  font-weight: 500;
-  min-width: 32px;
-  height: 32px;
-}
-
-.pdf-btn:hover:not(:disabled) {
-  background-color: #5b88a5;
-  color: #f4f4f2;
-  border-color: #5b88a5;
-}
-
-.pdf-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  color: rgba(25, 16, 19, 0.4);
-}
-
-.pdf-btn-nav {
-  padding: 6px;
-}
-
-.pdf-btn-zoom {
-  padding: 6px;
-}
-
-.pdf-btn-rotate {
-  padding: 6px;
-}
-
-.pdf-btn-reset {
-  padding: 6px 12px;
-  font-size: 11px;
-}
-
-.pdf-page-info,
-.pdf-zoom-info {
-  font-size: 12px;
-  font-weight: 500;
-  color: #191013;
-  margin: 0 4px;
-  min-width: fit-content;
-  white-space: nowrap;
-}
-
-.pdf-document-container {
+.pdf-viewer-content {
   flex: 1;
+  height: 100%;
+  position: relative;
+}
+
+/* Estados de carga y error */
+.pdf-viewer-loading {
+  padding: 2rem;
+  text-align: center;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 16px;
-  overflow: auto;
-  background-color: #f4f4f2;
-}
-
-.pdf-document {
-  display: flex;
-  justify-content: center;
-}
-
-.pdf-page {
-  box-shadow: 0 2px 8px rgba(25, 16, 19, 0.15);
-  border-radius: 1px;
-  background-color: white;
-}
-
-.pdf-page canvas {
-  border-radius: 1px;
-}
-
-.pdf-loading {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  color: #191013;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 40px;
-}
-
-.pdf-spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #d4cdc5;
-  border-top: 2px solid #5b88a5;
-  border-radius: 50%;
-  animation: pdf-spin 1s linear infinite;
-}
-
-@keyframes pdf-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  height: 100vh;
+  width: 100vw;
 }
 
 .pdf-viewer-error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  color: #243a69;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 2rem;
   text-align: center;
-  background-color: rgba(36, 58, 105, 0.05);
-  border-radius: 1px;
-  margin: 16px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .pdf-toolbar {
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px;
-  }
-  
-  .pdf-toolbar-section {
-    justify-content: center;
-  }
-  
-  .pdf-document-container {
-    padding: 8px;
-  }
-  
-  .pdf-btn-reset {
-    font-size: 10px;
-    padding: 6px 8px;
-  }
-  
-  .pdf-page-info,
-  .pdf-zoom-info {
-    font-size: 11px;
-  }
+/* Sidebar de anotaciones (debe estar dentro del contenedor del PDF) */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  max-width: 320px;
+  height: 100%;
+  overflow: auto;
+  color: rgb(119, 119, 119);
+  background: linear-gradient(
+    rgb(249, 248, 247),
+    rgb(251, 250, 248) 46px,
+    rgb(251, 251, 249) 120px,
+    rgb(248, 247, 245) 35%,
+    rgb(249, 248, 246)
+  );
+  flex-shrink: 0;
+  border-right: 1px solid var(--gris-claro);
 }
 
+.sidebar-description {
+  padding: 1rem;
+}
 
+.sidebar-title {
+  margin-bottom: 1rem;
+}
+
+.sidebar-github-link {
+  font-size: 0.7rem;
+}
+
+.sidebar-instructions {
+  margin: 0;
+}
+
+.sidebar__highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar__highlight {
+  padding: 1rem;
+  cursor: pointer;
+  transition: background 140ms ease-in;
+  border-bottom: 1px solid rgb(119, 119, 119);
+}
+
+.sidebar__highlight:hover {
+  background: rgba(58, 56, 52, 0.08);
+}
+
+.sidebar-reset-container {
+  padding: 1rem;
+}
+
+/* Highlights */
+.highlight__location {
+  margin-top: 0.5rem;
+  text-align: right;
+  font-size: 10px;
+}
+
+.highlight__image {
+  overflow: auto;
+  max-width: 300px;
+  border: 1px dashed;
+  margin-top: 0.5rem;
+}
+
+.highlight__image img {
+  max-width: 100%;
+  height: auto;
+}
+
+.highlight-blockquote {
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+  quotes: "\201c" "\201d";
+}
+
+.highlight-blockquote:before {
+  content: open-quote;
+}
+
+.highlight-blockquote:after {
+  content: close-quote;
+}
+
+.highlight-popup {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Enlaces */
+a {
+  color: #d35400;
+}
+
+/* Blockquotes generales */
+blockquote {
+  padding: 0;
+  margin: 0;
+  quotes: "\201c" "\201d";
+}
+
+blockquote:before {
+  content: open-quote;
+}
+
+blockquote:after {
+  content: close-quote;
+}
 /*TERMINA VER DOC LADO DOCENTE */
