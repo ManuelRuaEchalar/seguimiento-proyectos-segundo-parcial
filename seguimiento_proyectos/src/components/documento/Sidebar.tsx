@@ -17,19 +17,12 @@ export function Sidebar({
     <div className="sidebar">
       <div className="sidebar-description">
         <h2 className="sidebar-title">
-          react-pdf-highlighter {process.env.NEXT_PUBLIC_APP_VERSION}
+          Observaciones
         </h2>
-
-        <p className="sidebar-github-link">
-          <a href="https://github.com/agentcooper/react-pdf-highlighter">
-            Open in GitHub
-          </a>
-        </p>
 
         <p className="sidebar-instructions">
           <small>
-            To create area highlight hold ⌥ Option key (Alt), then click and
-            drag.
+            Para añadir una observación selecciona el texto y agrega una nota.
           </small>
         </p>
       </div>

@@ -4,8 +4,6 @@ import React from 'react';
 import DocumentoNavbar from './DocumentoNavBar';
 import SidebarDerecha from './SidebarDerecha';
 import { VisualizadorPDF } from './VisualizadorPDF';
-import VisualizadorDocumento from './VisualizadorDocumento';
-import SidebarObservaciones from './SidebarObservaciones';
 
 interface DatosDocumento {
   nombreDocumento: string;
