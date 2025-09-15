@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Observacion } from '@/types';
 import { createObservacion } from '@/services/observaciones';
 
@@ -25,7 +25,7 @@ interface VisualizadorPDFProps {
   observaciones: Observacion[] | null;
 }
 
-// Hook personalizado para el seguimiento de páginas
+// Hook personalizado para el seguimiento de páginas (sin cambios)
 const usePageTracking = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
@@ -33,7 +33,6 @@ const usePageTracking = () => {
   const mutationObserverRef = useRef<MutationObserver | null>(null);
 
   const setupPageObserver = useCallback(() => {
-    // Limpiar observer existente
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
@@ -162,18 +161,15 @@ const HighlightPopup = ({
     </div>
   ) : null;
 
-// Función CORREGIDA para convertir Observacion a IHighlight
+// Función para convertir Observacion a IHighlight (sin cambios)
 const convertObservacionToHighlight = (observacion: any): IHighlight => {
-  // Crear estructura de position usando los datos reales de la observación
   let position;
   
   if (observacion.position) {
-    // Si ya tiene la estructura correcta
     position = observacion.position;
   } else if (observacion.boundingX1 !== undefined && observacion.boundingY1 !== undefined) {
-    // Convertir desde formato plano
     const pageNumber = observacion.boundingPage || 1;
-    const width = 1020; // Valores por defecto del PDF
+    const width = 1020;
     const height = 1320;
     
     position = {
@@ -207,7 +203,6 @@ const convertObservacionToHighlight = (observacion: any): IHighlight => {
       pageNumber: pageNumber
     };
   } else {
-    // Posición por defecto como fallback
     position = {
       boundingRect: {
         x1: 0,
@@ -233,13 +228,10 @@ const convertObservacionToHighlight = (observacion: any): IHighlight => {
 
   return {
     id: observacion.id?.toString() || getNextId(),
-    // Convertir contentText a la estructura esperada
     content: {
       text: observacion.contentText || observacion.content?.text || ""
     },
-    // Usar la posición construida
     position: position,
-    // Convertir commentText a la estructura esperada
     comment: {
       text: observacion.commentText || observacion.comment?.text || "",
       emoji: observacion.commentEmoji || observacion.comment?.emoji || ""
@@ -253,12 +245,13 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [error, setError] = useState<string | null>(null);
-  const [highlightsLoaded, setHighlightsLoaded] = useState(false);
-  
-  console.log("Observaciones recibidas:", observaciones);
-  
-  const { currentPage, totalPages, setTotalPages } = usePageTracking();
+  const [isPdfReady, setIsPdfReady] = useState<boolean>(false); // Nuevo estado
 
+  const scrollToHighlightRef = useRef<((highlight: IHighlight) => void) | null>(null);
+  const loadedObservacionesRef = useRef<string>("");
+  const initializingRef = useRef<boolean>(false);
+  const { currentPage, totalPages, setTotalPages } = usePageTracking();
+  
   // Crear URL del blob cuando cambie
   useEffect(() => {
     if (blob) {
@@ -273,32 +266,76 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
     }
   }, [blob]);
 
-  // Cargar observaciones existentes al inicio - CORREGIDO
-  useEffect(() => {
-    if (observaciones && observaciones.length > 0 && !highlightsLoaded) {
-      console.log("Cargando observaciones existentes:", observaciones);
-      
-      try {
-        const convertedHighlights = observaciones.map(convertObservacionToHighlight);
-        console.log("Highlights convertidos:", convertedHighlights);
-        
-        setHighlights(convertedHighlights);
-        setHighlightsLoaded(true);
-        
-        console.log("Highlights cargados exitosamente:", convertedHighlights);
-      } catch (error) {
-        console.error("Error al convertir observaciones:", error);
-        setHighlightsLoaded(true); // Marcar como cargado para evitar bucles
-      }
-    } else if (!observaciones || observaciones.length === 0) {
-      setHighlightsLoaded(true);
+  // Memorizar las observaciones convertidas para evitar recalculos
+  const convertedHighlights = useMemo(() => {
+    if (!observaciones || observaciones.length === 0) {
+      return [];
     }
-  }, [observaciones, highlightsLoaded]);
 
-  const resetHighlights = () => {
+    try {
+      console.log("Convirtiendo observaciones:", observaciones.length);
+      return observaciones.map(convertObservacionToHighlight);
+    } catch (error) {
+      console.error("Error al convertir observaciones:", error);
+      return [];
+    }
+  }, [observaciones]);
+
+  // Efecto optimizado para cargar observaciones - SOLO se ejecuta cuando cambian las observaciones
+  useEffect(() => {
+    // Crear un identificador único para este conjunto de observaciones
+    const currentObservacionesId = observaciones 
+      ? JSON.stringify(observaciones.map(obs => obs.id).sort())
+      : "empty";
+
+    // Si ya cargamos estas observaciones o estamos inicializando, salir
+    if (loadedObservacionesRef.current === currentObservacionesId || initializingRef.current) {
+      return;
+    }
+
+    // Si no hay observaciones, limpiar highlights
+    if (!observaciones || observaciones.length === 0) {
+      console.log("No hay observaciones, limpiando highlights");
+      setHighlights([]);
+      loadedObservacionesRef.current = currentObservacionesId;
+      return;
+    }
+
+    // Marcar que estamos inicializando para evitar ejecuciones concurrentes
+    initializingRef.current = true;
+
+    console.log("Cargando observaciones únicas:", observaciones.length);
+    
+    // Usar un timeout para asegurar que el estado se actualiza correctamente
+    const loadTimer = setTimeout(() => {
+      setHighlights(convertedHighlights);
+      loadedObservacionesRef.current = currentObservacionesId;
+      initializingRef.current = false;
+      console.log("Highlights cargados exitosamente:", convertedHighlights.length);
+    }, 0);
+
+    return () => {
+      clearTimeout(loadTimer);
+      initializingRef.current = false;
+    };
+  }, [convertedHighlights, observaciones]);
+
+  // Función optimizada para reset que también actualiza la referencia
+  const resetHighlights = useCallback(() => {
     setHighlights([]);
-    setHighlightsLoaded(false);
-  };
+    loadedObservacionesRef.current = "";
+    initializingRef.current = false;
+  }, []);
+
+  // Función para manejar el click en un highlight del sidebar
+  const handleHighlightClick = useCallback((highlight: IHighlight) => {
+    if (scrollToHighlightRef.current && isPdfReady) {
+      console.log("Navegando al highlight:", highlight.id);
+      scrollToHighlightRef.current(highlight);
+    } else {
+      console.warn("Función de scroll no disponible todavía o PDF no está listo");
+    }
+  }, [isPdfReady]);
 
   // Suprimir errores de extensiones del navegador
   useEffect(() => {
@@ -317,7 +354,8 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
     };
   }, []);
 
-  const addHighlight = async (highlight: NewHighlight) => {
+  // Callback optimizado para agregar highlights
+  const addHighlight = useCallback(async (highlight: NewHighlight) => {
     console.log("Saving highlight", highlight);
 
     const newHighlight = { ...highlight, id: getNextId() };
@@ -331,9 +369,10 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
     } catch (error) {
       console.error("Error al guardar el highlight en BD:", error);
     }
-  };
+  }, []);
 
-  const updateHighlight = (
+  // Callback optimizado para actualizar highlights
+  const updateHighlight = useCallback((
     highlightId: string,
     position: Partial<ScaledPosition>,
     content: Partial<Content>,
@@ -357,7 +396,7 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
           : h;
       }),
     );
-  };
+  }, []);
 
   if (!blob || !url) {
     return (
@@ -382,6 +421,7 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
       <Sidebar
         highlights={highlights}
         resetHighlights={resetHighlights}
+        onHighlightClick={handleHighlightClick}
       />
       <div className="pdf-viewer-content" style={{ position: 'relative' }}>
         <div className="page-indicator">
@@ -401,6 +441,7 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
               if (pdfDocument.numPages && totalPages !== pdfDocument.numPages) {
                 setTotalPages(pdfDocument.numPages);
               }
+              setIsPdfReady(true); // Marcar el PDF como listo cuando se carga pdfDocument
             };
 
             setTimeout(updatePages, 0);
@@ -410,7 +451,10 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
                 pdfDocument={pdfDocument}
                 enableAreaSelection={(event) => event.altKey}
                 onScrollChange={() => {}}
-                scrollRef={(scrollTo) => {}}
+                scrollRef={(scrollToFunction) => {
+                  console.log("scrollRef asignado:", !!scrollToFunction);
+                  scrollToHighlightRef.current = scrollToFunction;
+                }}
                 onSelectionFinished={(
                   position,
                   content,

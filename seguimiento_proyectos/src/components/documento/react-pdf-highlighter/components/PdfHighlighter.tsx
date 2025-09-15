@@ -86,6 +86,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   Props<T_HT>,
   State<T_HT>
 > {
+
+  isReady = false;
+
   static defaultProps = {
     pdfScaleValue: "auto",
   };
@@ -161,38 +164,87 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
   }
 
-  async init() {
-    const { pdfDocument, pdfViewerOptions } = this.props;
-    const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
+async init() {
+  this.isReady = false; // <--- AÑADE ESTA LÍNEA AL INICIO
+  console.log("=== DEBUG: init() started");
+  const { pdfDocument, pdfViewerOptions } = this.props;
+  const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
 
-    const eventBus = new pdfjs.EventBus();
-    const linkService = new pdfjs.PDFLinkService({
-      eventBus,
-      externalLinkTarget: 2,
+  const eventBus = new pdfjs.EventBus();
+
+  const linkService = new pdfjs.PDFLinkService({
+    eventBus,
+    externalLinkTarget: 2,
+  });
+
+  if (!this.containerNodeRef.current) {
+    console.error("=== DEBUG: init() - Container ref not found!");
+    throw new Error("Container node not found!");
+  }
+
+  this.viewer =
+    this.viewer ||
+    new pdfjs.PDFViewer({
+      container: this.containerNodeRef.current,
+      eventBus: eventBus,
+      textLayerMode: 2,
+      removePageBorders: true,
+      linkService: linkService,
+      ...pdfViewerOptions,
     });
 
-    if (!this.containerNodeRef.current) {
-      throw new Error("!");
+  linkService.setDocument(pdfDocument);
+  linkService.setViewer(this.viewer);
+
+  // Inicia la carga del documento
+  this.viewer.setDocument(pdfDocument);
+  console.log("=== DEBUG: setDocument called");
+
+  // Agrega listeners DESPUÉS de setDocument
+  this.attachRef(eventBus);
+  console.log("=== DEBUG: attachRef called after setDocument");
+
+  // Fallback asincrónico: Verifica múltiples veces si páginas están listas
+  const checkPagesReady = () => {
+    if (
+      this.viewer._pages &&
+      this.viewer._pages.length > 0 &&
+      this.viewer._pages[0] &&
+      this.viewer._pages[0].viewport
+    ) {
+      console.log("=== DEBUG: Pages ready in fallback, calling onDocumentReady");
+      this.onDocumentReady();
+      return true;
     }
+    return false;
+  };
 
-    this.viewer =
-      this.viewer ||
-      new pdfjs.PDFViewer({
-        container: this.containerNodeRef.current,
-        eventBus: eventBus,
-        // enhanceTextSelection: true, // deprecated. https://github.com/mozilla/pdf.js/issues/9943#issuecomment-409369485
-        textLayerMode: 2,
-        removePageBorders: true,
-        linkService: linkService,
-        ...pdfViewerOptions,
-      });
+  // Verificación inmediata (por si ya listo)
+  if (checkPagesReady()) return;
 
-    linkService.setDocument(pdfDocument);
-    linkService.setViewer(this.viewer);
-    this.viewer.setDocument(pdfDocument);
+  // Timeouts progresivos para fallback (cubre carga lazy)
+  const timeouts = [100, 500, 1000, 2000];
+  timeouts.forEach((delay, index) => {
+    setTimeout(() => {
+      if (!this.state.scrolledToHighlightId || this.state.scrolledToHighlightId === EMPTY_ID) { // Solo si no ya listo
+        if (checkPagesReady()) {
+          console.log(`=== DEBUG: Fallback timeout ${delay}ms triggered onDocumentReady`);
+        }
+      }
+    }, delay);
+  });
 
-    this.attachRef(eventBus);
-  }
+  // Opcional: Escucha 'pagerendered' para al menos la primera página
+  const originalOnTextLayerRendered = this.onTextLayerRendered;
+  eventBus.on("pagerendered", (e: { pageNumber: number; }) => {
+    console.log("=== DEBUG: pagerendered event for page", e.pageNumber);
+    if (e.pageNumber === 1 && !checkPagesReady()) {
+      console.log("=== DEBUG: First page rendered, forcing onDocumentReady");
+      this.onDocumentReady();
+    }
+    originalOnTextLayerRendered(); // Llama al original
+  });
+}
 
   componentWillUnmount() {
     this.unsubscribe();
@@ -413,12 +465,26 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   };
 
   onDocumentReady = () => {
+    // Si ya se ejecutó, no hacer nada más.
+    if (this.isReady) {
+      return;
+    }
+    // Marcar como ejecutado para que futuras llamadas no hagan nada.
+    this.isReady = true;
+
+    console.log("=== DEBUG: onDocumentReady ejecutado por primera vez."); // Log para confirmar
+
     const { scrollRef } = this.props;
 
     this.handleScaleValue();
 
-    scrollRef(this.scrollTo);
-  };
+    // Comprobación adicional para seguridad
+    if (this.viewer && typeof this.scrollTo === "function") {
+        scrollRef(this.scrollTo);
+    } else {
+        console.error("=== DEBUG: onDocumentReady se llamó pero el viewer o la función scrollTo no estaban listos.");
+    }
+};
 
   onSelectionChange = () => {
     const container = this.containerNode;
