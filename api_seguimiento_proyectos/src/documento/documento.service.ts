@@ -72,6 +72,45 @@ export class DocumentoService {
     return doc; // Nest lo serializa como JSON
   }
 
+  /**
+   * Verificar si el proyecto existe
+   */
+  async verificarProyecto(proyectoId: number): Promise<boolean> {
+    try {
+      const proyecto = await this.prisma.proyecto.findUnique({
+        where: { codigoProyecto: proyectoId }
+      });
+      return !!proyecto;
+    } catch (error) {
+      console.error('Error verificando proyecto:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Crear un nuevo documento en la base de datos
+   */
+  async crearDocumento(datos: {
+    titulo: string;
+    version: number;
+    file: string;
+    proyectoId: number;
+  }) {
+    try {
+      return await this.prisma.documento.create({
+        data: {
+          titulo: datos.titulo,
+          version: datos.version,
+          file: datos.file,
+          proyectoId: datos.proyectoId
+        }
+      });
+    } catch (error) {
+      console.error('Error creando documento:', error);
+      throw new Error('No se pudo crear el documento en la base de datos');
+    }
+  }
+
   private getMimeType(filePath: string): string {
     const ext = path.extname(filePath).toLowerCase();
     
@@ -85,6 +124,4 @@ export class DocumentoService {
       default: return 'application/octet-stream';
     }
   }
-
-  
 }
