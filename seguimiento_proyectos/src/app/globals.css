@@ -34,7 +34,7 @@ body {
 /* Decoration Panel */
 .decoration-panel {
   flex: 1;
-  background: #191013;
+  background: #f6f9ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1103,20 +1103,26 @@ body {
 /* Body layout - REVISADO */
 .documento-body {
   display: grid;
-  grid-template-columns: 1fr 250px;  /* PDF primero (1fr), sidebar segundo (250px) */
+  grid-template-columns: 1fr 320px;  /* PDF primero (1fr), sidebar segundo (250px) */
   height: calc(100vh - 60px);
   gap: 0;
   background-color: var(--gris-claro);
 }
 
-/* Sidebar derecho - ahora va a la derecha */
+/* Sidebar derecho */
 .sidebar-derecha {
   background-color: var(--blanco);
   padding: 20px;
   overflow-y: auto;
   border-left: 1px solid var(--gris-claro);
+  width: 300px;
+  min-width: 280px;
+  max-width: 320px;
+  height: 100%;
+  flex-shrink: 0;
 }
 
+/* Logo container */
 .logo-container {
   margin-bottom: 30px;
   text-align: center;
@@ -1131,42 +1137,136 @@ body {
   font-size: 18px;
 }
 
-.datos-estudiante,
-.datos-proyecto {
-  margin-bottom: 25px;
-}
-
-.section-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--azul-oscuro);
-  margin-bottom: 12px;
+/* Header del sidebar */
+.sidebar-description {
+  padding: 1.5rem 1.25rem;
+  background: var(--casi-blanco);
   border-bottom: 1px solid var(--gris-claro);
-  padding-bottom: 4px;
 }
 
-.dato-item {
-  margin-bottom: 8px;
+.sidebar-title {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  letter-spacing: 0.02em;
 }
 
-.dato-label {
-  font-size: 12px;
-  color: var(--celeste-gris);
+.sidebar-instructions {
+  margin: 0;
+  font-size: 1.0rem;
+  line-height: 1.4;
+  color: var(--casi-negro);
+}
+
+/* Lista de observaciones */
+.sidebar__observaciones {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar__observacion {
+  padding: 1.25rem;
+  background: var(--casi-blanco);
+  border-bottom: 2px solid var(--gris-claro);
+  border-radius: 2px;
+}
+
+.sidebar__observacion--empty {
+  padding: 1.25rem;
+  color: var(--casi-negro);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Estado de la observación */
+.observacion-estado {
+  background: var(--rojo-vintage);
+  padding: 0.25rem 0.5rem;
+  color: var(--blanco);
+  border-radius: 4px;
+  font-size: 0.7rem;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+/* Comentario */
+.observacion-comment {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--azul-oscuro);
+  font-style: italic;
+  padding: 0.5rem 0.75rem;
+  background: var(--casi-blanco);
+  border-radius: 4px;
+  border-left: 3px solid var(--azul-oscuro);
+  margin-top: 0.5rem;
   display: block;
 }
 
-.dato-value {
-  font-size: 13px;
+/* Cita de texto */
+.observacion-blockquote {
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  background: var(--casi-blanco);
+  border-left: 4px solid var(--celeste-gris);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  font-style: italic;
   color: var(--casi-negro);
 }
 
-.dato-description {
-  font-size: 13px;
-  color: var(--casi-negro);
-  margin: 4px 0;
-  line-height: 1.4;
+/* Localización */
+.observacion__location {
+  margin-top: 0.75rem;
+  text-align: right;
+  font-size: 0.7rem;
+  color: var(--azul-oscuro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
+
+/* Scrollbar */
+.sidebar-derecha::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-derecha::-webkit-scrollbar-track {
+  background: var(--blanco);
+}
+
+.sidebar-derecha::-webkit-scrollbar-thumb {
+  background: var(--gris-claro);
+  border-radius: 4px;
+}
+
+.sidebar-derecha::-webkit-scrollbar-thumb:hover {
+  background: var(--celeste-gris);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar-derecha {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .sidebar__observacion {
+    padding: 1rem;
+  }
+
+  .sidebar-description {
+    padding: 1rem;
+  }
+}
+
 
 /* Estilos para visualizadorPDF */
 
@@ -1239,126 +1339,234 @@ body {
   text-align: center;
 }
 
-/* Sidebar de anotaciones (debe estar dentro del contenedor del PDF) */
+:root {
+  --blanco-vintage: #FDFBEE;
+  --gris-claro: #d4cdc5;
+  --casi-blanco: #f4f4f2;
+  --casi-negro: #191013;
+  --azul-oscuro: #243a69;
+  --rojo-vintage: #D92C54;
+}
+
+/* Sidebar de anotaciones */
 .sidebar {
-  width: 280px;
+  width: 300px;
   min-width: 280px;
   max-width: 320px;
   height: 100%;
   overflow: auto;
-  color: var(--azul-oscuro);
-  background: var(--blanco-vintage);
+  color: var(--casi-negro);
+  background: var(--casi-blanco);
   flex-shrink: 0;
-  border-right: 1px solid var(--gris-claro);
+  border-right: 2px solid var(--gris-claro);
 }
 
+/* Header del sidebar */
 .sidebar-description {
-  padding: 1rem;
+  padding: 1.5rem 1.25rem;
+  background: var(--casi-blanco);
+  border-bottom: 1px solid var(--gris-claro);
 }
 
 .sidebar-title {
   margin-bottom: 1rem;
-}
-
-.sidebar-github-link {
-  font-size: 0.7rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  letter-spacing: 0.02em;
 }
 
 .sidebar-instructions {
   margin: 0;
+  font-size: 1.0rem;
+  line-height: 1.4;
+  color: var(--casi-negro);
 }
 
+/* Lista de highlights */
 .sidebar__highlights {
   list-style: none;
   padding: 0;
   margin: 0;
-  color: var(--casi-negro);
 }
 
 .sidebar__highlight {
-  padding: 1rem;
+  padding: 1.25rem;
   cursor: pointer;
-  transition: background 140ms ease-in;
-  border-bottom: 1px solid rgb(119, 119, 119);
+  transition: background 180ms ease;
+  border-bottom: 2px solid var(--azul-oscuro);
+  background: var(--casi-blanco);
+  position: relative;
+  border-radius: 2px;
 }
 
 .sidebar__highlight:hover {
-  background: rgba(58, 56, 52, 0.08);
+  border-left: 2px solid var(--azul-oscuro);
 }
 
-.sidebar-reset-container {
-  padding: 1rem;
+.sidebar__highlight:last-child {
+  border-bottom: none;
 }
 
-/* Highlights */
-.highlight__location {
+/* Contenido del highlight */
+.highlight-content {
+  margin-bottom: 0.75rem;
+}
+
+.highlight-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--casi-negro);
+  margin-bottom: 0.5rem;
+}
+
+.highlight-comment {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--azul-oscuro);
+  font-style: italic;
+  padding: 0.5rem 0.75rem;
+  background: var(--casi-blanco);
+  border-radius: 4px;
+  border-left: 3px solid var(--azul-oscuro);
   margin-top: 0.5rem;
-  text-align: right;
-  font-size: 10px;
 }
 
-.highlight-estado{
+/* Estado del highlight */
+.highlight-estado {
   background: var(--rojo-vintage);
-  padding-top: 3px;
-  padding-bottom: 3px;
-  padding-right: 6px;
-  padding-left: 6px;
+  padding: 0.25rem 0.5rem;
   color: var(--blanco-vintage);
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  margin-bottom: 0.5rem;
 }
 
+/* Localización */
+.highlight__location {
+  margin-top: 0.75rem;
+  text-align: right;
+  font-size: 0.7rem;
+  color: var(--azul-oscuro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Imágenes */
 .highlight__image {
-  overflow: auto;
-  max-width: 300px;
-  border: 1px dashed;
-  margin-top: 0.5rem;
+  overflow: hidden;
+  max-width: 100%;
+  border: 1px solid var(--gris-claro);
+  border-radius: 4px;
+  margin-top: 0.75rem;
+  background: var(--casi-blanco);
 }
 
 .highlight__image img {
   max-width: 100%;
   height: auto;
+  display: block;
 }
 
+/* Citas */
 .highlight-blockquote {
-  padding: 0;
-  margin: 0.5rem 0 0 0;
-  background-color: #FDFBEE;
-  quotes: "\201c" "\201d";
-}
-
-.highlight-blockquote:before {
-  content: open-quote;
-}
-
-.highlight-blockquote:after {
-  content: close-quote;
-}
-
-.highlight-popup {
-  background: white;
-  border: 1px solid #ccc;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  background: var(--casi-blanco);
+  border-left: 4px solid var(--azul-oscuro);
   border-radius: 4px;
-  padding: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--azul-oscuro);
+}
+
+/* Popup */
+.highlight-popup {
+  background: var(--blanco-vintage);
+  border: 1px solid var(--gris-claro);
+  border-radius: 4px;
+  padding: 1rem;
+  color: var(--casi-negro);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Botón de reset */
+.sidebar-reset-container {
+  padding: 1.25rem;
+  background: var(--blanco-vintage);
+  border-top: 1px solid var(--gris-claro);
+}
+
+.sidebar-reset-button {
+  background: var(--azul-oscuro);
+  color: var(--blanco-vintage);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 180ms ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-reset-button:hover {
+  background: var(--rojo-vintage);
 }
 
 /* Enlaces */
 a {
-  color: #d35400;
+  color: var(--azul-oscuro);
+  text-decoration: none;
+  transition: color 180ms ease;
 }
 
-/* Blockquotes generales */
-blockquote {
-  padding: 0;
-  margin: 0;
-  quotes: "\201c" "\201d";
+a:hover {
+  color: var(--rojo-vintage);
+  text-decoration: underline;
 }
 
-blockquote:before {
-  content: open-quote;
+/* Scrollbar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
 }
 
-blockquote:after {
-  content: close-quote;
+.sidebar::-webkit-scrollbar-track {
+  background: var(--blanco-vintage);
 }
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--gris-claro);
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--azul-oscuro);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+  
+  .sidebar__highlight {
+    padding: 1rem;
+  }
+  
+  .sidebar-description {
+    padding: 1rem;
+  }
+}
+
 /*TERMINA VER DOC LADO DOCENTE */

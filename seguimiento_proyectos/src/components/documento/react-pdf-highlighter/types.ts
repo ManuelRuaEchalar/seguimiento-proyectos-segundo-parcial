@@ -52,6 +52,10 @@ export interface CodigoDoc {
   codigoDoc:number
 }
 
+export interface codigoProyecto {
+  codigoProyecto: number
+}
+
 export interface Comment {
   text: string;
   emoji: string;
@@ -61,7 +65,7 @@ export interface HighlightComment {
   comment: Comment;
 }
 
-export interface NewHighlight extends HighlightContent, HighlightComment, Estado, CodigoDoc {
+export interface NewHighlight extends HighlightContent, HighlightComment, Estado, CodigoDoc, codigoProyecto {
   position: ScaledPosition;
 }
 

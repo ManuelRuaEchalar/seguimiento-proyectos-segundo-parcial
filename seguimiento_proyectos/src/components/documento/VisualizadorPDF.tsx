@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { Observacion } from '@/types';
-import { createObservacion } from '@/services/observaciones';
+import { Observacion, ObservacionArea } from '@/types';
+import { createObservacion, createObservacionArea, fetchImageAsBase64 } from '@/services/observaciones';
 
 import {
   AreaHighlight,
@@ -20,9 +20,16 @@ import type {
 import { Sidebar } from "./Sidebar";
 import { Spinner } from "./Spinner";
 
+interface infoProyecto {
+  codigoProyecto: number;
+  codigoDoc: number;
+}
+
 interface VisualizadorPDFProps {
   blob: Blob | null;
   observaciones: Observacion[] | null;
+  observacionesArea: ObservacionArea[] | null;
+  infoProyecto: infoProyecto;
 }
 
 // Hook personalizado para el seguimiento de páginas (sin cambios)
@@ -161,46 +168,52 @@ const HighlightPopup = ({
     </div>
   ) : null;
 
-// Función para convertir Observacion a IHighlight (sin cambios)
-const convertObservacionToHighlight = (observacion: any): IHighlight => {
+const convertObservacionToHighlight = async (observacion: any, isArea: boolean = false): Promise<IHighlight> => {
   let position;
-  
+
   if (observacion.position) {
     position = observacion.position;
-  } else if (observacion.boundingX1 !== undefined && observacion.boundingY1 !== undefined) {
+  } else if (
+    observacion.boundingX1 !== undefined &&
+    observacion.boundingY1 !== undefined
+  ) {
     const pageNumber = observacion.boundingPage || 1;
     const width = 1020;
     const height = 1320;
-    
+
     position = {
       boundingRect: {
         x1: observacion.boundingX1,
         y1: observacion.boundingY1,
         x2: observacion.boundingX2,
         y2: observacion.boundingY2,
-        width: width,
-        height: height,
-        pageNumber: pageNumber
+        width,
+        height,
+        pageNumber,
       },
-      rects: observacion.rects && Array.isArray(observacion.rects) ? 
-        observacion.rects.map((rect: any) => ({
-          x1: rect.x1 || rect.boundingX1 || observacion.boundingX1,
-          y1: rect.y1 || rect.boundingY1 || observacion.boundingY1,
-          x2: rect.x2 || rect.boundingX2 || observacion.boundingX2,
-          y2: rect.y2 || rect.boundingY2 || observacion.boundingY2,
-          width: rect.width || width,
-          height: rect.height || height,
-          pageNumber: rect.pageNumber || pageNumber
-        })) : [{
-          x1: observacion.boundingX1,
-          y1: observacion.boundingY1,
-          x2: observacion.boundingX2,
-          y2: observacion.boundingY2,
-          width: width,
-          height: height,
-          pageNumber: pageNumber
-        }],
-      pageNumber: pageNumber
+      rects:
+        observacion.rects && Array.isArray(observacion.rects)
+          ? observacion.rects.map((rect: any) => ({
+              x1: rect.x1 || rect.boundingX1 || observacion.boundingX1,
+              y1: rect.y1 || rect.boundingY1 || observacion.boundingY1,
+              x2: rect.x2 || rect.boundingX2 || observacion.boundingX2,
+              y2: rect.y2 || rect.boundingY2 || observacion.boundingY2,
+              width: rect.width || width,
+              height: rect.height || height,
+              pageNumber: rect.pageNumber || pageNumber,
+            }))
+          : [
+              {
+                x1: observacion.boundingX1,
+                y1: observacion.boundingY1,
+                x2: observacion.boundingX2,
+                y2: observacion.boundingY2,
+                width,
+                height,
+                pageNumber,
+              },
+            ],
+      pageNumber,
     };
   } else {
     position = {
@@ -211,42 +224,72 @@ const convertObservacionToHighlight = (observacion: any): IHighlight => {
         y2: 20,
         width: 1020,
         height: 1320,
-        pageNumber: 1
+        pageNumber: 1,
       },
-      rects: [{
-        x1: 0,
-        y1: 0,
-        x2: 100,
-        y2: 20,
-        width: 1020,
-        height: 1320,
-        pageNumber: 1
-      }],
-      pageNumber: 1
+      rects: [
+        {
+          x1: 0,
+          y1: 0,
+          x2: 100,
+          y2: 20,
+          width: 1020,
+          height: 1320,
+          pageNumber: 1,
+        },
+      ],
+      pageNumber: 1,
     };
   }
 
-  return {
+  // Distinguir si es texto o imagen basado en el parámetro isArea
+  let content: any = {};
+  if (isArea || observacion.imageUrl) {
+    // observación de área con imagen
+    const base64Image = await fetchImageAsBase64(observacion.imageUrl);
+    content.image = base64Image || "";
+  } else {
+    // observación de texto
+    content.text = observacion.contentText || observacion.content?.text || "";
+  }
+
+  const highlight: IHighlight = {
     id: observacion.id?.toString() || getNextId(),
-    content: {
-      text: observacion.contentText || observacion.content?.text || ""
-    },
-    position: position,
+    content,
+    position,
     comment: {
       text: observacion.commentText || observacion.comment?.text || "",
-      emoji: observacion.commentEmoji || observacion.comment?.emoji || ""
+      emoji: observacion.commentEmoji || observacion.comment?.emoji || "",
     },
     estado: observacion.estado || "pendiente",
-    codigoDoc: observacion.codigoDoc || 2
+    codigoDoc: observacion.codigoDoc || 0,
+    codigoProyecto: observacion.codigoProyecto || 1,
   };
+
+  // Añadir una propiedad para identificar el tipo
+  (highlight as any).isAreaHighlight = isArea || !!observacion.imageUrl;
+
+  return highlight;
 };
 
-export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
+function base64ToBlob(base64Data: string): Blob {
+  const base64WithoutPrefix = base64Data.replace(/^data:image\/[a-z]+;base64,/, '');
+  const byteCharacters = atob(base64WithoutPrefix);
+  const byteNumbers = new Array(byteCharacters.length);
+  
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: 'image/png' });
+}
+
+export function VisualizadorPDF({ blob, observaciones, observacionesArea, infoProyecto }: VisualizadorPDFProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isPdfReady, setIsPdfReady] = useState<boolean>(false); // Nuevo estado
-
+  const [isPdfReady, setIsPdfReady] = useState<boolean>(false);
+  
   const scrollToHighlightRef = useRef<((highlight: IHighlight) => void) | null>(null);
   const loadedObservacionesRef = useRef<string>("");
   const initializingRef = useRef<boolean>(false);
@@ -267,58 +310,68 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
   }, [blob]);
 
   // Memorizar las observaciones convertidas para evitar recalculos
-  const convertedHighlights = useMemo(() => {
-    if (!observaciones || observaciones.length === 0) {
-      return [];
-    }
-
-    try {
-      console.log("Convirtiendo observaciones:", observaciones.length);
-      return observaciones.map(convertObservacionToHighlight);
-    } catch (error) {
-      console.error("Error al convertir observaciones:", error);
-      return [];
-    }
-  }, [observaciones]);
-
-  // Efecto optimizado para cargar observaciones - SOLO se ejecuta cuando cambian las observaciones
   useEffect(() => {
-    // Crear un identificador único para este conjunto de observaciones
-    const currentObservacionesId = observaciones 
-      ? JSON.stringify(observaciones.map(obs => obs.id).sort())
+    const textObservaciones = observaciones || [];
+    const areaObservaciones = observacionesArea || [];
+    const allObservaciones = [...textObservaciones, ...areaObservaciones];
+
+    const currentObservacionesId = allObservaciones.length > 0
+      ? JSON.stringify(allObservaciones.map((obs) => obs.id).sort())
       : "empty";
 
-    // Si ya cargamos estas observaciones o estamos inicializando, salir
     if (loadedObservacionesRef.current === currentObservacionesId || initializingRef.current) {
       return;
     }
 
-    // Si no hay observaciones, limpiar highlights
-    if (!observaciones || observaciones.length === 0) {
+    if (allObservaciones.length === 0) {
       console.log("No hay observaciones, limpiando highlights");
       setHighlights([]);
       loadedObservacionesRef.current = currentObservacionesId;
       return;
     }
 
-    // Marcar que estamos inicializando para evitar ejecuciones concurrentes
     initializingRef.current = true;
 
-    console.log("Cargando observaciones únicas:", observaciones.length);
-    
-    // Usar un timeout para asegurar que el estado se actualiza correctamente
-    const loadTimer = setTimeout(() => {
-      setHighlights(convertedHighlights);
-      loadedObservacionesRef.current = currentObservacionesId;
-      initializingRef.current = false;
-      console.log("Highlights cargados exitosamente:", convertedHighlights.length);
+    console.log("Cargando observaciones:", {
+      texto: textObservaciones.length,
+      area: areaObservaciones.length,
+      total: allObservaciones.length
+    });
+
+    const loadTimer = setTimeout(async () => {
+      try {
+        // Convertir observaciones de texto
+        const textHighlights = await Promise.all(
+          textObservaciones.map((obs) => convertObservacionToHighlight(obs, false))
+        );
+
+        // Convertir observaciones de área
+        const areaHighlights = await Promise.all(
+          areaObservaciones.map((obs) => convertObservacionToHighlight(obs, true))
+        );
+
+        const converted = [...textHighlights, ...areaHighlights];
+        setHighlights(converted);
+        loadedObservacionesRef.current = currentObservacionesId;
+        
+        console.log("Highlights cargados exitosamente:", {
+          texto: textHighlights.length,
+          area: areaHighlights.length,
+          total: converted.length
+        });
+      } catch (err) {
+        console.error("Error al convertir observaciones:", err);
+        setHighlights([]);
+      } finally {
+        initializingRef.current = false;
+      }
     }, 0);
 
     return () => {
       clearTimeout(loadTimer);
       initializingRef.current = false;
     };
-  }, [convertedHighlights, observaciones]);
+  }, [observaciones, observacionesArea]);
 
   // Función optimizada para reset que también actualiza la referencia
   const resetHighlights = useCallback(() => {
@@ -364,8 +417,17 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
     console.log("Nuevo highlight:", newHighlight);
 
     try {
-      const saved = await createObservacion(newHighlight);
-      console.log("Highlight guardado en BD:", saved);
+      if (newHighlight.content.image) {
+        const fileName = `obs_${newHighlight.id}_${Date.now()}.png`;
+        // Convertir base64 a blob
+        const blob = base64ToBlob(newHighlight.content.image);
+        // Llamar a la función con los tres parámetros
+        await createObservacionArea(newHighlight, fileName, blob);
+        console.log("Highlight AREA guardado en BD");
+      } else {
+        await createObservacion(newHighlight);
+        console.log("Highlight guardado en BD");
+      }
     } catch (error) {
       console.error("Error al guardar el highlight en BD:", error);
     }
@@ -441,7 +503,7 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
               if (pdfDocument.numPages && totalPages !== pdfDocument.numPages) {
                 setTotalPages(pdfDocument.numPages);
               }
-              setIsPdfReady(true); // Marcar el PDF como listo cuando se carga pdfDocument
+              setIsPdfReady(true);
             };
 
             setTimeout(updatePages, 0);
@@ -464,7 +526,14 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
                   <Tip
                     onOpen={transformSelection}
                     onConfirm={(comment) => {
-                      addHighlight({ content, position, comment, estado:"pendiente", codigoDoc:2 });
+                      addHighlight({ 
+                        content, 
+                        position, 
+                        comment, 
+                        estado: "pendiente", 
+                        codigoDoc: infoProyecto.codigoDoc, 
+                        codigoProyecto: infoProyecto.codigoProyecto 
+                      });
                       hideTipAndSelection();
                     }} 
                   />
@@ -478,17 +547,18 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
                   screenshot,
                   isScrolledTo
                 ) => {
-                  const isTextHighlight = !highlight.content?.image;
+                  // Verificar si es un highlight de área usando la propiedad personalizada
+                  const isAreaHighlight = (highlight as any).isAreaHighlight || 
+                                         (highlight.content?.image && !highlight.content?.text);
 
-                  const component = isTextHighlight ? (
-                    <Highlight
-                      isScrolledTo={isScrolledTo}
-                      position={highlight.position}
-                      comment={highlight.comment}
-                      estado={highlight.estado || "pendiente"} 
-                      codigoDoc={highlight.codigoDoc || 2}
-                    />
-                  ) : (
+                  console.log(`Renderizando highlight ${highlight.id}:`, {
+                    isAreaHighlight,
+                    hasImage: !!highlight.content?.image,
+                    hasText: !!highlight.content?.text,
+                    customFlag: (highlight as any).isAreaHighlight
+                  });
+
+                  const component = isAreaHighlight ? (
                     <AreaHighlight
                       isScrolledTo={isScrolledTo}
                       highlight={highlight}
@@ -499,6 +569,15 @@ export function VisualizadorPDF({ blob, observaciones }: VisualizadorPDFProps) {
                           { image: screenshot(boundingRect) }
                         );
                       }} 
+                    />
+                  ) : (
+                    <Highlight
+                      isScrolledTo={isScrolledTo}
+                      position={highlight.position}
+                      comment={highlight.comment}
+                      estado={highlight.estado || "pendiente"} 
+                      codigoDoc={highlight.codigoDoc || 2}
+                      codigoProyecto={highlight.codigoProyecto || 1}
                     />
                   );
 

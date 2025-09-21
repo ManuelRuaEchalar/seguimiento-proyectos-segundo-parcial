@@ -13,4 +13,11 @@ export class DocumentoController {
     res.setHeader('Content-Type', mimeType);
     return res.sendFile(filePath, { root: './' }); // se envía como binario, el cliente lo procesa
   }
+
+  @Post('doc-info')
+  async getDocInfo(@Body('codigoDoc') codigoDoc: number) {
+    const docInfo = await this.documentoService.getDocInfo(codigoDoc);
+    console.log("enviando info de doc ", codigoDoc);
+    return docInfo; // Nest automáticamente lo serializa como JSON
+  }
 }

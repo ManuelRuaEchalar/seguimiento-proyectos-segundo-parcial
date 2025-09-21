@@ -27,6 +27,25 @@ export class DocumentoService {
     };
   }
 
+  async getDocInfo(codigoDoc: number) {
+    const doc = await this.prisma.documento.findUnique({
+      where: { codigoDoc },
+      select: {
+        codigoDoc: true,
+        titulo: true,
+        version: true,
+        file: true,
+        proyectoId: true,
+      },
+    });
+
+    if (!doc) {
+      throw new Error(`Documento con código ${codigoDoc} no encontrado`);
+    }
+
+    return doc; // Nest lo serializa como JSON
+  }
+
   private getMimeType(filePath: string): string {
     if (filePath.endsWith('.pdf')) return 'application/pdf';
     if (filePath.endsWith('.docx')) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -35,4 +54,6 @@ export class DocumentoService {
     if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) return 'image/jpeg';
     return 'application/octet-stream';
   }
+
+  
 }

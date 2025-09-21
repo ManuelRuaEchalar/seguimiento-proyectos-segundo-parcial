@@ -49,6 +49,10 @@ export interface Content {
   text: string;
 }
 
+export interface ContentArea {
+  image: string;
+}
+
 export interface Comment {
   text: string;
   emoji: string;
@@ -62,3 +66,13 @@ export interface Observacion {
   codigoDoc: number;
   id: string; // Nota: es string, no number
 }
+
+export interface ObservacionArea {
+  content: ContentArea;
+  position: Position;
+  comment: Comment;
+  estado: string;
+  codigoDoc: number;
+  id: string; // Nota: es string, no number
+}
+

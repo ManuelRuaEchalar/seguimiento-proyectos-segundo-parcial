@@ -7,7 +7,6 @@ interface DocumentoNavbarProps {
   version: string;
   estado: string;
   fechaSubida: string;
-  numObservaciones: number;
 }
 
 export default function DocumentoNavbar({
@@ -15,7 +14,6 @@ export default function DocumentoNavbar({
   version,
   estado,
   fechaSubida,
-  numObservaciones
 }: DocumentoNavbarProps) {
   const handleVolver = () => {
     console.log('Botón volver clickeado');
@@ -68,10 +66,6 @@ export default function DocumentoNavbar({
         <div className="etiqueta">
           <span className="etiqueta-label">Fecha de subida:</span>
           <span className="etiqueta-value">{fechaSubida}</span>
-        </div>
-        <div className="etiqueta">
-          <span className="etiqueta-label">Observaciones:</span>
-          <span className="etiqueta-value">{numObservaciones}</span>
         </div>
       </div>
     </nav>

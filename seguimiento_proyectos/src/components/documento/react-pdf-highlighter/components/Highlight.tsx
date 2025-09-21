@@ -11,6 +11,7 @@ interface Props {
   onMouseOut?: () => void;
   estado: string;
   codigoDoc: number;
+  codigoProyecto: number;
   comment: {
     text: string;
   };
@@ -25,6 +26,7 @@ export function Highlight({
   comment,
   estado,
   codigoDoc,
+  codigoProyecto,
   isScrolledTo,
 }: Props) {
   const { rects, boundingRect } = position;
@@ -43,6 +45,9 @@ export function Highlight({
         >
           <span className={`Highlight__codigo ${styles.codigo}`}>
             {codigoDoc}
+          </span>
+          <span className={`Highlight__codigoProyecto ${styles.codigoProyecto}`}>
+            {codigoProyecto}
           </span>
           <span className={`Highlight__estado-text ${styles.estadoText}`}>
             {estado}
