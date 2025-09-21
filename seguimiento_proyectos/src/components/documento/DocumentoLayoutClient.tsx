@@ -6,11 +6,11 @@ import SidebarDerecha from './SidebarDerecha';
 import { VisualizadorPDF } from './VisualizadorPDF';
 
 interface DatosDocumento {
-  nombreDocumento: string;
+  titulo: string;
   version: string;
   estado: string;
   fechaSubida: string;
-  numObservaciones: number;
+  file: string;
 }
 
 interface DatosEstudiante {
@@ -25,6 +25,10 @@ interface DatosProyecto {
   fechaEntrega: string;
 }
 
+interface infoProyecto {
+  codigoProyecto: number;
+  codigoDoc: number;
+}
 
 
 interface DocumentoLayoutClientProps {
@@ -32,7 +36,10 @@ interface DocumentoLayoutClientProps {
   datosEstudiante: DatosEstudiante;
   datosProyecto: DatosProyecto;
   observaciones: any[];
+  observacionesArea: any[];
+  observacionesProyecto: any[];
   blob: Blob;
+  infoProyecto: infoProyecto;
   contentType: string;
 }
 
@@ -41,27 +48,28 @@ export default function DocumentoLayoutClient({
   datosEstudiante,
   datosProyecto,
   observaciones,
+  observacionesArea,
   blob,
+  infoProyecto,
+  observacionesProyecto,
   contentType
 }: DocumentoLayoutClientProps) {
   console.log("observaciones recibidas del padre: ", observaciones);
   return (
     <div className="documento-page-layout">
       <DocumentoNavbar
-        nombreDocumento={datosDocumento.nombreDocumento}
+        nombreDocumento={datosDocumento.titulo}
         version={datosDocumento.version}
         estado={datosDocumento.estado}
         fechaSubida={datosDocumento.fechaSubida}
-        numObservaciones={datosDocumento.numObservaciones}
       />
 
       <div className="documento-body">
         <div className="pdf-container">
-          <VisualizadorPDF blob={blob} observaciones={observaciones}/>
+          <VisualizadorPDF blob={blob} observaciones={observaciones} observacionesArea={observacionesArea} infoProyecto={infoProyecto}/>
         </div>
         <SidebarDerecha
-          estudiante={datosEstudiante}
-          proyecto={datosProyecto}
+          observaciones={observacionesProyecto}
         />
       </div>
     </div>

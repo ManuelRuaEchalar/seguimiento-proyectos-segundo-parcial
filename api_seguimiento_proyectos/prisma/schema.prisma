@@ -11,65 +11,96 @@ datasource db {
 }
 
 model Usuario {
-  id          Int        @id @default(autoincrement())
-  nombre      String
-  apellido    String
-  email       String     @unique
-  hash        String
-  rol         Rol
-  refreshToken String?   // <-- nuevo campo opcional
-  estudiante  Estudiante?
-  docente     Docente?
+  id           Int         @id @default(autoincrement())
+  nombre       String
+  apellido     String
+  email        String      @unique
+  hash         String
+  rol          Rol
+  refreshToken String?     // <-- nuevo campo opcional
+  estudiante   Estudiante?
+  docente      Docente?
 }
 
 model Proyecto {
-  codigoProyecto Int         @id @default(autoincrement())
-  titulo         String
-  estudiantes    Estudiante[] @relation("ProyectoEstudiantes")
-  documentos     Documento[]
+  codigoProyecto    Int               @id @default(autoincrement())
+  titulo            String
+  estudiantes       Estudiante[]      @relation("ProyectoEstudiantes")
+  documentos        Documento[]
+  observaciones     Observacion[]     @relation("ProyectoObservaciones")
+  observacionesArea ObservacionArea[] @relation("ProyectoObservacionesArea")
 }
 
 model Observacion {
-  id           String   @id            // viene del highlight generado
-  contentText  String
-  commentText  String?
-  commentEmoji String?
-  estado       String
+  id             String   @id // viene del highlight generado
+  contentText    String?
+  commentText    String?
+  commentEmoji   String?
+  estado         String
 
   // Datos de posición y rectángulos
-  boundingX1   Float
-  boundingY1   Float
-  boundingX2   Float
-  boundingY2   Float
-  boundingPage Int
-  rects        Json     // almacenamos el array rects como JSON nativo de Prisma
+  boundingX1     Float
+  boundingY1     Float
+  boundingX2     Float
+  boundingY2     Float
+  boundingPage   Int
+  rects          Json     // almacenamos el array rects como JSON nativo de Prisma
 
-  // Relación con Documento
-  codigoDoc Int
-  documento Documento @relation(fields: [codigoDoc], references: [codigoDoc])
+  // Relaciones
+  codigoDoc      Int
+  codigoProyecto Int
+
+  proyecto       Proyecto  @relation("ProyectoObservaciones", fields: [codigoProyecto], references: [codigoProyecto])
+  documento      Documento @relation("DocumentoObservaciones", fields: [codigoDoc], references: [codigoDoc])
+}
+
+model ObservacionArea {
+  id             String   @id // viene del highlight generado
+  contentImage   String?  // <-- Cambio principal: imagen en lugar de texto
+  commentText    String?
+  commentEmoji   String?
+  estado         String
+
+  // Datos de posición y rectángulos
+  boundingX1     Float
+  boundingY1     Float
+  boundingX2     Float
+  boundingY2     Float
+  boundingPage   Int
+  rects          Json     // almacenamos el array rects como JSON nativo de Prisma
+
+  // Relaciones
+  codigoDoc      Int
+  codigoProyecto Int
+
+  proyecto       Proyecto  @relation("ProyectoObservacionesArea", fields: [codigoProyecto], references: [codigoProyecto])
+  documento      Documento @relation("DocumentoObservacionesArea", fields: [codigoDoc], references: [codigoDoc])
 }
 
 model Documento {
-  codigoDoc   Int           @id @default(autoincrement())
-  titulo      String
-  version     Int
-  file        String
-  proyecto    Proyecto      @relation(fields: [proyectoId], references: [codigoProyecto])
-  proyectoId  Int
+  codigoDoc         Int               @id @default(autoincrement())
+  titulo            String
+  version           Int
+  estado            String?
+  fecha             DateTime          @default(now())         
+  file              String
+  proyectoId        Int
+  proyecto          Proyecto          @relation(fields: [proyectoId], references: [codigoProyecto])
 
-  observaciones Observacion[]
+  observaciones     Observacion[]     @relation("DocumentoObservaciones")
+  observacionesArea ObservacionArea[] @relation("DocumentoObservacionesArea")
 }
 
 model Estudiante {
-  id        Int       @id
-  usuario   Usuario   @relation(fields: [id], references: [id])
-  cu        String
-  carrera   String
-  grupo_id  Int?
-  grupo     Grupo?    @relation(fields: [grupo_id], references: [id])
+  id          Int        @id
+  usuario     Usuario    @relation(fields: [id], references: [id])
+  cu          String
+  carrera     String
+  grupo_id    Int?
+  grupo       Grupo?     @relation(fields: [grupo_id], references: [id])
 
-  proyectoId Int?       @unique
-  proyecto   Proyecto?  @relation("ProyectoEstudiantes", fields: [proyectoId], references: [codigoProyecto])
+  proyectoId  Int?       @unique
+  proyecto    Proyecto?  @relation("ProyectoEstudiantes", fields: [proyectoId], references: [codigoProyecto])
 }
 
 

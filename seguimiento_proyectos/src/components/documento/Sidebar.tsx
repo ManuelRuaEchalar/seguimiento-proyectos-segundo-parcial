@@ -3,6 +3,7 @@ import type { IHighlight } from "./react-pdf-highlighter";
 interface Props {
   highlights: Array<IHighlight>;
   resetHighlights: () => void;
+  onHighlightClick?: (highlight: IHighlight) => void;
 }
 
 const updateHash = (highlight: IHighlight) => {
@@ -12,7 +13,19 @@ const updateHash = (highlight: IHighlight) => {
 export function Sidebar({
   highlights,
   resetHighlights,
+  onHighlightClick,
 }: Props) {
+  
+  const handleHighlightClick = (highlight: IHighlight) => {
+    // Actualizar el hash como antes
+    updateHash(highlight);
+    
+    // Llamar a la función de navegación si está disponible
+    if (onHighlightClick) {
+      onHighlightClick(highlight);
+    }
+  };
+
   return (
     <div className="sidebar">
       <div className="sidebar-description">
@@ -33,9 +46,8 @@ export function Sidebar({
             // biome-ignore lint/suspicious/noArrayIndexKey: This is an example app
             key={index}
             className="sidebar__highlight"
-            onClick={() => {
-              updateHash(highlight);
-            }}
+            onClick={() => handleHighlightClick(highlight)}
+            style={{ cursor: 'pointer' }}
           >
             <div>
               <span className="highlight-estado">{highlight.estado}</span> <br/>

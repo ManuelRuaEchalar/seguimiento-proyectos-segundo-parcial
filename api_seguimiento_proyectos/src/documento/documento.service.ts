@@ -36,43 +36,23 @@ export class DocumentoService {
     };
   }
 
-  /**
-   * Verificar si el proyecto existe
-   */
-  async verificarProyecto(proyectoId: number): Promise<boolean> {
-    try {
-      const proyecto = await this.prisma.proyecto.findUnique({
-        where: { codigoProyecto: proyectoId }
-      });
-      return !!proyecto;
-    } catch (error) {
-      console.error('Error verificando proyecto:', error);
-      return false;
-    }
-  }
+  async getDocInfo(codigoDoc: number) {
+    const doc = await this.prisma.documento.findUnique({
+      where: { codigoDoc },
+      select: {
+        codigoDoc: true,
+        titulo: true,
+        version: true,
+        file: true,
+        proyectoId: true,
+      },
+    });
 
-  /**
-   * Crear un nuevo documento en la base de datos
-   */
-  async crearDocumento(datos: {
-    titulo: string;
-    version: number;
-    file: string;
-    proyectoId: number;
-  }) {
-    try {
-      return await this.prisma.documento.create({
-        data: {
-          titulo: datos.titulo,
-          version: datos.version,
-          file: datos.file,
-          proyectoId: datos.proyectoId
-        }
-      });
-    } catch (error) {
-      console.error('Error creando documento:', error);
-      throw new Error('No se pudo crear el documento en la base de datos');
+    if (!doc) {
+      throw new Error(`Documento con código ${codigoDoc} no encontrado`);
     }
+
+    return doc; // Nest lo serializa como JSON
   }
 
   private getMimeType(filePath: string): string {
@@ -83,4 +63,6 @@ export class DocumentoService {
     if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) return 'image/jpeg';
     return 'application/octet-stream';
   }
+
+  
 }
