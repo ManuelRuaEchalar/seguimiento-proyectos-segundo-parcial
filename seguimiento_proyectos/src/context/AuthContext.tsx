@@ -2,7 +2,7 @@
 'use client';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-interface User {
+export interface User {
   user_id: string;
   apellido: string;
   carrera: string;

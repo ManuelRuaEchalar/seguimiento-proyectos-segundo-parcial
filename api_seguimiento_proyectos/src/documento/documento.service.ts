@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class DocumentoService {
@@ -16,14 +17,22 @@ export class DocumentoService {
       throw new NotFoundException('Documento no encontrado');
     }
 
-    const filePath = documento.file;
-    if (!fs.existsSync(filePath)) {
+    // ← AQUÍ ESTÁ EL PROBLEMA: La ruta relativa se debe convertir a absoluta
+    // Si en BD guardas: /uploads/documentos/archivo.pdf
+    // La ruta física es: ./public/uploads/documentos/archivo.pdf
+    const relativePath = documento.file; // /uploads/documentos/archivo.pdf
+    const absolutePath = path.join(process.cwd(), 'public', relativePath); // ./public/uploads/documentos/archivo.pdf
+
+    console.log('🔍 Buscando archivo en:', absolutePath);
+
+    if (!fs.existsSync(absolutePath)) {
+      console.error('❌ Archivo no encontrado físicamente:', absolutePath);
       throw new NotFoundException('El archivo no existe en el servidor');
     }
 
     return {
-      filePath,
-      mimeType: this.getMimeType(filePath),
+      filePath: absolutePath, // ← Usar la ruta absoluta
+      mimeType: this.getMimeType(relativePath),
     };
   }
 

@@ -1,6 +1,21 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { 
+  Body, 
+  Controller, 
+  Post, 
+  Res, 
+  BadRequestException, 
+  NotFoundException,
+  UploadedFile,
+  UseInterceptors
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { DocumentoService } from './documento.service';
 import { Response } from 'express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { File as MulterFile } from 'multer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller('documento')
 export class DocumentoController {
@@ -11,7 +26,7 @@ export class DocumentoController {
     const { filePath, mimeType } = await this.documentoService.getDoc(codigoDoc);
 
     res.setHeader('Content-Type', mimeType);
-    return res.sendFile(filePath, { root: './' }); // se envía como binario, el cliente lo procesa
+    return res.sendFile(filePath, { root: './' });
   }
 
   @Post('doc-info')
