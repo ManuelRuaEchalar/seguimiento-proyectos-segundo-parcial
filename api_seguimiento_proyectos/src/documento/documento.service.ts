@@ -17,21 +17,38 @@ export class DocumentoService {
       throw new NotFoundException('Documento no encontrado');
     }
 
-    // ← AQUÍ ESTÁ EL PROBLEMA: La ruta relativa se debe convertir a absoluta
-    // Si en BD guardas: /uploads/documentos/archivo.pdf
-    // La ruta física es: ./public/uploads/documentos/archivo.pdf
+    // SOLUCIÓN: Manejar correctamente las rutas
     const relativePath = documento.file; // /uploads/documentos/archivo.pdf
-    const absolutePath = path.join(process.cwd(), 'public', relativePath); // ./public/uploads/documentos/archivo.pdf
+    
+    // Construir la ruta absoluta correctamente
+    // Si relativePath empieza con '/', quitarle el primer '/'
+    const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
+    const absolutePath = path.join(process.cwd(), 'public', cleanPath);
 
-    console.log('🔍 Buscando archivo en:', absolutePath);
+    console.log('🔍 Ruta en BD:', relativePath);
+    console.log('🔍 Ruta absoluta construida:', absolutePath);
 
+    // Verificar que el archivo existe
     if (!fs.existsSync(absolutePath)) {
       console.error('❌ Archivo no encontrado físicamente:', absolutePath);
+      
+      // DEBUGGING: Listar archivos en la carpeta para ver qué hay
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'documentos');
+      console.log('📂 Contenido de uploads/documentos:');
+      try {
+        const files = fs.readdirSync(uploadsDir);
+        files.forEach(file => console.log(`   - ${file}`));
+      } catch (err) {
+        console.log('   📂 Carpeta no existe o está vacía');
+      }
+      
       throw new NotFoundException('El archivo no existe en el servidor');
     }
 
+    console.log('✅ Archivo encontrado:', absolutePath);
+
     return {
-      filePath: absolutePath, // ← Usar la ruta absoluta
+      filePath: absolutePath,
       mimeType: this.getMimeType(relativePath),
     };
   }
@@ -56,12 +73,17 @@ export class DocumentoService {
   }
 
   private getMimeType(filePath: string): string {
-    if (filePath.endsWith('.pdf')) return 'application/pdf';
-    if (filePath.endsWith('.docx')) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    if (filePath.endsWith('.doc')) return 'application/msword';
-    if (filePath.endsWith('.png')) return 'image/png';
-    if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) return 'image/jpeg';
-    return 'application/octet-stream';
+    const ext = path.extname(filePath).toLowerCase();
+    
+    switch (ext) {
+      case '.pdf': return 'application/pdf';
+      case '.docx': return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      case '.doc': return 'application/msword';
+      case '.png': return 'image/png';
+      case '.jpg':
+      case '.jpeg': return 'image/jpeg';
+      default: return 'application/octet-stream';
+    }
   }
 
   
