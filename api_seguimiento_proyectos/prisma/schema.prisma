@@ -9,7 +9,6 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
 model Usuario {
   id           Int         @id @default(autoincrement())
   nombre       String
@@ -17,7 +16,7 @@ model Usuario {
   email        String      @unique
   hash         String
   rol          Rol
-  refreshToken String?     // <-- nuevo campo opcional
+  refreshToken String?     
   estudiante   Estudiante?
   docente      Docente?
 }
@@ -29,47 +28,73 @@ model Proyecto {
   documentos        Documento[]
   observaciones     Observacion[]     @relation("ProyectoObservaciones")
   observacionesArea ObservacionArea[] @relation("ProyectoObservacionesArea")
+  correcciones      Correccion[]      @relation("ProyectoCorrecciones")
 }
 
 model Observacion {
-  id             String   @id // viene del highlight generado
+  id             String       @id 
   contentText    String?
   commentText    String?
   commentEmoji   String?
   estado         String
 
-  // Datos de posición y rectángulos
   boundingX1     Float
   boundingY1     Float
   boundingX2     Float
   boundingY2     Float
   boundingPage   Int
-  rects          Json     // almacenamos el array rects como JSON nativo de Prisma
+  rects          Json         
 
-  // Relaciones
   codigoDoc      Int
   codigoProyecto Int
 
-  proyecto       Proyecto  @relation("ProyectoObservaciones", fields: [codigoProyecto], references: [codigoProyecto])
-  documento      Documento @relation("DocumentoObservaciones", fields: [codigoDoc], references: [codigoDoc])
+  proyecto       Proyecto      @relation("ProyectoObservaciones", fields: [codigoProyecto], references: [codigoProyecto])
+  documento      Documento     @relation("DocumentoObservaciones", fields: [codigoDoc], references: [codigoDoc])
+
+  correccion     Correccion?   @relation("ObservacionCorreccion")
 }
 
-model ObservacionArea {
-  id             String   @id // viene del highlight generado
-  contentImage   String?  // <-- Cambio principal: imagen en lugar de texto
+model Correccion {
+  id             String   @id
+  contentText    String?
   commentText    String?
   commentEmoji   String?
   estado         String
 
-  // Datos de posición y rectángulos
   boundingX1     Float
   boundingY1     Float
   boundingX2     Float
   boundingY2     Float
   boundingPage   Int
-  rects          Json     // almacenamos el array rects como JSON nativo de Prisma
+  rects          Json     
 
-  // Relaciones
+  // Relación obligatoria con Observacion (1:1)
+  observacionId  String   @unique
+  observacion    Observacion @relation("ObservacionCorreccion", fields: [observacionId], references: [id])
+
+  // Relación con Documento (N:1)
+  codigoDoc      Int
+  documento      Documento @relation("DocumentoCorrecciones", fields: [codigoDoc], references: [codigoDoc])
+
+  // Relación con Proyecto (N:1)
+  codigoProyecto Int
+  proyecto       Proyecto  @relation("ProyectoCorrecciones", fields: [codigoProyecto], references: [codigoProyecto])
+}
+
+model ObservacionArea {
+  id             String   @id 
+  contentImage   String?  
+  commentText    String?
+  commentEmoji   String?
+  estado         String
+
+  boundingX1     Float
+  boundingY1     Float
+  boundingX2     Float
+  boundingY2     Float
+  boundingPage   Int
+  rects          Json     
+
   codigoDoc      Int
   codigoProyecto Int
 
@@ -89,6 +114,7 @@ model Documento {
 
   observaciones     Observacion[]     @relation("DocumentoObservaciones")
   observacionesArea ObservacionArea[] @relation("DocumentoObservacionesArea")
+  correcciones      Correccion[]      @relation("DocumentoCorrecciones")
 }
 
 model Estudiante {
@@ -103,7 +129,6 @@ model Estudiante {
   proyecto    Proyecto?  @relation("ProyectoEstudiantes", fields: [proyectoId], references: [codigoProyecto])
 }
 
-
 model Docente {
   id        Int     @id
   usuario   Usuario @relation(fields: [id], references: [id])
@@ -112,8 +137,8 @@ model Docente {
 }
 
 model Grupo {
-  id         Int          @id @default(autoincrement())
-  nombre     String
+  id          Int          @id @default(autoincrement())
+  nombre      String
   estudiantes Estudiante[]
   docentes    Docente[]
 }
