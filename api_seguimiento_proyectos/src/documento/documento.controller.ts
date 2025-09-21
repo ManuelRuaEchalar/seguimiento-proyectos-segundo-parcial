@@ -6,7 +6,9 @@ import {
   BadRequestException, 
   NotFoundException,
   UploadedFile,
-  UseInterceptors
+  UseInterceptors,
+  HttpException,
+  HttpStatus
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DocumentoService } from './documento.service';
@@ -64,6 +66,39 @@ export class DocumentoController {
         success: false,
         error: 'Error interno del servidor'
       });
+    }
+  }
+
+  @Post('doc-info')
+  async getDocInfo(@Body() body: { codigoDoc: number }) {
+    try {
+      const { codigoDoc } = body;
+      
+      if (!codigoDoc || typeof codigoDoc !== 'number') {
+        throw new HttpException('Código de documento inválido', HttpStatus.BAD_REQUEST);
+      }
+
+      console.log('📋 Obteniendo información del documento:', codigoDoc);
+      
+      const docInfo = await this.documentoService.getDocInfo(codigoDoc);
+      
+      console.log('📋 Información del documento encontrada:', docInfo);
+      
+      return docInfo;
+    } catch (error) {
+      console.error('Error en getDocInfo:', error);
+      
+      if (error.message.includes('no encontrado')) {
+        throw new HttpException(
+          `Documento con código ${body.codigoDoc} no encontrado`,
+          HttpStatus.NOT_FOUND
+        );
+      }
+      
+      throw new HttpException(
+        'Error interno del servidor al obtener la información del documento',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
