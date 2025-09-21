@@ -23,10 +23,48 @@ export class DocumentoController {
 
   @Post('get-doc')
   async getDoc(@Body('codigoDoc') codigoDoc: number, @Res() res: Response) {
-    const { filePath, mimeType } = await this.documentoService.getDoc(codigoDoc);
+    try {
+      const { filePath, mimeType } = await this.documentoService.getDoc(codigoDoc);
+      
+      console.log('📄 Enviando archivo:', filePath);
+      console.log('📄 Tipo MIME:', mimeType);
 
-    res.setHeader('Content-Type', mimeType);
-    return res.sendFile(filePath, { root: './' });
+      // Verificar que el archivo existe antes de enviarlo
+      if (!fs.existsSync(filePath)) {
+        console.error('❌ Archivo no encontrado:', filePath);
+        return res.status(404).json({
+          success: false,
+          error: 'Archivo no encontrado en el servidor'
+        });
+      }
+
+      // SOLUCIÓN: No usar root cuando filePath es absoluto
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
+      
+      // Si filePath es absoluto (empieza con C:\ en Windows), no usar root
+      if (path.isAbsolute(filePath)) {
+        return res.sendFile(filePath);
+      } else {
+        // Si es relativo, usar root
+        return res.sendFile(filePath, { root: process.cwd() });
+      }
+      
+    } catch (error) {
+      console.error('❌ Error en getDoc:', error);
+      
+      if (error instanceof NotFoundException) {
+        return res.status(404).json({
+          success: false,
+          error: error.message
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        error: 'Error interno del servidor'
+      });
+    }
   }
 
   /**
@@ -37,10 +75,8 @@ export class DocumentoController {
   @UseInterceptors(FileInterceptor('documento', {
     storage: diskStorage({
       destination: (req, file, callback) => {
-        // ← AQUÍ ESTÁ LA CLAVE: Crear la carpeta si no existe
         const uploadPath = './public/uploads/documentos';
         
-        // Verificar si la carpeta existe, si no, crearla
         if (!fs.existsSync(uploadPath)) {
           fs.mkdirSync(uploadPath, { recursive: true });
           console.log(`✅ Carpeta creada: ${uploadPath}`);
@@ -49,7 +85,6 @@ export class DocumentoController {
         callback(null, uploadPath);
       },
       filename: (req, file, callback) => {
-        // Generar nombre único
         const timestamp = Date.now();
         const cleanTitle = (req.body.titulo || 'documento').replace(/[^a-z0-9]/gi, '_');
         const filename = `${cleanTitle}_${timestamp}${extname(file.originalname)}`;
@@ -57,7 +92,6 @@ export class DocumentoController {
       }
     }),
     fileFilter: (req, file, callback) => {
-      // Solo permitir PDFs
       if (file.mimetype !== 'application/pdf') {
         return callback(new BadRequestException('Solo se permiten archivos PDF'), false);
       }
@@ -77,7 +111,6 @@ export class DocumentoController {
       console.log('📁 Archivo recibido:', file?.originalname);
       console.log('📁 Ruta donde se guardó:', file?.path);
 
-      // Validaciones básicas
       if (!file) {
         return res.status(400).json({
           success: false,
@@ -85,7 +118,6 @@ export class DocumentoController {
         });
       }
 
-      // ← VERIFICAR QUE EL ARCHIVO REALMENTE SE GUARDÓ
       if (!fs.existsSync(file.path)) {
         console.error('❌ El archivo no se guardó físicamente:', file.path);
         return res.status(500).json({
@@ -111,7 +143,6 @@ export class DocumentoController {
         });
       }
 
-      // Verificar que el proyecto existe
       const proyectoExiste = await this.documentoService.verificarProyecto(proyectoIdNum);
       if (!proyectoExiste) {
         return res.status(404).json({
@@ -120,13 +151,11 @@ export class DocumentoController {
         });
       }
 
-      // ← IMPORTANTE: La ruta relativa debe coincidir con la estructura de carpetas
-      // Si el archivo se guarda en ./public/uploads/documentos/, la ruta relativa es:
+      // IMPORTANTE: Guardar la ruta relativa tal como la usa el servicio
       const relativePath = `/uploads/documentos/${file.filename}`;
 
       console.log('💾 Guardando en BD con ruta:', relativePath);
 
-      // Crear registro en la base de datos
       const nuevoDocumento = await this.documentoService.crearDocumento({
         titulo,
         version: 1,
@@ -142,13 +171,12 @@ export class DocumentoController {
         message: 'PDF subido correctamente',
         fileName: file.filename,
         filePath: relativePath,
-        physicalPath: file.path // ← Para debug
+        physicalPath: file.path
       });
 
     } catch (error) {
       console.error('❌ Error subiendo documento:', error);
       
-      // Si hay error, eliminar el archivo subido
       if (file && file.path && fs.existsSync(file.path)) {
         try {
           fs.unlinkSync(file.path);

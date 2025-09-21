@@ -20,12 +20,15 @@ export async function fetchProyecto(id: number) {
   console.log(`solicitud a ${apiUrl}/estudiante/view-project con body:`, { id });
 
   if (!response.ok) {
+    console.log('Error en la respuesta del servidor:', response.status, response.statusText);
     throw new Error('Error al cargar el proyecto');
   }
 
-  return response.json();
+  // Llamar response.json() solo UNA vez y almacenar el resultado
+  const data = await response.json();
+  console.log('Respuesta del servidor:', data);
+  return data;
 }
-
 export async function fetchDoc(codigoDoc: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 

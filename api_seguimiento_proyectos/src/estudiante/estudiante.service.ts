@@ -6,7 +6,7 @@ export class EstudianteService {
   constructor(private prisma: PrismaService) {}
 
   async viewProyect(id: number) {
-    console.log(`id recibido: ${id}`);
+    console.log(`id estudiante recibido: ${id}`);
     // Obtener el estudiante con su proyectoId
     const estudiante = await this.prisma.estudiante.findUnique({
       where: { id },
@@ -14,10 +14,12 @@ export class EstudianteService {
     });
 
     if (!estudiante) {
+      console.log(`Estudiante con id ${id} no encontrado`);
       throw new NotFoundException('Estudiante no encontrado');
     }
 
     if (!estudiante.proyectoId) {
+      console.log(`El estudiante con id ${id} no tiene un proyecto asignado`);
       throw new NotFoundException('El estudiante no tiene un proyecto asignado');
     }
 
@@ -36,7 +38,10 @@ export class EstudianteService {
       }
     });
 
+    console.log(`Proyecto encontrado para el estudiante ${id}:`, proyecto);
+
     if (!proyecto) {
+      console.log(`Proyecto con id ${estudiante.proyectoId} no encontrado`);
       throw new NotFoundException('Proyecto no encontrado');
     }
 
