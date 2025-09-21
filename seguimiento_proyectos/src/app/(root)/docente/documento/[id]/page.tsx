@@ -1,8 +1,13 @@
 // page.tsx refactorizada
 import { Metadata } from 'next';
-import { fetchDoc } from '@/services/proyecto';
+import { fetchDoc, fetchDocInfo, fetchProjectObservaciones } from '@/services/proyecto';
 import DocumentoLayoutClient from '@/components/documento/DocumentoLayoutClient';
-import { fetchObservaciones } from '@/services/observaciones';
+import { fetchObservaciones, fetchObservacionesArea } from '@/services/observaciones';
+
+interface infoProyecto {
+  codigoProyecto: number;
+  codigoDoc: number;
+}
 
 interface PageProps {
   params: Promise<{ id: number }>;
@@ -12,6 +17,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     const { id } = await params;
     console.log("codigo antes de mandar: ", id);
+    console.log("IMPRIMIENDO");
     return {
       title: `Documento #${id} - CloudIt`,
       description: `Visualización del documento #${id}`,
@@ -34,18 +40,17 @@ export default async function DocumentoPage(props: PageProps) {
     console.log("El codigo del doc de params es: ", id);
     console.log(typeof(id));
     const { blob, contentType } = await fetchDoc(Number(id));
+    console.log("blob conseguido");
     const observaciones  = await fetchObservaciones(Number(id));
+    const observacionesArea = await fetchObservacionesArea(Number(id));
     console.log("OBSERVACIONES DE LA API: ", observaciones);
-    
-    // Datos de ejemplo (temporales hasta recibir la info real)
-    const datosDocumento = {
-      nombreDocumento: `Tesis Final - Documento ${id}`,
-      version: "v2.1",
-      estado: "En Revisión",
-      fechaSubida: "2024-01-15",
-      numObservaciones: 3
-    };
-
+    const datosDocumento = await fetchDocInfo(Number(id));
+    console.log("datos doc: ",datosDocumento);
+    const observacionesProyecto = await fetchProjectObservaciones(datosDocumento.proyectoId, Number(id));
+    const infoProyecto: infoProyecto = {
+  codigoProyecto: datosDocumento.proyectoId,
+  codigoDoc: Number(id)
+}; 
     const datosEstudiante = {
       nombre: "María González Pérez",
       carrera: "Ingeniería de Sistemas",
@@ -64,7 +69,10 @@ export default async function DocumentoPage(props: PageProps) {
         datosEstudiante={datosEstudiante}
         datosProyecto={datosProyecto}
         observaciones={observaciones}
+        observacionesArea={observacionesArea}
+        observacionesProyecto={observacionesProyecto}
         blob={blob}
+        infoProyecto={infoProyecto}
         contentType={contentType}
       />
     );
