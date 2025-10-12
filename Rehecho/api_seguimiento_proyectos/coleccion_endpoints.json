@@ -1,0 +1,459 @@
+{
+  "info": {
+    "name": "Grok 3 API Endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"admin@example.com\", \"password\": \"admin123\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["auth", "login"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"email\": \"admin@example.com\", \"password\": \"admin123\"}"
+                },
+                "url": {
+                  "raw": "http://localhost:3000/auth/login",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3000",
+                  "path": ["auth", "login"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "cookie": [
+                {
+                  "name": "access_token",
+                  "value": "{{access_token}}",
+                  "domain": "localhost"
+                }
+              ],
+              "body": "{\"message\": \"Login exitoso\", \"user\": {\"id\": 1, \"email\": \"admin@example.com\", \"rol\": \"admin\"}}"
+            }
+          ]
+        },
+        {
+          "name": "Register (Authenticated)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Juan\", \"apellido\": \"Perez\", \"email\": \"juan@example.com\", \"password\": \"password123\", \"cu\": \"12345\", \"carrera\": \"Ingeniería\", \"rol\": \"estudiante\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["auth", "register"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 201,
+              "body": "{\"message\": \"Usuario creado\", \"user\": {\"id\": 2, \"email\": \"juan@example.com\", \"rol\": \"estudiante\"}}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Administration",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Maria\", \"apellido\": \"Gonzalez\", \"email\": \"maria@example.com\", \"password\": \"password123\", \"rol\": \"docente\", \"especialidad\": \"Matemáticas\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/admin/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["admin", "users"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 201,
+              "body": "{\"id\": 3, \"nombre\": \"Maria\", \"apellido\": \"Gonzalez\", \"email\": \"maria@example.com\", \"rol\": \"docente\", \"docente\": {\"especialidad\": \"Matemáticas\"}}"
+            }
+          ]
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Maria Updated\", \"especialidad\": \"Física\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/admin/users/3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["admin", "users", "3"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"id\": 3, \"nombre\": \"Maria Updated\", \"apellido\": \"Gonzalez\", \"email\": \"maria@example.com\", \"rol\": \"docente\", \"docente\": {\"especialidad\": \"Física\"}}"
+            }
+          ]
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/admin/users/3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["admin", "users", "3"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"id\": 3, \"nombre\": \"Maria Updated\", \"apellido\": \"Gonzalez\", \"email\": \"maria@example.com\", \"rol\": \"docente\"}"
+            }
+          ]
+        },
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Grupo A\", \"grado\": \"PRIMERO\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/admin/groups",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["admin", "groups"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 201,
+              "body": "{\"id\": 1, \"nombre\": \"Grupo A\", \"grado\": \"PRIMERO\", \"docente_id\": null}"
+            }
+          ]
+        },
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/admin/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["admin", "users"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "[{\"id\": 1, \"nombre\": \"Admin\", \"apellido\": \"Default\", \"email\": \"admin@example.com\", \"rol\": \"admin\"}, {\"id\": 2, \"nombre\": \"Juan\", \"apellido\": \"Perez\", \"email\": \"juan@example.com\", \"rol\": \"estudiante\", \"estudiante\": {\"cu\": \"12345\", \"carrera\": \"Ingeniería\"}}]"
+            }
+          ]
+        },
+        {
+          "name": "Get Groups",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/admin/groups",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["admin", "groups"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "[{\"id\": 1, \"nombre\": \"Grupo A\", \"grado\": \"PRIMERO\", \"docente_id\": null, \"docente\": null, \"estudiantes\": []}]"
+            }
+          ]
+        },
+        {
+          "name": "Get Docentes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/admin/docentes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["admin", "docentes"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "[]"
+            }
+          ]
+        },
+        {
+          "name": "Assign Docente to Group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"docente_id\": 3}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/admin/groups/1/asignar-docente",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["admin", "groups", "1", "asignar-docente"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"id\": 1, \"nombre\": \"Grupo A\", \"grado\": \"PRIMERO\", \"docente_id\": 3}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Groups",
+      "item": [
+        {
+          "name": "Get All Groups",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/grupo",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["grupo"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "[{\"id\": 1, \"nombre\": \"Grupo A\", \"grado\": \"PRIMERO\", \"docente_id\": null}]"
+            }
+          ]
+        },
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"Grupo B\", \"grado\": \"SEGUNDO\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/grupo",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["grupo"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 201,
+              "body": "{\"id\": 2, \"nombre\": \"Grupo B\", \"grado\": \"SEGUNDO\", \"docente_id\": null}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/user",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"message\": \"Perfil de usuario\", \"user\": {\"id\": 2, \"email\": \"juan@example.com\", \"rol\": \"estudiante\", \"estudiante\": {\"cu\": \"12345\", \"carrera\": \"Ingeniería\"}}}"
+            }
+          ]
+        },
+        {
+          "name": "Get My Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "access_token={{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/user/me",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["user", "me"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\"message\": \"Mis datos\", \"user\": {\"id\": 2, \"email\": \"juan@example.com\", \"rol\": \"estudiante\", \"estudiante\": {\"cu\": \"12345\", \"carrera\": \"Ingeniería\"}}}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "id": "access_token",
+      "type": "string",
+      "value": ""
+    }
+  ]
+}

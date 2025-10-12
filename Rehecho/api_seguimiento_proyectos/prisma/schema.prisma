@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id             Int         @id @default(autoincrement())
+  nombre         String
+  apellido       String
+  email          String      @unique
+  hash           String
+  rol            Rol
+  refresh_token  String?
+  estudiante     Estudiante?
+  docente        Docente?
+}
+
+model Grupo {
+  id            Int        @id @default(autoincrement())
+  nombre        String
+  grado         Grado
+  estudiantes   Estudiante[]
+  docente_id    Int?
+  docente       Docente?   @relation(fields: [docente_id], references: [id])
+}
+
+model Estudiante {
+  id            Int        @id
+  usuario       Usuario    @relation(fields: [id], references: [id])
+  cu            String
+  carrera       String
+  grupo_id      Int?
+  grupo         Grupo?     @relation(fields: [grupo_id], references: [id])
+  proyecto_id   Int?       
+  proyecto      Proyecto?  @relation("ProyectoEstudiantes", fields: [proyecto_id], references: [id])
+}
+
+model Proyecto {
+  id               Int             @id @default(autoincrement())
+  titulo           String
+  fase_actual      FaseProyecto
+  grado_actual     Grado
+  estudiantes      Estudiante[]    @relation("ProyectoEstudiantes")
+  documentos       Documento[]     @relation("ProyectoDocumentos")
+  observaciones    Observacion[]   @relation("ProyectoObservaciones")
+}
+
+model Documento {
+  id             Int             @id @default(autoincrement())
+  titulo         String
+  version        Int
+  estado         EstadoDocumento
+  activo         Boolean @default(true)
+  created_at     DateTime @default(now())
+  file           String
+  proyecto_id    Int
+  proyecto       Proyecto        @relation("ProyectoDocumentos", fields: [proyecto_id], references: [id])
+  observaciones  Observacion[]   @relation("DocumentoObservaciones")
+  correcciones   Correccion[]    @relation("DocumentoCorrecciones")
+}
+
+model Observacion {
+  id             Int       @id @default(autoincrement()) 
+  content_text   String?
+  comment_text   String?
+  comment_emoji  String?
+  estado         String
+
+  bounding_x1    Float
+  bounding_y1    Float
+  bounding_x2    Float
+  bounding_y2    Float
+  bounding_page  Int
+  rects          Json         
+
+  documento_id   Int
+  proyecto_id    Int
+
+  proyecto       Proyecto      @relation("ProyectoObservaciones", fields: [proyecto_id], references: [id])
+  documento      Documento     @relation("DocumentoObservaciones", fields: [documento_id], references: [id])
+
+  correccion     Correccion?   @relation("ObservacionCorreccion")
+}
+
+model Correccion {
+  id              Int   @id @default(autoincrement())
+  content_text    String?
+  comment_text    String?
+  comment_emoji   String?
+  estado          String
+
+  bounding_x1     Float
+  bounding_y1     Float
+  bounding_x2     Float
+  bounding_y2     Float
+  bounding_page   Int
+  rects           Json     
+
+  observacion_id  Int   @unique
+  observacion     Observacion @relation("ObservacionCorreccion", fields: [observacion_id], references: [id])
+
+  documento_id    Int
+  documento       Documento @relation("DocumentoCorrecciones", fields: [documento_id], references: [id])
+}
+
+model Docente {
+  id        Int       @id
+  especialidad String
+  usuario   Usuario   @relation(fields: [id], references: [id])
+  grupos    Grupo[]
+}
+
+enum Rol {
+  admin
+  docente
+  estudiante
+}
+
+enum Grado {
+  grado1
+  grado2
+}
+
+enum FaseProyecto {
+  tema
+  perfil
+  proyecto
+  predefensa
+  finalizado
+}
+
+enum EstadoDocumento {
+  pendiente
+  en_revision
+  revisado
+  aprobado
+  rechazado
+}
