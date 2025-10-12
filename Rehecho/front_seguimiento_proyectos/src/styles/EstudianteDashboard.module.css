@@ -1,0 +1,69 @@
+.container {
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}
+
+.header {
+  background-color: #2563eb;
+  color: white;
+  padding: 1rem;
+}
+
+.headerContent {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.headerTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableHeader {
+  background-color: #e5e7eb;
+}
+
+.tableCell {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+
+.button {
+  padding: 0.25rem 0.5rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.unauthorized {
+  padding: 2rem;
+  color: #dc2626;
+}
+
+.unauthorizedTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.loading {
+  padding: 2rem;
+}
