@@ -1,0 +1,107 @@
+:root {
+  --columbia-blue: #ccdae6ff;
+  --silver: #bdb3abff;
+  --delft-blue: #1a3260ff;
+  --white: #fefefeff;
+  --ghost-white: #f3f6fbff;
+  --gunmetal: #272d3aff;
+}
+
+.header {
+  background-color: var(--delft-blue);
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.headerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerUserSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  background-color: var(--columbia-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatarInitials {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--delft-blue);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0;
+}
+
+.headerSubtitle {
+  font-size: 0.875rem;
+  color: var(--columbia-blue);
+  margin: 0;
+}
+
+.headerGroupSection {
+  display: flex;
+  align-items: center;
+}
+
+.groupBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.groupNumber,
+.projectTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--white);
+  background-color: var(--gunmetal);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+}
+
+.headerLoading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--white);
+}
+
+.loadingSpinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--columbia-blue);
+  border-top: 2px solid var(--white);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -467,3 +467,84 @@ export async function joinGroup(groupId: number) {
     throw new Error("Error de conexión con el servidor");
   }
 }
+
+export async function getStudentProfile() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/estudiante/me`, {
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Error al obtener perfil del estudiante");
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
+export async function createProyecto(titulo: string) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proyecto/crear`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ titulo }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Error al crear proyecto");
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
+export async function asignarProyecto(proyectoId: number) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/estudiante/asignar-proyecto/${proyectoId}`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Error al asignar proyecto");
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
+export async function obtenerProyecto() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/estudiante/proyecto`, {
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Error al obtener proyecto");
+    }
+    return data;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}

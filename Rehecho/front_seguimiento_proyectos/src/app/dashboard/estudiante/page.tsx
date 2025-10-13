@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getStudentGroups, joinGroup, logout } from '@/services/api';
+import { getStudentGroups, joinGroup, logout, getStudentProfile } from '@/services/api';
 import { User, Group } from '@/types';
 import { useAuthGuard } from '../../../hooks/userAuthGuard';
 
@@ -11,27 +11,35 @@ export default function EstudianteDashboard() {
   const { user, isLoading, isUnauthorized, error } = useAuthGuard('estudiante');
   const [groups, setGroups] = useState<Group[]>([]);
   const [fetchError, setFetchError] = useState('');
+  const [hasGroup, setHasGroup] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (user) {
-      async function fetchGroups() {
+      async function checkStudentProfile() {
         try {
-          const groupsData = await getStudentGroups();
-          setGroups(groupsData);
+          const profileData = await getStudentProfile();
+          if (profileData.grupo) {
+            setHasGroup(true);
+            router.push('/dashboard/estudiante/proyecto'); // Redirige si ya tiene grupo
+          } else {
+            setHasGroup(false);
+            const groupsData = await getStudentGroups();
+            setGroups(groupsData);
+          }
         } catch (err) {
           setFetchError(err instanceof Error ? err.message : String(err));
+          setHasGroup(false);
         }
       }
-      fetchGroups();
+      checkStudentProfile();
     }
-  }, [user]);
+  }, [user, router]);
 
   const handleJoinGroup = async (groupId: number) => {
     try {
       setFetchError('');
       await joinGroup(groupId);
-      const groupsData = await getStudentGroups();
-      setGroups(groupsData);
+      router.push('/dashboard/estudiante/proyecto'); // Redirige tras unirse a un grupo
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : String(err));
     }
@@ -42,15 +50,15 @@ export default function EstudianteDashboard() {
       await logout();
       router.push('/auth/login');
     } catch (err) {
-        setFetchError(err instanceof Error ? err.message : String(err));
+      setFetchError(err instanceof Error ? err.message : String(err));
     }
   };
 
-    if (isLoading) {
-      return <p>Cargando...</p>;
-    }
+  if (isLoading || hasGroup === null) {
+    return <p>Cargando...</p>;
+  }
 
-    if (isUnauthorized) {
+  if (isUnauthorized) {
     return (
       <div>
         <h1>Usuario no autorizado 🚫</h1>
@@ -60,18 +68,22 @@ export default function EstudianteDashboard() {
     );
   }
 
+  if (hasGroup) {
+    return null; // La redirección ya ocurrió
+  }
+
   return (
     <div>
       <div>
         <h1>Panel de Estudiante 📚</h1>
-          <p>Email: {user?.email}</p>
-          {user?.estudiante?.cu && <p>CU: {user.estudiante.cu}</p>}
-          {user?.estudiante?.carrera && <p>Carrera: {user.estudiante.carrera}</p>}
+        <p>Email: {user?.email}</p>
+        {user?.estudiante?.cu && <p>CU: {user.estudiante.cu}</p>}
+        {user?.estudiante?.carrera && <p>Carrera: {user.estudiante.carrera}</p>}
         <button onClick={handleLogout}>Cerrar Sesión</button>
       </div>
       <div>
         <h2>Grupos Disponibles</h2>
-          {fetchError && <p>{fetchError}</p>}
+        {fetchError && <p>{fetchError}</p>}
         <table>
           <thead>
             <tr>
@@ -83,28 +95,24 @@ export default function EstudianteDashboard() {
             </tr>
           </thead>
           <tbody>
-            {(() => {
-              const rows = [];
-              for (const group of groups) {
-                const docenteTexto = group.docente && group.docente.usuario 
-                  ? `${group.docente.usuario.nombre || ''} ${group.docente.usuario.apellido || ''}`.trim() 
-                  : 'Sin asignar';
-                rows.push(
-                  <tr key={group.id}>
-                    <td>{group.id}</td>
-                    <td>{group.nombre}</td>
-                    <td>{group.grado}</td>
-                    <td>{docenteTexto}</td>
-                    <td>
-                      <button onClick={() => handleJoinGroup(group.id)}>
-                        Unirse
-                      </button>
-                    </td>
-                  </tr>
-                );
-              }
-              return rows;
-            })()}
+            {groups.map((group) => {
+              const docenteTexto = group.docente && group.docente.usuario 
+                ? `${group.docente.usuario.nombre || ''} ${group.docente.usuario.apellido || ''}`.trim() 
+                : 'Sin asignar';
+              return (
+                <tr key={group.id}>
+                  <td>{group.id}</td>
+                  <td>{group.nombre}</td>
+                  <td>{group.grado}</td>
+                  <td>{docenteTexto}</td>
+                  <td>
+                    <button onClick={() => handleJoinGroup(group.id)}>
+                      Unirse
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

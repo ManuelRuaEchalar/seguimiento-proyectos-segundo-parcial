@@ -1,0 +1,91 @@
+:root {
+  --columbia-blue: #ccdae6ff;
+  --silver: #bdb3abff;
+  --delft-blue: #1a3260ff;
+  --white: #fefefeff;
+  --ghost-white: #f3f6fbff;
+  --gunmetal: #272d3aff;
+}
+
+.documentCard {
+  background-color: var(--white);
+  border: 1px solid var(--columbia-blue);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+  text-align: left;
+}
+
+.documentCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.documentHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.documentBadge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.documentId {
+  background-color: var(--columbia-blue);
+  color: var(--delft-blue);
+}
+
+.documentVersion {
+  background-color: var(--silver);
+  color: var(--white);
+}
+
+.documentTitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--delft-blue);
+  margin: 0 0 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.documentInfo {
+  display: flex;
+  align-items: center;
+}
+
+.fileInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fileIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--delft-blue);
+  flex-shrink: 0;
+}
+
+.fileName {
+  font-size: 0.875rem;
+  color: var(--gunmetal);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.externalIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--silver);
+  flex-shrink: 0;
+}
