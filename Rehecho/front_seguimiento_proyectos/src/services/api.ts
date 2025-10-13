@@ -308,6 +308,26 @@ export async function getDocentes() {
   }
 }
 
+export async function getEstudiantes() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/estudiantes`,
+      {
+        credentials: "include",
+      }
+    );
+    const data = await res.json();
+    if (!res.ok)
+      throw new Error(data.message || "Error al obtener estudiantes");
+    return data;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
 export async function getStudentGroups() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/grupos`, {

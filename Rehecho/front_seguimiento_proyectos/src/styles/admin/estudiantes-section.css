@@ -1,0 +1,64 @@
+.estudiantes-section {
+  background-color: #f6f9ff;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2.5rem;
+  color: #0e0f14;
+  border-left: 4px solid #9bc7e8;
+  font-family: "Rubik", sans-serif;
+}
+
+.estudiantes-section__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #1e396c;
+  font-family: "Rubik", sans-serif;
+}
+
+.estudiantes-section__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #f6f9ff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  font-size: 0.95rem;
+  color: #0e0f14;
+  font-family: "Rubik", sans-serif;
+}
+
+.estudiantes-section__table th,
+.estudiantes-section__table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #445a85;
+}
+
+.estudiantes-section__table th {
+  background-color: #9bc7e8;
+  font-weight: 600;
+  color: #1e396c;
+}
+
+.estudiantes-section__table tr:last-child td {
+  padding-bottom: 1.5rem;
+}
+
+.estudiantes-section__select {
+  padding: 0.5rem;
+  border: 1px solid #445a85;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #0e0f14;
+  background-color: #f6f9ff;
+  transition: border-color 0.2s ease;
+  font-family: "Rubik", sans-serif;
+}
+
+.estudiantes-section__select:focus {
+  outline: none;
+  border-color: #9bc7e8;
+  box-shadow: 0 0 0 3px rgba(155, 199, 232, 0.2);
+}
