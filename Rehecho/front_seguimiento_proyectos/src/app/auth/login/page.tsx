@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { login } from '@/services/api';
-   
+import styles from '@/styles/Login.module.css';
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -21,41 +22,48 @@ export default function LoginPage() {
     try {
       const data = await login(email, password);
       router.push(`/dashboard/${data.user.rol}`);
-    } catch (err) {
-      setError(err.message);
+    } catch (err: any) {
+      setError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div>
-      <form onSubmit={handleLogin}>
-        <h1>Iniciar Sesión</h1>
-        {error && <p>{error}</p>}
-        <Input
-          label="Email"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <Input
-          label="Contraseña"
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Ingresando...' : 'Ingresar'}
-        </Button>
-        <p>
-          ¿No tienes cuenta? <a href="/auth/register">Regístrate</a>
-        </p>
-      </form>
+    <div className={styles.container}>
+      <div className={styles.leftSection}>
+        <h2>SEGUIMIENTO DE PROYECTOS DE GRADO</h2>
+        <p>Universidad San Francisco Xavier de Chuquisaca</p>
+      </div>
+
+      <div className={styles.rightSection}>
+        <form onSubmit={handleLogin} className={styles.formCard}>
+          <h1>Iniciar Sesión</h1>
+          {error && <p className={styles.error}>{error}</p>}
+          <Input
+            label="Email"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Input
+            label="Contraseña"
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+          </Button>
+          <p>
+            ¿No tienes cuenta? <a href="/auth/register">Regístrate aquí</a>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
