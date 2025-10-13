@@ -2,13 +2,13 @@
 .container {
   display: flex;
   height: 100vh;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Rubik", sans-serif;
 }
 
 /* === Sección izquierda: branding === */
 .leftSection {
   flex: 1;
-  background: #f3f6fb;
+  background: #f6f9ff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,21 +24,21 @@
 
 .leftSection h2 {
   font-size: 1.6rem;
-  color: #222;
+  color: #1e396c;
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .leftSection p {
   font-size: 1.1rem;
-  color: #444;
+  color: #445a85;
   margin-top: 0.3rem;
 }
 
 /* === Sección derecha: contenedor del formulario === */
 .rightSection {
   flex: 1;
-  background: #ccdae6;
+  background: #9bc7e8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -47,21 +47,21 @@
 
 /* === Tarjeta del formulario === */
 .formCard {
-  background: #ffffff;
+  background: #f6f9ff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   padding: 4rem 3rem;
   width: 100%;
-  max-width: 520px; /* Más ancho */
-  min-height: 520px; /* Más alto */
+  max-width: 520px;
+  min-height: 520px;
   text-align: left;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Rubik", sans-serif;
 }
 
 /* === Título del formulario === */
 .formCard h1 {
   font-size: 1.8rem;
-  color: #1a3260;
+  color: #1e396c;
   margin-bottom: 1.5rem;
   font-weight: 700;
 }
@@ -71,7 +71,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #333;
+  color: #0e0f14;
 }
 
 .formCard input,
@@ -79,28 +79,28 @@
   width: 100%;
   padding: 0.75rem 1rem;
   margin-bottom: 1.2rem;
-  border: 1px solid #ccc;
+  border: 1px solid #445a85;
   border-radius: 8px;
   font-size: 1rem;
-  color: #000; /* ← texto negro */
+  color: #0e0f14;
   transition: border-color 0.3s ease;
 }
 
 .formCard input::placeholder,
 .formCard textarea::placeholder {
-  color: #777;
+  color: #445a85;
 }
 
 .formCard input:focus,
 .formCard textarea:focus {
-  border-color: #1a3260;
+  border-color: #1e396c;
   outline: none;
 }
 
 /* === Botón === */
 .formCard button {
-  background-color: #1a3260;
-  color: #fff;
+  background-color: #1e396c;
+  color: #f6f9ff;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -111,7 +111,7 @@
 }
 
 .formCard button:hover {
-  background-color: #274a8e;
+  background-color: #445a85;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
@@ -119,11 +119,11 @@
 .formCard p {
   font-size: 0.95rem;
   margin-top: 1.5rem;
-  color: #555;
+  color: #445a85;
 }
 
 .formCard a {
-  color: #1a3260;
+  color: #1e396c;
   font-weight: 600;
   text-decoration: none;
 }
@@ -134,8 +134,8 @@
 
 /* === Mensaje de error === */
 .error {
-  color: #d9534f;
-  background: #fdecea;
+  color: #ec4040;
+  background: #f6f9ff;
   padding: 0.6rem 1rem;
   border-radius: 6px;
   margin-bottom: 1rem;
@@ -153,7 +153,7 @@
   }
 
   .rightSection {
-    background: #f0f3f8;
+    background: #f6f9ff;
     padding: 2rem 1rem;
   }
 
