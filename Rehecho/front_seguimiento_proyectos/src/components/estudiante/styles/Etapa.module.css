@@ -1,0 +1,250 @@
+:root {
+  --columbia-blue: #ccdae6ff;
+  --silver: #bdb3abff;
+  --delft-blue: #1a3260ff;
+  --white: #fefefeff;
+  --ghost-white: #f3f6fbff;
+  --gunmetal: #272d3aff;
+}
+
+.etapaContainer {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(26, 50, 96, 0.08);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.title {
+  color: var(--delft-blue);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  color: var(--gunmetal);
+  font-size: 0.95rem;
+  margin: 0;
+  opacity: 0.75;
+}
+
+.timelineContainer {
+  position: relative;
+}
+
+.progressLine {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--columbia-blue);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.cardWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card {
+  width: 100%;
+  padding: 1.5rem;
+  border: 2px solid var(--columbia-blue);
+  border-radius: 12px;
+  background: var(--ghost-white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  font-family: inherit;
+}
+
+.cardEnabled {
+  border-color: var(--columbia-blue);
+  background: var(--ghost-white);
+}
+
+.cardEnabled:hover:not(:disabled) {
+  border-color: var(--delft-blue);
+  background: var(--white);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(26, 50, 96, 0.12);
+}
+
+.cardActive {
+  border-color: var(--delft-blue);
+  background: linear-gradient(135deg, #e8f0f9 0%, var(--ghost-white) 100%);
+  box-shadow: 0 6px 20px rgba(26, 50, 96, 0.15);
+}
+
+.cardDisabled {
+  border-color: #e0e0e0;
+  background: #fafafa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cardDisabled:hover {
+  transform: none;
+}
+
+.icono {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.content {
+  flex: 1;
+}
+
+.cardTitle {
+  color: var(--delft-blue);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.cardDescription {
+  color: var(--gunmetal);
+  font-size: 0.85rem;
+  margin: 0;
+  opacity: 0.75;
+  line-height: 1.4;
+}
+
+.statusIndicator {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  background: var(--white);
+  border: 2px solid var(--silver);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.statusActive {
+  border-color: var(--delft-blue);
+}
+
+.statusCompleted {
+  background: var(--delft-blue);
+  border-color: var(--delft-blue);
+  color: var(--white);
+}
+
+.statusDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--delft-blue);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.statusCheck {
+  font-size: 1rem;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.connector {
+  width: 3px;
+  height: 2rem;
+  background: var(--columbia-blue);
+  margin: 1rem auto;
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.connectorActive {
+  background: var(--delft-blue);
+}
+
+.infoBox {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(204, 218, 230, 0.2) 0%, rgba(243, 246, 251, 1) 100%);
+  border-left: 4px solid var(--delft-blue);
+  border-radius: 8px;
+}
+
+.infoText {
+  color: var(--gunmetal);
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+  .cardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .progressLine {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .etapaContainer {
+    padding: 1.5rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+  }
+
+  .icono {
+    font-size: 2rem;
+  }
+
+  .cardTitle {
+    font-size: 1rem;
+  }
+
+  .cardDescription {
+    font-size: 0.8rem;
+  }
+}

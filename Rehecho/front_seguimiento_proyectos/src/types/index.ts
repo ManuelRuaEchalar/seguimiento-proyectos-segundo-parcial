@@ -26,3 +26,27 @@ export interface Group {
     usuario: { nombre: string; apellido: string };
   }[];
 }
+
+export interface StudentProfile {
+  id: number;
+  cu: string;
+  carrera: string;
+  proyecto_id: number | null;
+  usuario: {
+    nombre: string;
+    apellido: string;
+    email: string;
+    rol: string;
+  };
+  grupo: {
+    id: number;
+    nombre: string;
+    grado: string;
+  } | null;
+  proyecto?: {
+    id: number;
+    titulo: string;
+    fase_actual: string;
+    grado_actual: string;
+  } | null;
+}

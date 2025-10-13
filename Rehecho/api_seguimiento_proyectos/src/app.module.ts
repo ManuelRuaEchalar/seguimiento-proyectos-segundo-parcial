@@ -10,6 +10,7 @@ import { ProyectoModule } from './proyecto/proyecto.module';
 import { ObservacionModule } from './observacion/observacion.module';
 import { CorreccionModule } from './correccion/correccion.module';
 import { AdminModule } from './admin/admin.module';
+import { DocumentoModule } from './documento/documento.module';
 
 
 @Module({
@@ -21,6 +22,6 @@ AuthModule,
 UserModule, 
 EstudianteModule, 
 DocenteModule, 
-PrismaModule, GrupoModule, ProyectoModule, ObservacionModule, CorreccionModule, AdminModule],
+PrismaModule, GrupoModule, ProyectoModule, ObservacionModule, CorreccionModule, AdminModule, DocumentoModule],
 })
 export class AppModule {}
