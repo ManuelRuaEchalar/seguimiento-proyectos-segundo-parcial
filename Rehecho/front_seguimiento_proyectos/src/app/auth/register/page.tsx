@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { register } from '@/services/api';
+import styles from '@/styles/Register.module.css';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -28,8 +29,8 @@ export default function RegisterPage() {
     try {
       const data = await register(form);
       router.push('/auth/login');
-    } catch (err) {
-      setError(err.message);
+    } catch (err: any) {
+      setError(err.message || 'Error al registrarse');
     } finally {
       setLoading(false);
     }
@@ -40,71 +41,81 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
-      <form onSubmit={handleRegister}>
-        <h1>Registrarse</h1>
-        {error && <p>{error}</p>}
-        <Input
-          label="Nombre"
-          type="text"
-          name="nombre"
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          label="Apellido"
-          type="text"
-          name="apellido"
-          placeholder="Apellido"
-          value={form.apellido}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          label="Email"
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          label="Contraseña"
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          label="Código Único (CU)"
-          type="text"
-          name="cu"
-          placeholder="Código Único"
-          value={form.cu}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          label="Carrera"
-          type="text"
-          name="carrera"
-          placeholder="Carrera"
-          value={form.carrera}
-          onChange={handleChange}
-          required
-        />
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Registrando...' : 'Registrarse'}
-        </Button>
-        <p>
-          ¿Ya tienes cuenta? <a href="/auth/login">Inicia sesión</a>
-        </p>
-      </form>
+    <div className={styles.container}>
+      <div className={styles.leftSection}>
+        <h2>SEGUIMIENTO DE PROYECTOS DE GRADO</h2>
+        <p>Universidad San Francisco Xavier de Chuquisaca</p>
+      </div>
+
+      <div className={styles.rightSection}>
+        <form onSubmit={handleRegister} className={styles.formCard}>
+          <h1>Registrarse</h1>
+          {error && <p className={styles.error}>{error}</p>}
+
+          <Input
+            label="Nombre"
+            type="text"
+            name="nombre"
+            placeholder="Nombre"
+            value={form.nombre}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            label="Apellido"
+            type="text"
+            name="apellido"
+            placeholder="Apellido"
+            value={form.apellido}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            label="Contraseña"
+            type="password"
+            name="password"
+            placeholder="Contraseña"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            label="Carnet universitario"
+            type="text"
+            name="cu"
+            placeholder="CU"
+            value={form.cu}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            label="Carrera"
+            type="text"
+            name="carrera"
+            placeholder="Carrera"
+            value={form.carrera}
+            onChange={handleChange}
+            required
+          />
+
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Registrando...' : 'Registrarse'}
+          </Button>
+
+          <p>
+            ¿Ya tienes cuenta? <a href="/auth/login">Inicia sesión</a>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }

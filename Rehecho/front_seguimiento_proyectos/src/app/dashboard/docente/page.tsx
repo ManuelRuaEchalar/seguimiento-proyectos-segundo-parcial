@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getStudentGroups, logout } from '@/services/api';
+import { getDocenteWithGroups, logout } from '@/services/api';
 import { User, Group } from '@/types';
 import { useAuthGuard } from '../../../hooks/userAuthGuard';
 
@@ -10,22 +10,36 @@ export default function DocenteDashboard() {
   const router = useRouter();
   const { user, isLoading, isUnauthorized, error } = useAuthGuard('docente');
   const [groups, setGroups] = useState<Group[]>([]);
+  const [docenteInfo, setDocenteInfo] = useState<any>(null);
   const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
-    if (user && user.docente) {
+    console.log('useEffect triggered, user:', user);
+    if (user && user.rol === 'docente') {
+      console.log('User is docente, calling fetchGroups');
       async function fetchGroups() {
         try {
+          console.log('Starting fetchGroups function');
           setFetchError('');
-          const groupsData = await getStudentGroups();
-          // Filter groups where the teacher is assigned
-            const assignedGroups = groupsData.filter((group: Group) => group.docente_id === user?.docente?.id);
-          setGroups(assignedGroups);
+          const data = await getDocenteWithGroups();
+          console.log('Data received:', data);
+          console.log('User object:', user);
+          
+          if (data && typeof data === 'object' && 'docente' in data && 'groups' in data) {
+            setDocenteInfo(data.docente);
+            setGroups(data.groups || []);
+          } else {
+            // If we get an array (old format), handle it
+            setGroups(Array.isArray(data) ? data : []);
+          }
         } catch (err) {
+            console.error('Error in fetchGroups:', err);
             setFetchError(err instanceof Error ? err.message : String(err));
         }
       }
       fetchGroups();
+    } else {
+      console.log('User or user.rol is not docente, user:', user);
     }
   }, [user]);
 
@@ -57,45 +71,56 @@ export default function DocenteDashboard() {
       <div>
         <h1>Panel de Docente 📚</h1>
         <p>Email: {user?.email}</p>
-        {user?.docente?.especialidad && <p>Especialidad: {user.docente.especialidad}</p>}
+        <p>Nombre: {docenteInfo?.usuario?.nombre} {docenteInfo?.usuario?.apellido}</p>
+        <p>Especialidad: {docenteInfo?.especialidad}</p>
         <button onClick={handleLogout}>Cerrar Sesión</button>
       </div>
       <div>
-        <h2>Mis Grupos</h2>
-        {fetchError && <p>{fetchError}</p>}
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Grado</th>
-              <th>Estudiantes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(() => {
-              const rows = [];
-              for (const group of groups) {
-                const estudiantesNombres = [];
-                if (group.estudiantes && group.estudiantes.length > 0) {
-                  for (const estudiante of group.estudiantes) {
-                    estudiantesNombres.push(`${estudiante.usuario.nombre || ''} ${estudiante.usuario.apellido || ''}`.trim());
-                  }
-                }
-                const estudiantesTexto = estudiantesNombres.length > 0 ? estudiantesNombres.join(', ') : 'Sin estudiantes';
-                rows.push(
-                  <tr key={group.id}>
-                    <td>{group.id}</td>
-                    <td>{group.nombre}</td>
-                    <td>{group.grado}</td>
-                    <td>{estudiantesTexto}</td>
-                  </tr>
-                );
-              }
-              return rows;
-            })()}
-          </tbody>
-        </table>
+        {groups && groups.length > 0 ? (
+          <>
+            <h2>Mis Grupos ({groups.length})</h2>
+            {fetchError && <p style={{ color: 'red' }}>{fetchError}</p>}
+            
+            {groups.map((group) => (
+              <div key={group.id} style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '8px' }}>
+                <h3>{group.nombre}</h3>
+                <p><strong>Grado:</strong> {group.grado}</p>
+                
+                <h4>Estudiantes del Grupo</h4>
+                {group.estudiantes && group.estudiantes.length > 0 ? (
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Nombre</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Apellido</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>CU</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Carrera</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {group.estudiantes.map((estudiante) => (
+                        <tr key={estudiante.id}>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{estudiante.usuario.nombre}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{estudiante.usuario.apellido}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{estudiante.cu}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{estudiante.carrera}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p>No hay estudiantes asignados a este grupo.</p>
+                )}
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <h2>Sin Grupos Asignados</h2>
+            {fetchError && <p style={{ color: 'red' }}>{fetchError}</p>}
+            <p>No tienes ningún grupo asignado actualmente.</p>
+          </>
+        )}
       </div>
     </div>
   );

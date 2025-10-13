@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getUsers, getGroups, getDocentes, createUser, updateUser, deleteUser, createGroup, deleteGroup, assignDocenteToGroup, assignEstudianteToGroup, logout } from '@/services/api';
 import { User, Group } from '@/types';
 import { useAuthGuard } from '../../../hooks/userAuthGuard';
+import styles from '@/styles/AdminDashboard.module.css';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -49,46 +50,57 @@ export default function AdminDashboard() {
   };
 
   if (isLoading) {
-    return <p>Cargando...</p>;
+    return <p className={styles.error}>Cargando...</p>;
   }
 
   if (isUnauthorized) {
     return (
-      <div>
-        <h1>Usuario no autorizado 🚫</h1>
-        <p>No tienes permiso para acceder a este panel.</p>
-        {error && <p>{error}</p>}
+      <div className={styles.container}>
+        <div className={styles.main}>
+          <div className={styles.header}>
+            <h1>Usuario no autorizado 🚫</h1>
+            <p>No tienes permiso para acceder a este panel.</p>
+            {error && <p className={styles.error}>{error}</p>}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div>
-        <h1>Panel de Administración 🛠️</h1>
-        <p>Bienvenido, {user?.email} ({user?.rol})</p>
-        <button onClick={handleLogout}>Cerrar Sesión</button>
-      </div>
-      <div>
+    <div className={styles.container}>
+      <div className={styles.sidebar}>
+        <h1>Panel de Administración</h1>
         <button onClick={() => setActiveSection('users')}>Usuarios</button>
         <button onClick={() => setActiveSection('estudiantes')}>Estudiantes</button>
         <button onClick={() => setActiveSection('docentes')}>Docentes</button>
         <button onClick={() => setActiveSection('groups')}>Grupos</button>
+        <button className={styles.logout} onClick={handleLogout}>Cerrar Sesión</button>
       </div>
-      {error && <p>{error}</p>}
-      {fetchError && <p>{fetchError}</p>}
-      {activeSection === 'users' && (
-        <UsersSection users={users} onCreate={createUser} onUpdate={updateUser} onDelete={deleteUser} setError={setFetchError} refreshUsers={fetchData} />
-      )}
-      {activeSection === 'estudiantes' && (
-        <EstudiantesSection users={users.filter(u => u.rol === 'estudiante')} groups={groups} onAssign={assignEstudianteToGroup} setError={setFetchError} />
-      )}
-      {activeSection === 'docentes' && (
-        <DocentesSection docentes={docentes} groups={groups} onAssign={assignDocenteToGroup} setError={setFetchError} />
-      )}
-      {activeSection === 'groups' && (
-        <GroupsSection groups={groups} onCreate={createGroup} onDelete={deleteGroup} setError={setFetchError} refreshGroups={fetchData} />
-      )}
+      <div className={styles.main}>
+        <div className={styles.header}>
+          <div>
+            <h1>Panel de Administración 🛠️</h1>
+            <p>Bienvenido, {user?.email} ({user?.rol})</p>
+          </div>
+        </div>
+        {error && <p className={styles.error}>{error}</p>}
+        {fetchError && <p className={styles.error}>{fetchError}</p>}
+        <div className={styles.section}>
+          {activeSection === 'users' && (
+            <UsersSection users={users} onCreate={createUser} onUpdate={updateUser} onDelete={deleteUser} setError={setFetchError} refreshUsers={fetchData} />
+          )}
+          {activeSection === 'estudiantes' && (
+            <EstudiantesSection users={users.filter(u => u.rol === 'estudiante')} groups={groups} onAssign={assignEstudianteToGroup} setError={setFetchError} />
+          )}
+          {activeSection === 'docentes' && (
+            <DocentesSection docentes={docentes} groups={groups} onAssign={assignDocenteToGroup} setError={setFetchError} />
+          )}
+          {activeSection === 'groups' && (
+            <GroupsSection groups={groups} onCreate={createGroup} onDelete={deleteGroup} setError={setFetchError} refreshGroups={fetchData} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -213,24 +225,18 @@ function UsersSection({ users, onCreate, onUpdate, onDelete, setError, refreshUs
           </tr>
         </thead>
         <tbody>
-          {(() => {
-            const rows = [];
-            for (const user of users) {
-              rows.push(
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.nombre} {user.apellido}</td>
-                  <td>{user.email}</td>
-                  <td>{user.rol}</td>
-                  <td>
-                    <button onClick={() => handleEditClick(user)}>Editar</button>
-                    <button onClick={() => onDelete(user.id)}>Eliminar</button>
-                  </td>
-                </tr>
-              );
-            }
-            return rows;
-          })()}
+          {users.map((user: User) => (
+            <tr key={user.id}>
+              <td>{user.id}</td>
+              <td>{user.nombre} {user.apellido}</td>
+              <td>{user.email}</td>
+              <td>{user.rol}</td>
+              <td>
+                <button onClick={() => handleEditClick(user)}>Editar</button>
+                <button onClick={() => onDelete(user.id)}>Eliminar</button>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -370,34 +376,27 @@ function GroupsSection({ groups, onCreate, onDelete, setError, refreshGroups }: 
           </tr>
         </thead>
         <tbody>
-          {(() => {
-            const rows = [];
-            for (const group of groups) {
-              const estudiantesNombres = [];
-              if (group.estudiantes && group.estudiantes.length > 0) {
-                for (const estudiante of group.estudiantes) {
-                  estudiantesNombres.push(`${estudiante.usuario.nombre || ''} ${estudiante.usuario.apellido || ''}`.trim());
-                }
-              }
-              const estudiantesTexto = estudiantesNombres.length > 0 ? estudiantesNombres.join(', ') : 'Sin estudiantes';
-              const docenteTexto = group.docente && group.docente.usuario 
-                ? `${group.docente.usuario.nombre || ''} ${group.docente.usuario.apellido || ''}`.trim() 
-                : 'Sin asignar';
-              rows.push(
-                <tr key={group.id}>
-                  <td>{group.id}</td>
-                  <td>{group.nombre}</td>
-                  <td>{group.grado}</td>
-                  <td>{docenteTexto}</td>
-                  <td>{estudiantesTexto}</td>
-                  <td>
-                    <button onClick={() => handleDeleteGroup(group.id)}>Eliminar</button>
-                  </td>
-                </tr>
-              );
-            }
-            return rows;
-          })()}
+          {groups.map((group: Group) => {
+            const estudiantesNombres = group.estudiantes?.map((estudiante: any) => 
+              `${estudiante.usuario.nombre || ''} ${estudiante.usuario.apellido || ''}`.trim()
+            ) || [];
+            const estudiantesTexto = estudiantesNombres.length > 0 ? estudiantesNombres.join(', ') : 'Sin estudiantes';
+            const docenteTexto = group.docente && group.docente.usuario 
+              ? `${group.docente.usuario.nombre || ''} ${group.docente.usuario.apellido || ''}`.trim() 
+              : 'Sin asignar';
+            return (
+              <tr key={group.id}>
+                <td>{group.id}</td>
+                <td>{group.nombre}</td>
+                <td>{group.grado}</td>
+                <td>{docenteTexto}</td>
+                <td>{estudiantesTexto}</td>
+                <td>
+                  <button onClick={() => handleDeleteGroup(group.id)}>Eliminar</button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

@@ -232,11 +232,14 @@ export async function createGroup(data: {
   }
 }
 export async function deleteGroup(id: number): Promise<void> {
-  const response = await fetch(`http://localhost:3000/admin/grupos/${id}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/admin/grupos/${id}`,
+    {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    }
+  );
   if (!response.ok) throw new Error("Failed to delete group");
 }
 export async function assignDocenteToGroup(groupId: number, docenteId: number) {
@@ -314,6 +317,108 @@ export async function getStudentGroups() {
     if (!res.ok) throw new Error(data.message || "Error al obtener grupos");
     return data;
   } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
+export async function getDocenteWithGroups() {
+  try {
+    // Get current user first to know which docente we are
+    const userResponse = await getUser();
+    console.log("User response:", userResponse);
+
+    if (!userResponse.user) {
+      throw new Error("Usuario no encontrado");
+    }
+
+    // Check if user is a docente
+    if (userResponse.user.rol !== "docente") {
+      throw new Error("Usuario no es docente");
+    }
+
+    // For docentes, the user.id is the docente ID
+    const docenteId = userResponse.user.id;
+    console.log("User docente ID:", docenteId);
+
+    // Get all docentes from the endpoint
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/docente`, {
+      credentials: "include",
+    });
+    const docentesData = await res.json();
+    if (!res.ok)
+      throw new Error(docentesData.message || "Error al obtener docentes");
+
+    console.log("Docentes data:", docentesData);
+
+    // Find the current docente by ID
+    const currentDocente = docentesData.find((docente: any) => {
+      console.log(
+        `Comparing docente ID ${
+          docente.id
+        } (type: ${typeof docente.id}) with user ID ${docenteId} (type: ${typeof docenteId})`
+      );
+      return Number(docente.id) === Number(docenteId);
+    });
+
+    console.log("Current docente found:", currentDocente);
+
+    if (!currentDocente) {
+      throw new Error("Docente no encontrado");
+    }
+
+    // If the docente has no groups, return docente info with empty groups
+    if (!currentDocente.grupos || currentDocente.grupos.length === 0) {
+      console.log("Docente has no groups");
+      return {
+        docente: currentDocente,
+        groups: [],
+      };
+    }
+
+    console.log("Docente groups:", currentDocente.grupos);
+
+    // Get detailed group information for each group ID
+    const groupDetails = await Promise.all(
+      currentDocente.grupos.map(async (grupo: { id: number }) => {
+        try {
+          const groupRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/grupos`,
+            {
+              credentials: "include",
+            }
+          );
+          const allGroups = await groupRes.json();
+          if (!groupRes.ok)
+            throw new Error("Error al obtener detalles del grupo");
+
+          // Find the specific group by ID
+          const groupDetail = allGroups.find((g: any) => g.id === grupo.id);
+          console.log(`Group detail for ID ${grupo.id}:`, groupDetail);
+          return groupDetail;
+        } catch (err) {
+          console.error(
+            `Error obteniendo detalles del grupo ${grupo.id}:`,
+            err
+          );
+          return null;
+        }
+      })
+    );
+
+    console.log("Final group details:", groupDetails);
+
+    // Filter out any null values (failed requests)
+    const validGroups = groupDetails.filter((group) => group !== null);
+
+    return {
+      docente: currentDocente,
+      groups: validGroups,
+    };
+  } catch (err) {
+    console.error("Error in getDocenteWithGroups:", err);
     if (err instanceof Error) {
       throw new Error(err.message || "Error de conexión con el servidor");
     }
