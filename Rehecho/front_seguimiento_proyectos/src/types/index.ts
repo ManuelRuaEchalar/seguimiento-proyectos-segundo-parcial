@@ -50,3 +50,51 @@ export interface StudentProfile {
     grado_actual: string;
   } | null;
 }
+
+export interface BoundingRect {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  width: number;
+  height: number;
+  pageNumber: number;
+}
+
+export interface Rect {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  width: number;
+  height: number;
+  pageNumber: number;
+}
+
+export interface Position {
+  boundingRect: BoundingRect;
+  rects: Rect[];
+  pageNumber: number;
+}
+
+export interface Content {
+  text: string;
+}
+
+export interface ContentArea {
+  image: string;
+}
+
+export interface Comment {
+  text: string;
+  emoji: string;
+}
+
+export interface Observacion {
+  content: Content;
+  position: Position;
+  comment: Comment;
+  estado: string;
+  codigoDoc: number;
+  id: string; // Nota: es string, no number
+}

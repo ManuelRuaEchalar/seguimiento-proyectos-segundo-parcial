@@ -161,7 +161,7 @@ useEffect(() => {
                 </div>
               </div>
 
-              <Etapa faseActual={studentProfile.proyecto?.fase_actual || 'tema'} />
+              <Etapa faseActual={studentProfile.proyecto?.fase_actual || 'tema'} rol={"estudiante"}/>
             </>
           )}
         </div>

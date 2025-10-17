@@ -1,0 +1,160 @@
+.sidebarDerecha {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--ghost-white);
+  border-left: 1px solid var(--columbia-blue);
+  overflow: hidden;
+}
+
+.logoContainer {
+  padding: 1.5rem;
+  background-color: var(--delft-blue);
+  border-bottom: 2px solid var(--columbia-blue);
+}
+
+.logoPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logoPlaceholder span {
+  color: var(--delft-blue); /* Maintained for contrast on white background */
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.sidebarDescription {
+  padding: 1.5rem;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--columbia-blue);
+}
+
+.sidebarTitle {
+  margin: 0 0 0.5rem 0;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on white background */
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.sidebarInstructions {
+  margin: 0;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on white background */
+  line-height: 1.5;
+}
+
+.sidebarInstructions small {
+  font-size: 0.875rem;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast */
+}
+
+.observaciones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.observacion {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--columbia-blue);
+  background-color: var(--white);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.observacion:hover {
+  background-color: var(--ghost-white);
+  transform: translateX(-2px);
+}
+
+.observacion:active {
+  transform: translateX(-4px);
+}
+
+.observacionEmpty {
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on white background */
+  text-align: center;
+  padding: 2rem 1.5rem;
+  font-style: italic;
+}
+
+.observacionEstado {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  background-color: #ef4444;
+  color: var(--white);
+}
+
+.observacionEstadoAprobado {
+  background-color: #10b981;
+  color: var(--white);
+}
+
+.observacionEstadoRechazado {
+  background-color: #ef4444;
+  color: var(--white);
+}
+
+.observacionEstadoPendiente {
+  background-color: #f59e0b;
+  color: var(--white);
+}
+
+.observacionComment {
+  display: block;
+  margin: 0.5rem 0;
+  color: var(--gunmetal); /* Maintained for contrast on white background */
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.observacionBlockquote {
+  margin: 0.5rem 0 0.75rem 0;
+  padding: 0.5rem;
+  background-color: var(--ghost-white);
+  border-left: 3px solid var(--delft-blue);
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on ghost-white */
+  font-size: 0.875rem;
+  font-style: italic;
+  line-height: 1.5;
+  border-radius: 4px;
+}
+
+.observacionLocation {
+  margin-top: 0.5rem;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on white background */
+  font-size: 0.813rem;
+  font-weight: 500;
+}
+
+/* Scrollbar styling */
+.observaciones::-webkit-scrollbar {
+  width: 8px;
+}
+
+.observaciones::-webkit-scrollbar-track {
+  background: var(--ghost-white);
+}
+
+.observaciones::-webkit-scrollbar-thumb {
+  background: var(--columbia-blue);
+  border-radius: 4px;
+}
+
+.observaciones::-webkit-scrollbar-thumb:hover {
+  background: var(--silver);
+}

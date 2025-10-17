@@ -153,7 +153,7 @@ const EstudianteConGrupoPage = () => {
 
         // Redirect to new document if more than one document exists
         if (documents.length >= 1) {
-          router.push(`/estudiante/documentoNuevo/${result.id}`);
+          router.push(`/dashboard/estudiante/documentoNuevo/${result.id}`);
         }
       } else {
         setUploadStatus('error');
@@ -178,7 +178,7 @@ const EstudianteConGrupoPage = () => {
 
   // Handle document click for navigation
   const handleDocumentClick = (documento: Document) => {
-    router.push(`/estudiante/documento/${documento.id}`);
+    router.push(`/dashboard/estudiante/documento/${documento.id}`);
   };
 
   if (authLoading || isLoading) {

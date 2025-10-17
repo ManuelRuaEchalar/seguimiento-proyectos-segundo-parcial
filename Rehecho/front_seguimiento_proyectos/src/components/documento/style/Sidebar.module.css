@@ -1,0 +1,574 @@
+.sidebar {
+  width: 380px;
+  min-width: 280px;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--white);
+  overflow: hidden;
+  border-right: 1px solid var(--columbia-blue);
+}
+
+/* Header */
+.sidebarHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--columbia-blue);
+  background-color: var(--ghost-white);
+}
+
+.sidebarTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on ghost-white */
+  margin: 0 0 0.5rem 0;
+}
+
+.sidebarTitle svg {
+  color: var(--delft-blue);
+}
+
+.sidebarInstructions {
+  font-size: 0.875rem;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on ghost-white */
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Approval Form */
+.approvalIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background-color: #dbeafe;
+  color: var(--delft-blue);
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+}
+
+.approvalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gunmetal); /* Maintained for contrast on white background */
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.approvalSubtitle {
+  font-size: 0.875rem;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on white background */
+  margin: 0;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.approvalForm {
+  padding: 1.5rem;
+}
+
+.approvalButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.approveBtn,
+.rejectBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: inherit;
+}
+
+.approveBtn {
+  background-color: #22c55e;
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.approveBtn:hover {
+  background-color: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.rejectBtn {
+  background-color: var(--ghost-white);
+  color: #dc2626;
+  border: 1px solid var(--columbia-blue);
+}
+
+.rejectBtn:hover {
+  background-color: #fee;
+  border-color: #dc2626;
+}
+
+/* Rejection Form */
+.rejectionFormContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rejectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gunmetal); /* Maintained for contrast on white background */
+  margin: 0;
+}
+
+.textareaWrapper {
+  position: relative;
+}
+
+.rejectionTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--columbia-blue);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--gunmetal);
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.2s ease;
+}
+
+.rejectionTextarea:focus {
+  outline: none;
+  border-color: var(--delft-blue);
+  box-shadow: 0 0 0 3px rgba(26, 50, 96, 0.1);
+}
+
+.rejectionTextarea::placeholder {
+  color: var(--silver);
+}
+
+.charCounter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast */
+}
+
+.charWarning {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.charMax {
+  color: var(--gunmetal); /* Changed to gunmetal for consistency */
+}
+
+.rejectionButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cancelBtn,
+.confirmRejectBtn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: inherit;
+}
+
+.cancelBtn {
+  background-color: var(--ghost-white);
+  color: var(--gunmetal);
+  border: 1px solid var(--columbia-blue);
+}
+
+.cancelBtn:hover {
+  background-color: var(--columbia-blue);
+}
+
+.confirmRejectBtn {
+  background-color: #dc2626;
+  color: var(--white);
+}
+
+.confirmRejectBtn:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.confirmRejectBtn:disabled {
+  background-color: var(--silver);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Highlights List */
+.highlightsList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  margin: 0;
+  list-style: none;
+}
+
+.highlightsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.highlightsList::-webkit-scrollbar-track {
+  background: var(--ghost-white);
+}
+
+.highlightsList::-webkit-scrollbar-thumb {
+  background: var(--silver);
+  border-radius: 3px;
+}
+
+.highlightsList::-webkit-scrollbar-thumb:hover {
+  background: var(--delft-blue);
+}
+
+.highlightItem {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background-color: var(--white);
+  border: 1px solid var(--columbia-blue);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.highlightItem:hover {
+  border-color: var(--delft-blue);
+  box-shadow: 0 2px 8px rgba(26, 50, 96, 0.1);
+  transform: translateX(4px);
+}
+
+.highlightContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.highlightEstado {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estadoPendiente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.estadoAprobado {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.estadoRechazado {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.estadoDefault {
+  background-color: var(--ghost-white);
+  color: var(--gunmetal);
+}
+
+.highlightComment {
+  font-size: 0.9375rem;
+  color: var(--gunmetal); /* Maintained for contrast on white background */
+  line-height: 1.5;
+}
+
+.highlightBlockquote {
+  margin: 0;
+  padding: 0.75rem;
+  padding-left: 2.5rem;
+  background-color: var(--ghost-white);
+  border-left: 3px solid var(--delft-blue);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on ghost-white */
+  line-height: 1.5;
+  position: relative;
+}
+
+.quoteIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  color: var(--delft-blue);
+  opacity: 0.3;
+}
+
+.highlightImage {
+  margin-top: 0.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--columbia-blue);
+}
+
+.highlightImage img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.highlightLocation {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on white background */
+}
+
+/* Empty State */
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.emptyState svg {
+  color: var(--silver);
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.emptyStateText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gunmetal); /* Maintained for contrast on white background */
+  margin: 0 0 0.5rem 0;
+}
+
+.emptyStateSubtext {
+  font-size: 0.875rem;
+  color: var(--gunmetal); /* Changed to gunmetal for better contrast on white background */
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Footer */
+.sidebarFooter {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--columbia-blue);
+  background-color: var(--ghost-white);
+}
+
+.resetBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--white);
+  color: var(--delft-blue);
+  border: 1px solid var(--columbia-blue);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.resetBtn:hover {
+  background-color: var(--delft-blue);
+  color: var(--white);
+  border-color: var(--delft-blue);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .sidebarHeader {
+    padding: 1rem;
+  }
+
+  .sidebarTitle {
+    font-size: 1.125rem;
+  }
+
+  .approvalForm {
+    padding: 1rem;
+  }
+
+  .highlightsList {
+    padding: 0.75rem;
+  }
+
+  .highlightItem {
+    padding: 0.875rem;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .highlightItem:hover {
+    transform: none;
+  }
+
+  .approveBtn:hover,
+  .rejectBtn:hover {
+    transform: none;
+  }
+}
+
+.approveBtn:focus-visible,
+.rejectBtn:focus-visible,
+.cancelBtn:focus-visible,
+.confirmRejectBtn:focus-visible,
+.resetBtn:focus-visible {
+  outline: 2px solid var(--delft-blue);
+  outline-offset: 2px;
+}
+
+/* Nuevos estilos para el sidebar unificado */
+.sidebarContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.section {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--columbia-blue);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gunmetal);
+  margin: 0 0 0.5rem 0;
+}
+
+.sectionDescription {
+  font-size: 0.875rem;
+  color: var(--gunmetal);
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.observacionesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.observacionItem {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background-color: var(--white);
+  border: 1px solid var(--columbia-blue);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.observacionItem:hover {
+  border-color: var(--delft-blue);
+  box-shadow: 0 2px 8px rgba(26, 50, 96, 0.1);
+  transform: translateX(4px);
+}
+
+.observacionOtraVersion {
+  background-color: var(--ghost-white);
+  border-left: 4px solid var(--delft-blue);
+}
+
+.observacionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.observacionComment {
+  font-size: 0.9375rem;
+  color: var(--gunmetal);
+  line-height: 1.5;
+}
+
+.observacionBlockquote {
+  margin: 0;
+  padding: 0.75rem;
+  background-color: var(--white);
+  border-left: 3px solid var(--delft-blue);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  color: var(--gunmetal);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.observacionLocation {
+  margin-top: 0.5rem;
+  color: var(--gunmetal);
+  font-size: 0.813rem;
+  font-weight: 500;
+}
+
+/* Estilos para los badges de estado (como SidebarDerecha) */
+.estadoBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  width: fit-content;
+}
+
+.estadoBadgeAprobado {
+  background-color: #10b981;
+  color: var(--white);
+}
+
+.estadoBadgeRechazado {
+  background-color: #ef4444;
+  color: var(--white);
+}
+
+.estadoBadgePendiente {
+  background-color: #f59e0b;
+  color: var(--white);
+}
+
+/* Ajustar los highlights existentes para diferenciarlos */
+.highlightItem {
+  /* Mantener estilos existentes pero con fondo ligeramente diferente */
+  background-color: rgba(255, 255, 255, 0.8);
+}

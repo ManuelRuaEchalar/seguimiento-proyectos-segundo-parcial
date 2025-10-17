@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getDocenteWithGroups, logout } from '@/services/api';
 import { User, Group } from '@/types';
 import { useAuthGuard } from '../../../hooks/userAuthGuard';
+import styles from './page.module.css';
 
 export default function DocenteDashboard() {
   const router = useRouter();
@@ -14,34 +15,27 @@ export default function DocenteDashboard() {
   const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
-    console.log('useEffect triggered, user:', user);
-    if (user && user.rol === 'docente') {
-      console.log('User is docente, calling fetchGroups');
-      async function fetchGroups() {
-        try {
-          console.log('Starting fetchGroups function');
-          setFetchError('');
-          const data = await getDocenteWithGroups();
-          console.log('Data received:', data);
-          console.log('User object:', user);
-          
-          if (data && typeof data === 'object' && 'docente' in data && 'groups' in data) {
-            setDocenteInfo(data.docente);
-            setGroups(data.groups || []);
-          } else {
-            // If we get an array (old format), handle it
-            setGroups(Array.isArray(data) ? data : []);
-          }
-        } catch (err) {
-            console.error('Error in fetchGroups:', err);
-            setFetchError(err instanceof Error ? err.message : String(err));
+  if (user?.id && user.rol === 'docente') {
+    async function fetchGroups() {
+      try {
+        setFetchError('');
+        const data = await getDocenteWithGroups();
+        
+        if (data && typeof data === 'object' && 'docente' in data && 'groups' in data) {
+          setDocenteInfo(data.docente);
+          setGroups(data.groups || []);
+        } else {
+          setGroups(Array.isArray(data) ? data : []);
         }
+      } catch (err) {
+        console.error('Error in fetchGroups:', err);
+        setFetchError(err instanceof Error ? err.message : String(err));
       }
-      fetchGroups();
-    } else {
-      console.log('User or user.rol is not docente, user:', user);
     }
-  }, [user]);
+    
+    fetchGroups();
+  }
+}, [user?.id]); // Solo depender del ID
 
   const handleLogout = async () => {
     try {
@@ -50,6 +44,10 @@ export default function DocenteDashboard() {
     } catch (err) {
         setFetchError(err instanceof Error ? err.message : String(err));
     }
+  };
+
+  const handleEstudianteClick = (estudianteId: number) => {
+    router.push(`/dashboard/docente/proyecto/${estudianteId}`);
   };
 
   if (isLoading) {
@@ -67,49 +65,74 @@ export default function DocenteDashboard() {
   }
 
   return (
-    <div>
-      <div>
-        <h1>Panel de Docente 📚</h1>
-        <p>Email: {user?.email}</p>
-        <p>Nombre: {docenteInfo?.usuario?.nombre} {docenteInfo?.usuario?.apellido}</p>
-        <p>Especialidad: {docenteInfo?.especialidad}</p>
-        <button onClick={handleLogout}>Cerrar Sesión</button>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <h1>Panel de Docente 📚</h1>
+          <div className={styles.docenteInfo}>
+            <p><strong>Email:</strong> {user?.email}</p>
+            <p><strong>Nombre:</strong> {docenteInfo?.usuario?.nombre} {docenteInfo?.usuario?.apellido}</p>
+            <p><strong>Especialidad:</strong> {docenteInfo?.especialidad}</p>
+          </div>
+        </div>
+        <button onClick={handleLogout} className={styles.logoutButton}>Cerrar Sesión</button>
       </div>
-      <div>
+
+      <div className={styles.content}>
         {groups && groups.length > 0 ? (
           <>
             <h2>Mis Grupos ({groups.length})</h2>
-            {fetchError && <p style={{ color: 'red' }}>{fetchError}</p>}
+            {fetchError && <p className={styles.errorMessage}>{fetchError}</p>}
             
             {groups.map((group) => (
-              <div key={group.id} style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '8px' }}>
-                <h3>{group.nombre}</h3>
-                <p><strong>Grado:</strong> {group.grado}</p>
+              <div key={group.id} className={styles.groupCard}>
+                <div className={styles.groupHeader}>
+                  <h3>{group.nombre}</h3>
+                  <p className={styles.gradoBadge}>Grado: {group.grado}</p>
+                </div>
                 
-                <h4>Estudiantes del Grupo</h4>
+                <h4 className={styles.estudiantesTitle}>Estudiantes del Grupo</h4>
                 {group.estudiantes && group.estudiantes.length > 0 ? (
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Nombre</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Apellido</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>CU</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Carrera</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {group.estudiantes.map((estudiante) => (
-                        <tr key={estudiante.id}>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{estudiante.usuario.nombre}</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{estudiante.usuario.apellido}</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{estudiante.cu}</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{estudiante.carrera}</td>
+                  <div className={styles.tableWrapper}>
+                    <table className={styles.estudiantesTable}>
+                      <thead>
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Apellido</th>
+                          <th>CU</th>
+                          <th>Carrera</th>
+                          <th>Acción</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {group.estudiantes.map((estudiante) => (
+                          <tr 
+                            key={estudiante.id}
+                            className={styles.estudianteRow}
+                            onClick={() => handleEstudianteClick(estudiante.id)}
+                          >
+                            <td>{estudiante.usuario.nombre}</td>
+                            <td>{estudiante.usuario.apellido}</td>
+                            <td>{estudiante.cu}</td>
+                            <td>{estudiante.carrera}</td>
+                            <td>
+                              <button 
+                                className={styles.viewProjectButton}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEstudianteClick(estudiante.id);
+                                }}
+                              >
+                                Ver Proyecto
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 ) : (
-                  <p>No hay estudiantes asignados a este grupo.</p>
+                  <p className={styles.noEstudiantes}>No hay estudiantes asignados a este grupo.</p>
                 )}
               </div>
             ))}
@@ -117,7 +140,7 @@ export default function DocenteDashboard() {
         ) : (
           <>
             <h2>Sin Grupos Asignados</h2>
-            {fetchError && <p style={{ color: 'red' }}>{fetchError}</p>}
+            {fetchError && <p className={styles.errorMessage}>{fetchError}</p>}
             <p>No tienes ningún grupo asignado actualmente.</p>
           </>
         )}

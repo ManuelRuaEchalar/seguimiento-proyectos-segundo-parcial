@@ -173,6 +173,11 @@ export const obtenerDocumento = async (id: number): Promise<{
   filename: string; 
   mimeType: string;
 }> => {
+  // Validar que id sea un número válido
+  if (!id || isNaN(id) || id <= 0) {
+    throw new Error('El ID del documento debe ser un número positivo');
+  }
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   
   if (!apiUrl) {

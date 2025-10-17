@@ -1,0 +1,160 @@
+/* DocumentoLayoutClientCorrecciones.module.css */
+
+.documentoPageLayout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+.simpleNavbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--delft-blue) 0%, var(--gunmetal) 100%);
+  border-bottom: 2px solid var(--columbia-blue);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 70px;
+}
+
+.instructionContainer {
+  max-width: 1200px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid var(--delft-blue);
+}
+
+.instructionText {
+  color: var(--gunmetal);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.instructionText::before {
+  content: "ℹ️ ";
+  margin-right: 0.5rem;
+}
+
+.documentoBody {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--ghost-white);
+}
+
+.pdfContainer {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  background-color: var(--ghost-white);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .simpleNavbar {
+    padding: 0.875rem 1.5rem;
+    min-height: auto;
+  }
+
+  .instructionContainer {
+    padding: 0.625rem 1.25rem;
+  }
+
+  .instructionText {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .simpleNavbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .instructionContainer {
+    padding: 0.5rem 1rem;
+    border-left-width: 3px;
+  }
+
+  .instructionText {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .instructionText::before {
+    display: block;
+    margin-bottom: 0.25rem;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .simpleNavbar {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .instructionContainer {
+    padding: 0.5rem 0.875rem;
+    border-radius: 6px;
+  }
+
+  .instructionText {
+    font-size: 0.813rem;
+  }
+}
+
+/* Animaciones */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.instructionContainer {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Estados hover para dispositivos con mouse */
+@media (hover: hover) {
+  .instructionContainer:hover {
+    background-color: var(--white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .instructionContainer {
+    animation: none;
+  }
+
+  .instructionContainer:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode support (opcional) */
+@media (prefers-color-scheme: dark) {
+  .instructionContainer {
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+}
