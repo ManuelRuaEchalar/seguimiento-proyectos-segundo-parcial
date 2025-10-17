@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -8,6 +8,11 @@ export class DocumentoService {
   constructor(private prisma: PrismaService) {}
 
   async getDoc(id: number) {
+    // Validar que id sea un número válido
+    if (!id || isNaN(id) || id <= 0) {
+      throw new BadRequestException(`El ID del documento debe ser un número positivo pero es ${id}`);
+    }
+
     const documento = await this.prisma.documento.findUnique({
       where: { id },
       select: { 
@@ -51,6 +56,11 @@ export class DocumentoService {
   }
 
   async getDocInfo(id: number) {
+    // Validar que id sea un número válido
+    if (!id || isNaN(id) || id <= 0) {
+      throw new BadRequestException('El ID del documento debe ser un número positivo');
+    }
+
     const doc = await this.prisma.documento.findUnique({
       where: { id },
       select: {
@@ -66,13 +76,18 @@ export class DocumentoService {
     });
 
     if (!doc) {
-      throw new Error(`Documento con código ${id} no encontrado`);
+      throw new NotFoundException(`Documento con código ${id} no encontrado`);
     }
 
     return doc;
   }
 
   async verificarProyecto(proyectoId: number): Promise<boolean> {
+    // Validar que proyectoId sea un número válido
+    if (!proyectoId || isNaN(proyectoId) || proyectoId <= 0) {
+      return false;
+    }
+
     try {
       const proyecto = await this.prisma.proyecto.findUnique({
         where: { id: proyectoId }
@@ -92,6 +107,11 @@ export class DocumentoService {
     estado: string;
     activo: boolean;
   }) {
+    // Validar datos de entrada
+    if (!datos.titulo || !datos.file || !datos.proyecto_id || !datos.estado) {
+      throw new BadRequestException('Faltan datos requeridos para crear el documento');
+    }
+
     try {
       return await this.prisma.documento.create({
         data: {
@@ -125,6 +145,11 @@ export class DocumentoService {
   }
 
   async findByProyecto(proyectoId: number) {
+    // Validar que proyectoId sea un número válido
+    if (!proyectoId || isNaN(proyectoId) || proyectoId <= 0) {
+      throw new BadRequestException('El ID del proyecto debe ser un número positivo');
+    }
+
     try {
       const documents = await this.prisma.documento.findMany({
         where: { 
@@ -146,6 +171,7 @@ export class DocumentoService {
 
       if (!documents || documents.length === 0) {
         console.log(`📂 No se encontraron documentos para proyecto_id: ${proyectoId}`);
+        return [];
       }
 
       return documents;

@@ -1,0 +1,49 @@
+.navbar {
+  background-color: var(--delft-blue);
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.docenteSection {
+  background-color: var(--ghost-white);
+  padding: 1rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.estudianteSection {
+  background-color: var(--columbia-blue);
+  padding: 1rem;
+  border-radius: 0 0 8px 8px;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--gunmetal);
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--silver);
+  padding-bottom: 0.25rem;
+}
+
+.detailItem {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.label {
+  font-weight: 500;
+  color: var(--gunmetal);
+  min-width: 80px;
+}
+
+.value {
+  color: var(--delft-blue);
+  font-weight: 400;
+}

@@ -28,11 +28,28 @@ export class EstudianteController {
     return this.estudianteService.updateEstudiante(userId, body);
   }
 
+  // Asignar un proyecto al estudiante logueado
   @Post('asignar-proyecto/:idProyecto')
-async asignarProyecto(
-  @GetUser('id') userId: number,
-  @Param('idProyecto') idProyecto: number,
+  async asignarProyecto(
+    @GetUser('id') userId: number,
+    @Param('idProyecto') idProyecto: number,
+  ) {
+    return this.estudianteService.asignarProyecto(userId, Number(idProyecto));
+  }
+
+  // Ver proyecto de un estudiante (por id)
+  @Post('view-project')
+  async viewProyect(@Body('id') id: number) {
+    console.log('id estudiante ingresado: ', id);
+    return this.estudianteService.viewProyect(id);
+  }
+
+  @Post('get-by-id')
+async getEstudianteById(
+  @GetUser('id') requesterId: number,
+  @Body('id') id: number,
 ) {
-  return this.estudianteService.asignarProyecto(userId, Number(idProyecto));
+  console.log(`Usuario autenticado: ${requesterId}, consulta por estudiante: ${id}`);
+  return this.estudianteService.getEstudianteById(requesterId, id);
 }
 }

@@ -1,0 +1,302 @@
+.documentoNavbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--columbia-blue);
+  box-shadow: 0 2px 8px rgba(26, 50, 96, 0.08);
+  min-height: 64px;
+  gap: 1rem;
+}
+
+/* Sección izquierda */
+.navbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.btnVolver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: var(--delft-blue);
+  border: 1px solid var(--columbia-blue);
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnVolver:hover {
+  background-color: var(--ghost-white);
+  border-color: var(--delft-blue);
+  transform: translateX(-2px);
+}
+
+.btnVolver:active {
+  transform: translateX(0);
+}
+
+.documentoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.nombreDocumento {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gunmetal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.version {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  opacity: 0.7;
+}
+
+/* Sección central */
+.navbarCenter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btnComparar,
+.btnAprobar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: none;
+}
+
+.btnComparar {
+  background-color: var(--ghost-white);
+  color: var(--delft-blue);
+  border: 1px solid var(--columbia-blue);
+}
+
+.btnComparar:hover {
+  background-color: var(--columbia-blue);
+  border-color: var(--delft-blue);
+}
+
+.btnAprobar {
+  background-color: var(--delft-blue);
+  color: var(--white);
+  box-shadow: 0 2px 6px rgba(26, 50, 96, 0.2);
+}
+
+.btnAprobar:hover {
+  background-color: var(--gunmetal);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(26, 50, 96, 0.3);
+}
+
+.btnAprobar:active,
+.btnComparar:active {
+  transform: translateY(0);
+}
+
+/* Sección derecha */
+.navbarRight {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.etiquetaLabel {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+.etiquetaValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--gunmetal);
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  background-color: var(--ghost-white);
+}
+
+/* Estados del documento */
+.estadoAprobado {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.estadoRevision {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.estadoPendiente {
+  background-color: var(--columbia-blue);
+  color: var(--delft-blue);
+}
+
+.estadoRechazado {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.estadoDefault {
+  background-color: var(--ghost-white);
+  color: var(--gunmetal);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .navbarCenter {
+    gap: 0.5rem;
+  }
+
+  .btnComparar span,
+  .btnAprobar span {
+    display: none;
+  }
+
+  .btnComparar,
+  .btnAprobar {
+    padding: 0.5rem;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 968px) {
+  .documentoNavbar {
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+
+  .navbarLeft {
+    flex: 0 0 100%;
+    order: 1;
+  }
+
+  .navbarCenter {
+    flex: 1;
+    order: 3;
+    justify-content: flex-start;
+    margin-top: 0.75rem;
+  }
+
+  .navbarRight {
+    flex: 0 0 auto;
+    order: 2;
+  }
+
+  .etiqueta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .documentoNavbar {
+    min-height: 56px;
+    padding: 0.75rem;
+  }
+
+  .btnVolver span {
+    display: none;
+  }
+
+  .btnVolver {
+    padding: 0.5rem;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+  }
+
+  .nombreDocumento {
+    font-size: 0.9375rem;
+  }
+
+  .navbarRight {
+    gap: 0.75rem;
+  }
+
+  .etiquetaLabel {
+    font-size: 0.8125rem;
+  }
+
+  .etiquetaValue {
+    font-size: 0.8125rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
+/* Animaciones */
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.documentoNavbar {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .documentoNavbar,
+  .btnVolver:hover,
+  .btnComparar:hover,
+  .btnAprobar:hover {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Focus visible para accesibilidad */
+.btnVolver:focus-visible,
+.btnComparar:focus-visible,
+.btnAprobar:focus-visible {
+  outline: 2px solid var(--delft-blue);
+  outline-offset: 2px;
+}

@@ -1,0 +1,113 @@
+.sidebarObservaciones {
+  background-color: #f3f6fbff;
+  border-left: 3px solid #1a3260ff;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebarTitle {
+  color: #1a3260ff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #ccdae6ff;
+}
+
+.noObservaciones {
+  text-align: center;
+  padding: 40px 20px;
+  color: #bdb3abff;
+}
+
+.noObservaciones p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.observacionesLista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.observacionCard {
+  background-color: #fefefeff;
+  border: 1px solid #ccdae6ff;
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.observacionCard:hover {
+  border-color: #1a3260ff;
+  box-shadow: 0 2px 8px rgba(26, 50, 96, 0.1);
+}
+
+.observacionTitulo {
+  color: #1a3260ff;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.observacionMeta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.autor {
+  color: #171717;
+  font-weight: 500;
+}
+
+.fechaHora {
+  color: #bdb3abff;
+}
+
+.observacionComentario {
+  font-size: 13px;
+  color: #171717;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.observacionAcciones {
+  display: flex;
+  gap: 8px;
+}
+
+.btnAccion {
+  flex: 1;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnEditar {
+  background-color: #ccdae6ff;
+  color: #1a3260ff;
+}
+
+.btnEditar:hover {
+  background-color: #1a3260ff;
+  color: #fefefeff;
+}
+
+.btnEliminar {
+  background-color: #bdb3abff;
+  color: #fefefeff;
+}
+
+.btnEliminar:hover {
+  background-color: #171717;
+  color: #fefefeff;
+}

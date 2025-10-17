@@ -1,0 +1,267 @@
+.rejectionFormOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(39, 45, 58, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.rejectionForm {
+  background-color: var(--white);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(26, 50, 96, 0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+.formHeader {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.iconContainer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background-color: #fee;
+  color: #dc2626;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.formTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gunmetal);
+  margin: 0 0 0.5rem 0;
+}
+
+.formSubtitle {
+  font-size: 0.9375rem;
+  color: var(--foreground);
+  opacity: 0.7;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.textareaContainer {
+  position: relative;
+}
+
+.rejectionTextarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid var(--columbia-blue);
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--gunmetal);
+  background-color: var(--white);
+  resize: vertical;
+  min-height: 120px;
+  transition: all 0.2s ease;
+}
+
+.rejectionTextarea:focus {
+  outline: none;
+  border-color: var(--delft-blue);
+  box-shadow: 0 0 0 3px rgba(26, 50, 96, 0.1);
+}
+
+.rejectionTextarea::placeholder {
+  color: var(--silver);
+}
+
+.charCounter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  opacity: 0.6;
+}
+
+.charWarning {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.charMax {
+  opacity: 0.5;
+}
+
+.validationMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background-color: #fef2f2;
+  border-left: 3px solid #dc2626;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #991b1b;
+}
+
+.validationMessage svg {
+  flex-shrink: 0;
+}
+
+.rejectionButtons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.cancelBtn,
+.rejectBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: inherit;
+}
+
+.cancelBtn {
+  background-color: var(--ghost-white);
+  color: var(--gunmetal);
+  border: 1px solid var(--columbia-blue);
+}
+
+.cancelBtn:hover {
+  background-color: var(--columbia-blue);
+  border-color: var(--delft-blue);
+}
+
+.rejectBtn {
+  background-color: #dc2626;
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.rejectBtn:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.rejectBtn:disabled {
+  background-color: var(--silver);
+  color: var(--white);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.cancelBtn:active,
+.rejectBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .rejectionForm {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  .formTitle {
+    font-size: 1.25rem;
+  }
+
+  .formSubtitle {
+    font-size: 0.875rem;
+  }
+
+  .iconContainer {
+    width: 56px;
+    height: 56px;
+  }
+
+  .iconContainer svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .rejectionButtons {
+    flex-direction: column-reverse;
+  }
+
+  .cancelBtn,
+  .rejectBtn {
+    width: 100%;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .rejectionFormOverlay,
+  .rejectionForm,
+  .cancelBtn:hover,
+  .rejectBtn:hover {
+    animation: none;
+    transition: none;
+  }
+  
+  .rejectBtn:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+.cancelBtn:focus-visible,
+.rejectBtn:focus-visible {
+  outline: 2px solid var(--delft-blue);
+  outline-offset: 2px;
+}
+
+.rejectionTextarea:focus-visible {
+  outline: 2px solid var(--delft-blue);
+  outline-offset: 2px;
+}

@@ -1,0 +1,242 @@
+:root {
+  --columbia-blue: #ccdae6ff;
+  --silver: #bdb3abff;
+  --delft-blue: #1a3260ff;
+  --white: #fefefeff;
+  --ghost-white: #f3f6fbff;
+  --gunmetal: #272d3aff;
+}
+
+.page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--ghost-white) 0%, #f8f9fc 100%);
+}
+
+.mainContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Proyecto Header */
+.proyectoHeader {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(26, 50, 96, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  border-left: 4px solid var(--delft-blue);
+}
+
+.proyectoInfo {
+  flex: 1;
+}
+
+.proyectoTitulo {
+  color: var(--delft-blue);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  word-break: break-word;
+}
+
+.proyectoSubtitulo {
+  color: var(--gunmetal);
+  font-size: 0.95rem;
+  margin: 0;
+  opacity: 0.75;
+}
+
+.proyectoMeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--ghost-white);
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--gunmetal);
+}
+
+.metaItem strong {
+  color: var(--delft-blue);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.3px;
+}
+
+.stageBadge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--delft-blue) 0%, #0f1f3a 100%);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--ghost-white) 0%, #f8f9fc 100%);
+  gap: 1rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--columbia-blue);
+  border-top-color: var(--delft-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingContainer p {
+  color: var(--gunmetal);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Error State */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--ghost-white) 0%, #f8f9fc 100%);
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorContainer h1 {
+  color: var(--delft-blue);
+  font-size: 1.75rem;
+  margin: 0 0 1rem 0;
+}
+
+.errorContainer p {
+  color: var(--gunmetal);
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+  max-width: 500px;
+  opacity: 0.85;
+  line-height: 1.6;
+}
+
+.errorMessage {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0 !important;
+  border-left: 4px solid #d32f2f;
+}
+
+.retryButton {
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, var(--delft-blue) 0%, #0f1f3a 100%);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.retryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(26, 50, 96, 0.3);
+}
+
+.retryButton:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .proyectoHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .proyectoMeta {
+    width: 100%;
+  }
+
+  .proyectoTitulo {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContainer {
+    padding: 0 1rem 1.5rem;
+  }
+
+  .contentWrapper {
+    gap: 1.5rem;
+  }
+
+  .proyectoHeader {
+    padding: 1.5rem;
+  }
+
+  .proyectoTitulo {
+    font-size: 1.25rem;
+  }
+
+  .proyectoSubtitulo {
+    font-size: 0.9rem;
+  }
+
+  .proyectoMeta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    white-space: normal;
+  }
+
+  .metaItem {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .stageBadge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}

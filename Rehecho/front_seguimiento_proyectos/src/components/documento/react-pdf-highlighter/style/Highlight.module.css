@@ -1,0 +1,33 @@
+.highlight {
+  position: absolute;
+}
+
+.emoji {
+  position: absolute;
+  color: black;
+  opacity: 1;
+  font-size: 28px;
+}
+
+.parts {
+  opacity: 1;
+}
+
+.part {
+  cursor: pointer;
+  position: absolute;
+  background: rgba(255, 226, 143, 1); /* Color por defecto para observaciones */
+  transition: background 0.3s;
+}
+
+.part.correccion {
+  background: #9BC7E8; /* Color para correcciones */
+}
+
+.scrolledTo .part {
+  background: #ff4141;
+}
+
+.scrolledTo .part.correccion {
+  background: #ff4141; /* Mismo color de scroll para ambos tipos */
+}
