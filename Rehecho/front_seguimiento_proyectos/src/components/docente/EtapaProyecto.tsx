@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -36,11 +37,13 @@ interface EstudianteData {
 
 interface EtapaProyectoProps {
   id: number;
+  fase: string;
 }
 
-const EtapaProyecto = ({ id }: EtapaProyectoProps) => {
+const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
   const router = useRouter();
   const { user, isLoading: authLoading, isUnauthorized } = useAuthGuard('docente');
+  console.log('Fase recibida en EtapaProyecto:', fase);
   
   // Combinar estados relacionados en un solo objeto
   const [state, setState] = useState<{
@@ -71,7 +74,7 @@ const EtapaProyecto = ({ id }: EtapaProyectoProps) => {
       // Fetch documents if student has a project
       if (studentData.proyecto_id) {
         try {
-          projectDocuments = await obtenerDocumentos(studentData.proyecto_id);
+          projectDocuments = await obtenerDocumentos(studentData.proyecto_id, fase);
         } catch (docErr) {
           console.error('Error al obtener documentos:', docErr);
         }
@@ -219,10 +222,10 @@ const EtapaProyecto = ({ id }: EtapaProyectoProps) => {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                     <FileText size={16} style={{ color: '#5b88a5' }} />
-                    <span style={{ fontWeight: '500', color: '#243a69', fontSize: '0.875rem' }}>Fase Actual:</span>
+                    <span style={{ fontWeight: '500', color: '#243a69', fontSize: '0.875rem' }}>Fase:</span>
                   </div>
                   <p style={{ color: '#243a69', fontSize: '0.875rem', marginLeft: '1.5rem' }}>
-                    {state.estudianteData.proyecto.fase_actual}
+                    {fase}
                   </p>
                 </div>
                 <div>

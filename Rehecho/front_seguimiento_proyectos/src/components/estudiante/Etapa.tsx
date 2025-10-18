@@ -16,10 +16,9 @@ function getEtapas(rol: 'docente' | 'estudiante', proyectoId?: number) {
       : `/dashboard/estudiante/proyecto`;
 
   return [
-    { id: 'tema', titulo: 'Tema', descripcion: 'Define el tema de tu proyecto', icono: '📋', ruta: `${base}/tema`, orden: 1 },
-    { id: 'perfil', titulo: 'Perfil', descripcion: 'Desarrolla el perfil', icono: '📊', ruta: `${base}/perfil`, orden: 2 },
-    { id: 'proyecto', titulo: 'Proyecto', descripcion: 'Elabora el proyecto final', icono: '🎯', ruta: `${base}/etapa-proyecto`, orden: 3 },
-    { id: 'predefensa', titulo: 'Predefensa', descripcion: 'Presenta tu predefensa', icono: '🎤', ruta: `${base}/predefensa`, orden: 4 },
+    { id: 'tema', titulo: 'Tema', descripcion: 'Define el tema de tu proyecto', icono: '📋', ruta: `${base}/etapa-proyecto/tema`, orden: 1 },
+    { id: 'perfil', titulo: 'Perfil', descripcion: 'Desarrolla el perfil', icono: '📊', ruta: `${base}/etapa-proyecto/perfil`, orden: 2 },
+    { id: 'proyecto', titulo: 'Proyecto', descripcion: 'Elabora el proyecto final', icono: '🎯', ruta: `${base}/etapa-proyecto/proyecto`, orden: 3 },
   ];
 }
 
