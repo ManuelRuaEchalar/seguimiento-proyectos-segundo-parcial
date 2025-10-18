@@ -15,34 +15,34 @@ export default function DocenteDashboard() {
   const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
-  if (user?.id && user.rol === 'docente') {
-    async function fetchGroups() {
-      try {
-        setFetchError('');
-        const data = await getDocenteWithGroups();
-        
-        if (data && typeof data === 'object' && 'docente' in data && 'groups' in data) {
-          setDocenteInfo(data.docente);
-          setGroups(data.groups || []);
-        } else {
-          setGroups(Array.isArray(data) ? data : []);
+    if (user?.id && user.rol === 'docente') {
+      async function fetchGroups() {
+        try {
+          setFetchError('');
+          const data = await getDocenteWithGroups();
+          
+          if (data && typeof data === 'object' && 'docente' in data && 'groups' in data) {
+            setDocenteInfo(data.docente);
+            setGroups(data.groups || []);
+          } else {
+            setGroups(Array.isArray(data) ? data : []);
+          }
+        } catch (err) {
+          console.error('Error in fetchGroups:', err);
+          setFetchError(err instanceof Error ? err.message : String(err));
         }
-      } catch (err) {
-        console.error('Error in fetchGroups:', err);
-        setFetchError(err instanceof Error ? err.message : String(err));
       }
+      
+      fetchGroups();
     }
-    
-    fetchGroups();
-  }
-}, [user?.id]); // Solo depender del ID
+  }, [user?.id]);
 
   const handleLogout = async () => {
     try {
       await logout();
       router.push('/auth/login');
     } catch (err) {
-        setFetchError(err instanceof Error ? err.message : String(err));
+      setFetchError(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -51,100 +51,149 @@ export default function DocenteDashboard() {
   };
 
   if (isLoading) {
-    return <p>Cargando...</p>;
+    return (
+      <div className={styles.container}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p className={styles.loadingText}>Cargando panel del docente...</p>
+        </div>
+      </div>
+    );
   }
 
   if (isUnauthorized) {
     return (
-      <div>
-        <h1>Usuario no autorizado 🚫</h1>
-        <p>No tienes permiso para acceder a este panel.</p>
-        {error && <p>{error}</p>}
+      <div className={styles.container}>
+        <div className={styles.noUserContainer}>
+          <div className={styles.noUserContent}>
+            <h1 className={styles.noUserTitle}>Usuario no autorizado 🚫</h1>
+            <p className={styles.noUserMessage}>
+              No tienes permiso para acceder a este panel.
+            </p>
+            {error && <p className={styles.errorText}>{error}</p>}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1>Panel de Docente 📚</h1>
-          <div className={styles.docenteInfo}>
-            <p><strong>Email:</strong> {user?.email}</p>
-            <p><strong>Nombre:</strong> {docenteInfo?.usuario?.nombre} {docenteInfo?.usuario?.apellido}</p>
-            <p><strong>Especialidad:</strong> {docenteInfo?.especialidad}</p>
+      <nav className={styles.navbar}>
+        <div className={styles.navbarContainer}>
+          <div className={styles.titleSection}>
+            <h1 className={styles.title}>Panel de Docente</h1>
+          </div>
+          
+          <div className={styles.userInfo}>
+            <div className={styles.userDetails}>
+              <div className={styles.detailItem}>
+                <span className={styles.label}>Nombre:</span>
+                <span className={styles.value}>
+                  {docenteInfo?.usuario?.nombre} {docenteInfo?.usuario?.apellido}
+                </span>
+              </div>
+              <div className={styles.detailItem}>
+                <span className={styles.label}>Email:</span>
+                <span className={styles.value}>{user?.email}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <span className={styles.label}>Especialidad:</span>
+                <span className={styles.value}>{docenteInfo?.especialidad || 'No especificada'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <button onClick={handleLogout} className={styles.logoutButton}>
+                  Cerrar Sesión
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <button onClick={handleLogout} className={styles.logoutButton}>Cerrar Sesión</button>
-      </div>
+      </nav>
 
-      <div className={styles.content}>
-        {groups && groups.length > 0 ? (
-          <>
-            <h2>Mis Grupos ({groups.length})</h2>
-            {fetchError && <p className={styles.errorMessage}>{fetchError}</p>}
-            
-            {groups.map((group) => (
-              <div key={group.id} className={styles.groupCard}>
-                <div className={styles.groupHeader}>
-                  <h3>{group.nombre}</h3>
-                  <p className={styles.gradoBadge}>Grado: {group.grado}</p>
-                </div>
-                
-                <h4 className={styles.estudiantesTitle}>Estudiantes del Grupo</h4>
-                {group.estudiantes && group.estudiantes.length > 0 ? (
-                  <div className={styles.tableWrapper}>
-                    <table className={styles.estudiantesTable}>
-                      <thead>
-                        <tr>
-                          <th>Nombre</th>
-                          <th>Apellido</th>
-                          <th>CU</th>
-                          <th>Carrera</th>
-                          <th>Acción</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+      <main className={styles.main}>
+        <div className={styles.content}>
+          {fetchError && (
+            <div className={styles.errorMessage}>
+              <p>{fetchError}</p>
+            </div>
+          )}
+
+          {groups && groups.length > 0 ? (
+            <>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Mis Grupos</h2>
+                <span className={styles.groupCount}>{groups.length} {groups.length === 1 ? 'grupo' : 'grupos'}</span>
+              </div>
+              
+              {groups.map((group) => (
+                <div key={group.id} className={styles.groupCard}>
+                  <div className={styles.groupHeader}>
+                    <div>
+                      <h3 className={styles.groupName}>{group.nombre}</h3>
+                      <span className={styles.gradoBadge}>Grado: {group.grado}</span>
+                    </div>
+                  </div>
+                  
+                  {group.estudiantes && group.estudiantes.length > 0 ? (
+                    <div className={styles.estudiantesSection}>
+                      <h4 className={styles.estudiantesTitle}>
+                        Estudiantes ({group.estudiantes.length})
+                      </h4>
+                      <div className={styles.estudiantesGrid}>
                         {group.estudiantes.map((estudiante) => (
-                          <tr 
+                          <div 
                             key={estudiante.id}
-                            className={styles.estudianteRow}
+                            className={styles.estudianteCard}
                             onClick={() => handleEstudianteClick(estudiante.id)}
                           >
-                            <td>{estudiante.usuario.nombre}</td>
-                            <td>{estudiante.usuario.apellido}</td>
-                            <td>{estudiante.cu}</td>
-                            <td>{estudiante.carrera}</td>
-                            <td>
-                              <button 
-                                className={styles.viewProjectButton}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEstudianteClick(estudiante.id);
-                                }}
-                              >
-                                Ver Proyecto
-                              </button>
-                            </td>
-                          </tr>
+                            <div className={styles.estudianteHeader}>
+                              <div className={styles.estudianteBadge}>
+                                CU: {estudiante.cu}
+                              </div>
+                            </div>
+                            <div className={styles.estudianteInfo}>
+                              <p className={styles.estudianteNombre}>
+                                {estudiante.usuario.nombre} {estudiante.usuario.apellido}
+                              </p>
+                              <p className={styles.estudianteCarrera}>
+                                {estudiante.carrera}
+                              </p>
+                            </div>
+                            <button 
+                              className={styles.viewProjectButton}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEstudianteClick(estudiante.id);
+                              }}
+                            >
+                              Ver Proyecto →
+                            </button>
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p className={styles.noEstudiantes}>No hay estudiantes asignados a este grupo.</p>
-                )}
-              </div>
-            ))}
-          </>
-        ) : (
-          <>
-            <h2>Sin Grupos Asignados</h2>
-            {fetchError && <p className={styles.errorMessage}>{fetchError}</p>}
-            <p>No tienes ningún grupo asignado actualmente.</p>
-          </>
-        )}
-      </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.emptyState}>
+                      <p className={styles.emptyTitle}>Sin estudiantes</p>
+                      <p className={styles.emptyDescription}>
+                        No hay estudiantes asignados a este grupo.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className={styles.emptyState}>
+              <p className={styles.emptyTitle}>Sin grupos asignados</p>
+              <p className={styles.emptyDescription}>
+                No tienes ningún grupo asignado actualmente.
+              </p>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

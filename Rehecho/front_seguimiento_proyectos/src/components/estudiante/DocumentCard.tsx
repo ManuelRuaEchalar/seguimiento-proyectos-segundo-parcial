@@ -5,30 +5,53 @@ import styles from './styles/DocumentCard.module.css';
 
 interface DocumentCardProps {
   documento: Document;
+  version: number; // Versión calculada
   onDocumentClick: (documento: Document) => void;
 }
 
-export default function DocumentCard({ documento, onDocumentClick }: DocumentCardProps) {
+const estadoLabels: Record<string, string> = {
+  pendiente: 'Pendiente',
+  en_revision: 'En Revisión',
+  revisado: 'Revisado',
+  aprobado: 'Aprobado',
+  rechazado: 'Rechazado'
+};
+
+const estadoColors: Record<string, string> = {
+  pendiente: styles.estadoPendiente,
+  en_revision: styles.estadoEnRevision,
+  revisado: styles.estadoRevisado,
+  aprobado: styles.estadoAprobado,
+  rechazado: styles.estadoRechazado
+};
+
+export default function DocumentCard({ documento, version, onDocumentClick }: DocumentCardProps) {
   const filename = documento.file.split('/').pop() || documento.titulo;
 
   return (
     <button
       onClick={() => onDocumentClick(documento)}
       className={styles.documentCard}
-      aria-label={`Abrir documento ${documento.titulo} versión ${documento.version}`}
+      aria-label={`Abrir documento ${documento.titulo} versión ${version}`}
     >
       <div className={styles.documentHeader}>
-        <div className={styles.documentBadge + ' ' + styles.documentId}>
-          Doc #{documento.id}
-        </div>
         <div className={styles.documentBadge + ' ' + styles.documentVersion}>
-          v{documento.version}
+          v{version}
+        </div>
+        <div className={`${styles.documentBadge} ${estadoColors[documento.estado]}`}>
+          {estadoLabels[documento.estado] || documento.estado}
         </div>
       </div>
       
-      <h4 className={styles.documentTitle}>
+      <h3 className={styles.documentTitle}>
         {documento.titulo}
-      </h4>
+      </h3>
+
+      <div className={styles.documentMeta}>
+        <span className={styles.fase}>
+          Fase: {documento.fase.charAt(0).toUpperCase() + documento.fase.slice(1)}
+        </span>
+      </div>
       
       <div className={styles.documentInfo}>
         <div className={styles.fileInfo}>

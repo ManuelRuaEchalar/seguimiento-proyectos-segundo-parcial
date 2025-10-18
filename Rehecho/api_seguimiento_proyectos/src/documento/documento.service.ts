@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { $Enums } from '@prisma/client';
 
 @Injectable()
 export class DocumentoService {
@@ -68,6 +69,7 @@ export class DocumentoService {
         titulo: true,
         version: true,
         estado: true,
+        fase: true,
         activo: true,
         created_at: true,
         file: true,
@@ -99,16 +101,31 @@ export class DocumentoService {
     }
   }
 
+  async obtenerFaseProyecto(proyectoId: number): Promise<string> {
+    try {
+      const proyecto = await this.prisma.proyecto.findUnique({
+        where: { id: proyectoId },
+        select: { fase_actual: true }
+      });
+      
+      return proyecto?.fase_actual || 'tema'; // Default to 'tema' if not found
+    } catch (error) {
+      console.error('Error obteniendo fase del proyecto:', error);
+      return 'tema';
+    }
+  }
+
   async crearDocumento(datos: {
     titulo: string;
     version: number;
     file: string;
     proyecto_id: number;
     estado: string;
+    fase: string;
     activo: boolean;
   }) {
     // Validar datos de entrada
-    if (!datos.titulo || !datos.file || !datos.proyecto_id || !datos.estado) {
+    if (!datos.titulo || !datos.file || !datos.proyecto_id || !datos.estado || !datos.fase) {
       throw new BadRequestException('Faltan datos requeridos para crear el documento');
     }
 
@@ -118,10 +135,11 @@ export class DocumentoService {
           titulo: datos.titulo,
           version: datos.version,
           file: datos.file,
-          proyecto_id: datos.proyecto_id,
-          estado: datos.estado as any, // Use enum value directly
+          estado: datos.estado as any,
+          fase: datos.fase as any,
           activo: datos.activo,
-          created_at: new Date()
+          created_at: new Date(),
+          proyecto_id: datos.proyecto_id
         }
       });
     } catch (error) {
@@ -144,40 +162,44 @@ export class DocumentoService {
     }
   }
 
-  async findByProyecto(proyectoId: number) {
-    // Validar que proyectoId sea un número válido
-    if (!proyectoId || isNaN(proyectoId) || proyectoId <= 0) {
-      throw new BadRequestException('El ID del proyecto debe ser un número positivo');
-    }
-
-    try {
-      const documents = await this.prisma.documento.findMany({
-        where: { 
-          proyecto_id: proyectoId,
-          activo: true // Only return active documents
-        },
-        select: {
-          id: true,
-          titulo: true,
-          version: true,
-          estado: true,
-          activo: true,
-          created_at: true,
-          file: true,
-          proyecto_id: true
-        },
-        orderBy: { created_at: 'desc' }
-      });
-
-      if (!documents || documents.length === 0) {
-        console.log(`📂 No se encontraron documentos para proyecto_id: ${proyectoId}`);
-        return [];
-      }
-
-      return documents;
-    } catch (error) {
-      console.error('Error obteniendo documentos por proyecto:', error);
-      throw new NotFoundException(`No se encontraron documentos para el proyecto ${proyectoId}`);
-    }
+  async findByProyecto(proyectoId: number, fase: string) {
+  if (!proyectoId || isNaN(proyectoId) || proyectoId <= 0) {
+    throw new BadRequestException('El ID del proyecto debe ser un número positivo');
   }
+
+  try {
+    // Convertir el string fase al enum Prisma
+    const faseEnum = fase as $Enums.FaseProyecto;
+
+    const documents = await this.prisma.documento.findMany({
+      where: { 
+        proyecto_id: proyectoId,
+        fase: faseEnum, // ✅ ahora es del tipo correcto
+        activo: true
+      },
+      select: {
+        id: true,
+        titulo: true,
+        version: true,
+        estado: true,
+        fase: true,
+        activo: true,
+        created_at: true,
+        file: true,
+        proyecto_id: true
+      },
+      orderBy: { created_at: 'desc' }
+    });
+
+    if (!documents || documents.length === 0) {
+      console.log(`📂 No se encontraron documentos para proyecto_id: ${proyectoId} y fase: ${fase}`);
+      return [];
+    }
+
+    return documents;
+  } catch (error) {
+    console.error('Error obteniendo documentos por proyecto:', error);
+    throw new NotFoundException(`No se encontraron documentos para el proyecto ${proyectoId} en fase ${fase}`);
+  }
+}
 }

@@ -8,8 +8,9 @@ export interface Document {
   titulo: string;
   version: number;
   estado: string; // EstadoDocumento enum
+  fase: string;
   activo: boolean;
-  created_at: string; // ISO Date string
+  created_at: string; 
   file: string;
   proyecto_id: number;
 }
@@ -131,12 +132,14 @@ export const obtenerDocumentoInfo = async (id: number): Promise<Document> => {
 };
 
 /**
- * Obtener documentos de un proyecto
+ * Obtener documentos de un proyecto por fase
  * @param proyectoId ID del proyecto
+ * @param fase Fase del proyecto (tema, perfil, proyecto)
  * @returns Lista de documentos
  */
-export const obtenerDocumentos = async (proyectoId: number): Promise<Document[]> => {
+export const obtenerDocumentos = async (proyectoId: number, fase: string): Promise<Document[]> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  console.log('Obteniendo documentos para proyectoId:', proyectoId, 'y fase:', fase);
   
   if (!apiUrl) {
     throw new Error('NEXT_PUBLIC_API_URL no está configurada');
@@ -144,7 +147,7 @@ export const obtenerDocumentos = async (proyectoId: number): Promise<Document[]>
 
   try {
     const response = await fetch(
-      `${apiUrl}/documento/${proyectoId}`, 
+      `${apiUrl}/documento/${proyectoId}?fase=${fase}`, 
       {
         method: 'GET',
         credentials: 'include',

@@ -12,5 +12,8 @@ export class ProyectoController {
     return this.proyectoService.createProyecto(titulo);
   }
 
-  
+  @Post('cambiar-fase')
+  async cambiarFase(@Body('id') id: number) {
+    return this.proyectoService.cambiarFase(id);
+  }
 }

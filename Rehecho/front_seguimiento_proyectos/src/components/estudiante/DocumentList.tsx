@@ -10,6 +10,17 @@ interface DocumentListProps {
 }
 
 export default function DocumentList({ documentos, onDocumentClick }: DocumentListProps) {
+  // Ordenar documentos por fecha de creación (más nuevo primero)
+  const sortedDocumentos = [...documentos].sort((a, b) => 
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+
+  // Calcular versiones (el más antiguo es v1, el más nuevo es v[length])
+  const documentosConVersion = sortedDocumentos.map((doc, index) => ({
+    ...doc,
+    calculatedVersion: sortedDocumentos.length - index
+  }));
+
   if (documentos.length === 0) {
     return (
       <div className={styles.emptyState}>
@@ -28,10 +39,11 @@ export default function DocumentList({ documentos, onDocumentClick }: DocumentLi
 
   return (
     <div className={styles.documentsGrid}>
-      {documentos.map((documento) => (
+      {documentosConVersion.map((documento) => (
         <DocumentCard 
           key={documento.id} 
           documento={documento} 
+          version={documento.calculatedVersion}
           onDocumentClick={onDocumentClick}
         />
       ))}

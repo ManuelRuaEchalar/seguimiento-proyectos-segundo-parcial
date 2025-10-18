@@ -60,6 +60,7 @@ model Documento {
   activo         Boolean @default(true)
   created_at     DateTime @default(now())
   file           String
+  fase           FaseProyecto
   proyecto_id    Int
   proyecto       Proyecto        @relation("ProyectoDocumentos", fields: [proyecto_id], references: [id])
   observaciones  Observacion[]   @relation("DocumentoObservaciones")
@@ -132,8 +133,6 @@ enum FaseProyecto {
   tema
   perfil
   proyecto
-  predefensa
-  finalizado
 }
 
 enum EstadoDocumento {

@@ -80,7 +80,7 @@
 }
 
 .pageIndicator {
-  position: fixed;
+  position: absolute; /* Cambiar de fixed a absolute */
   top: 1rem;
   right: 1rem;
   z-index: 100;

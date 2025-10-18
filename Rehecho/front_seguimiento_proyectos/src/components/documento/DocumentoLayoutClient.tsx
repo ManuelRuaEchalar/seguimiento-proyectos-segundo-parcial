@@ -1,11 +1,11 @@
 'use client';
-import React, { useState, useCallback, useMemo } from 'react';
-// Eliminar importación de SidebarDerecha
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { VisualizadorPDF } from './VisualizadorPDF';
 import { fetchDoc } from '@/services/proyecto';
 import { fetchObservaciones } from '@/services/observaciones';
 import { fetchCorrecciones } from '@/services/correcciones';
 import { createObservacion } from '@/services/observaciones';
+import { changeProyectoFase } from '@/services/proyecto';
 import styles from './style/DocumentoLayoutClient.module.css';
 
 interface DatosDocumento {
@@ -62,12 +62,25 @@ export default function DocumentoLayoutClient({
   const [secondInfoProyecto, setSecondInfoProyecto] = useState<infoProyecto | null>(null);
   const [secondObservaciones, setSecondObservaciones] = useState<any[] | null>(null);
   const [secondCorrecciones, setSecondCorrecciones] = useState<any[] | null>(null);
+  const [showInfoPopup, setShowInfoPopup] = useState(true);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [isApprovingDocument, setIsApprovingDocument] = useState(false);
 
   console.log('📦 DocumentoLayoutClient - observacionesProyecto original:', {
-  total: observacionesProyecto?.length || 0,
-  datos: observacionesProyecto,
-  primeraObservacion: observacionesProyecto?.[0]
-});
+    total: observacionesProyecto?.length || 0,
+    datos: observacionesProyecto,
+    primeraObservacion: observacionesProyecto?.[0]
+  });
+
+  // Calcular estadísticas de correcciones
+  const estadisticasCorrecciones = useMemo(() => {
+    const total = correcciones.length;
+    const aprobadas = correcciones.filter(c => c.estado === 'aprobado').length;
+    const rechazadas = correcciones.filter(c => c.estado === 'rechazado').length;
+    const pendientes = correcciones.filter(c => c.estado === 'pendiente').length;
+    
+    return { total, aprobadas, rechazadas, pendientes };
+  }, [correcciones]);
 
   // Modificar correcciones del primer visualizador para convertir observacion_id a string
   const modifiedCorrecciones = useMemo(() => {
@@ -80,34 +93,32 @@ export default function DocumentoLayoutClient({
   }, [observaciones]);
 
   // Preparar observaciones de otras versiones
-const observacionesOtrasVersiones = useMemo(() => {
-  const result = (observacionesProyecto || [])
-    .filter(obs => obs.documento_id !== infoProyecto.codigoDoc)
-    .map(obs => ({
-      ...obs,
-      // Normalizar la estructura para que coincida con el Sidebar
-      comment: { text: obs.commentText || obs.comment?.text || '' },
-      content: { text: obs.contentText || obs.content?.text || '' },
-      position: { 
-        pageNumber: obs.boundingPage || obs.position?.pageNumber || 1 
-      },
-      // Marcar como observación de otra versión
-      esDeOtraVersion: true
-    }));
-  
-  console.log('📋 DocumentoLayoutClient - observacionesOtrasVersiones:', {
-    total: result.length,
-    datos: result,
-    primeraObservacion: result[0] // Ver estructura completa de la primera
-  });
-  
-  return result;
-}, [observacionesProyecto, infoProyecto.codigoDoc]);
+  const observacionesOtrasVersiones = useMemo(() => {
+    const result = (observacionesProyecto || [])
+      .filter(obs => obs.documento_id !== infoProyecto.codigoDoc)
+      .map(obs => ({
+        ...obs,
+        comment: { text: obs.commentText || obs.comment?.text || '' },
+        content: { text: obs.contentText || obs.content?.text || '' },
+        position: { 
+          pageNumber: obs.boundingPage || obs.position?.pageNumber || 1 
+        },
+        esDeOtraVersion: true
+      }));
+    
+    console.log('📋 DocumentoLayoutClient - observacionesOtrasVersiones:', {
+      total: result.length,
+      datos: result,
+      primeraObservacion: result[0]
+    });
+    
+    return result;
+  }, [observacionesProyecto, infoProyecto.codigoDoc]);
+
   const handleObservationClick = useCallback(async (observacion: any) => {
     console.log("Clicked observation:", observacion);
     
     try {
-      // Si es una observación de otra versión, cargar comparación
       if (observacion.esDeOtraVersion) {
         const { blob: newBlob, contentType: newContentType } = await fetchDoc(observacion.documento_id);
         const newObs = await fetchObservaciones(observacion.documento_id);
@@ -131,7 +142,6 @@ const observacionesOtrasVersiones = useMemo(() => {
           codigoDoc: observacion.documento_id 
         });
       } else {
-        // Si es una observación local, solo navegar a ella
         setSelectedObservation({ 
           ...observacion, 
           codigoDoc: infoProyecto.codigoDoc 
@@ -175,13 +185,99 @@ const observacionesOtrasVersiones = useMemo(() => {
     }
   }, [infoProyecto, handleApprovalComplete]);
 
+  const handleApproveDocument = async () => {
+    setIsApprovingDocument(true);
+    try {
+      await changeProyectoFase(infoProyecto.codigoProyecto);
+      alert('Documento aprobado exitosamente. El estudiante puede avanzar a la siguiente fase.');
+      window.location.href = '/docente';
+    } catch (error) {
+      console.error('Error al aprobar documento:', error);
+      alert('Error al aprobar el documento. Por favor, intente nuevamente.');
+    } finally {
+      setIsApprovingDocument(false);
+      setShowApprovalModal(false);
+    }
+  };
+
   return (
     <div className={styles.documentoPageLayout}>
+      {/* Popup informativo inicial */}
+      {showInfoPopup && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popupContent}>
+            <h3 className={styles.popupTitle}>Información de Visualización</h3>
+            <p className={styles.popupText}>
+              En la parte superior está el documento nuevo, en la parte inferior el documento viejo.
+            </p>
+            <p className={styles.popupText}>
+              La corrección del estudiante está resaltada de color <span className={styles.highlightStudent}>celeste</span> y la del docente de color <span className={styles.highlightTeacher}>piel</span>.
+            </p>
+            <button 
+              className={styles.popupButton}
+              onClick={() => setShowInfoPopup(false)}
+            >
+              Aceptar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación de aprobación */}
+      {showApprovalModal && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popupContent}>
+            <h3 className={styles.popupTitle}>Confirmar Aprobación</h3>
+            <p className={styles.popupText}>
+              ¿Está seguro de aprobar este documento? Esta acción permitirá que el estudiante pase a la siguiente fase de su proyecto de grado.
+            </p>
+            <div className={styles.modalButtons}>
+              <button 
+                className={styles.approveButton}
+                onClick={handleApproveDocument}
+                disabled={isApprovingDocument}
+              >
+                {isApprovingDocument ? 'Aprobando...' : 'Aprobar'}
+              </button>
+              <button 
+                className={styles.cancelButton}
+                onClick={() => setShowApprovalModal(false)}
+                disabled={isApprovingDocument}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navbar con estadísticas */}
       <nav className={styles.comparisonNavbar}>
-        <div className={styles.infoContainer}>
-          <span className={styles.infoText}>
-            En la parte superior esta el documento nuevo, en la parte inferior el documento viejo, la corrección del estudiante está resaltada de color <span className={styles.highlightStudent}>celeste</span> y la del docente color <span className={styles.highlightTeacher}>piel</span>.
-          </span>
+        <div className={styles.navbarContent}>
+          <div className={styles.statsContainer}>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Total:</span>
+              <span className={styles.statValue}>{estadisticasCorrecciones.total}</span>
+            </div>
+            <div className={`${styles.statItem} ${styles.statApproved}`}>
+              <span className={styles.statLabel}>Aprobadas:</span>
+              <span className={styles.statValue}>{estadisticasCorrecciones.aprobadas}</span>
+            </div>
+            <div className={`${styles.statItem} ${styles.statRejected}`}>
+              <span className={styles.statLabel}>Rechazadas:</span>
+              <span className={styles.statValue}>{estadisticasCorrecciones.rechazadas}</span>
+            </div>
+            <div className={`${styles.statItem} ${styles.statPending}`}>
+              <span className={styles.statLabel}>Pendientes:</span>
+              <span className={styles.statValue}>{estadisticasCorrecciones.pendientes}</span>
+            </div>
+          </div>
+          <button 
+            className={styles.approveDocumentButton}
+            onClick={() => setShowApprovalModal(true)}
+          >
+            Aprobar Documento
+          </button>
         </div>
       </nav>
 
@@ -214,7 +310,6 @@ const observacionesOtrasVersiones = useMemo(() => {
             </div>
           )}
         </div>
-        {/* ELIMINADO: SidebarDerecha */}
       </div>
     </div>
   );

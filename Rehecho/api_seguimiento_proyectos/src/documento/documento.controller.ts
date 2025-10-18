@@ -10,7 +10,8 @@ import {
   UploadedFile,
   UseInterceptors,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  Query
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DocumentoService } from './documento.service';
@@ -180,6 +181,10 @@ export class DocumentoController {
         });
       }
 
+      // Obtener la fase actual del proyecto
+      const faseProyecto = await this.documentoService.obtenerFaseProyecto(proyectoIdNum);
+      console.log('📌 Fase del proyecto:', faseProyecto);
+
       const relativePath = `/uploads/documentos/${file.filename}`;
 
       console.log('💾 Guardando en BD con ruta:', relativePath);
@@ -190,6 +195,7 @@ export class DocumentoController {
         file: relativePath,
         proyecto_id: proyectoIdNum,
         estado: 'pendiente',
+        fase: faseProyecto,
         activo: true
       });
 
@@ -201,7 +207,8 @@ export class DocumentoController {
         message: 'PDF subido correctamente',
         fileName: file.filename,
         filePath: relativePath,
-        physicalPath: file.path
+        physicalPath: file.path,
+        fase: faseProyecto
       });
 
     } catch (error) {
@@ -224,44 +231,54 @@ export class DocumentoController {
   }
 
   @Get(':proyectoId')
-  async getDocumentsByProyecto(@Param('proyectoId') proyectoId: string, @Res() res: Response) {
-    try {
-      const proyectoIdNum = parseInt(proyectoId);
-      if (isNaN(proyectoIdNum)) {
-        throw new BadRequestException('proyectoId debe ser un número válido');
-      }
+async getDocumentsByProyecto(
+  @Param('proyectoId') proyectoId: string,
+  @Query('fase') fase: string,
+  @Res() res: Response
+) {
+  try {
+    const proyectoIdNum = parseInt(proyectoId);
+    if (isNaN(proyectoIdNum)) {
+      throw new BadRequestException('proyectoId debe ser un número válido');
+    }
 
-      console.log('📋 Obteniendo documentos para proyecto:', proyectoIdNum);
+    // Validar que fase sea un valor válido del enum
+    const fasesValidas = ['tema', 'perfil', 'proyecto'];
+    if (!fase || !fasesValidas.includes(fase)) {
+      throw new BadRequestException('fase debe ser uno de: tema, perfil, proyecto');
+    }
 
-      const documents = await this.documentoService.findByProyecto(proyectoIdNum);
-      
-      console.log('📋 Documentos encontrados:', documents.length);
+    console.log('📋 Obteniendo documentos para proyecto:', proyectoIdNum, 'fase:', fase);
 
-      return res.status(200).json({
-        success: true,
-        documentos: documents
-      });
-    } catch (error) {
-      console.error('❌ Error en getDocumentsByProyecto:', error);
+    const documents = await this.documentoService.findByProyecto(proyectoIdNum, fase);
+    
+    console.log('📋 Documentos encontrados:', documents.length);
 
-      if (error instanceof BadRequestException) {
-        return res.status(400).json({
-          success: false,
-          error: error.message
-        });
-      }
+    return res.status(200).json({
+      success: true,
+      documentos: documents
+    });
+  } catch (error) {
+    console.error('❌ Error en getDocumentsByProyecto:', error);
 
-      if (error instanceof NotFoundException) {
-        return res.status(404).json({
-          success: false,
-          error: error.message
-        });
-      }
-
-      return res.status(500).json({
+    if (error instanceof BadRequestException) {
+      return res.status(400).json({
         success: false,
-        error: 'Error interno del servidor al obtener los documentos'
+        error: error.message
       });
     }
+
+    if (error instanceof NotFoundException) {
+      return res.status(404).json({
+        success: false,
+        error: error.message
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor al obtener los documentos'
+    });
   }
+}
 }

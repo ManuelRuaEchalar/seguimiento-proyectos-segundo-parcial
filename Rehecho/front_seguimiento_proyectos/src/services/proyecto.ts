@@ -123,3 +123,34 @@ export async function fetchDocInfo(id: number) {
   // Retorna: { id, titulo, version, estado, activo, created_at, file, proyecto_id }
   return data;
 }
+
+/**
+ * Servicio para cambiar la fase de un proyecto
+ */
+export async function changeProyectoFase(id: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+  }
+
+  const response = await fetch(`${apiUrl}/proyecto/cambiar-fase`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include', // 🔒 incluye cookies (JWT)
+    body: JSON.stringify({ id }),
+  });
+
+  console.log(`Solicitud a ${apiUrl}/proyecto/cambiar-fase con body:`, { id });
+
+  if (!response.ok) {
+    console.error('Error al cambiar la fase:', response.status, response.statusText);
+    throw new Error('No se pudo cambiar la fase del proyecto');
+  }
+
+  const data = await response.json();
+  console.log('Respuesta del servidor (cambio de fase):', data);
+  return data;
+}

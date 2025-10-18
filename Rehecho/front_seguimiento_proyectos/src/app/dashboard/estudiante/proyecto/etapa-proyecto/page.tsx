@@ -66,7 +66,7 @@ const EstudianteConGrupoPage = () => {
             profileData.proyecto = proyectoData;
 
             // Fetch documents for the project
-            const projectDocuments = await obtenerDocumentos(profileData.proyecto_id);
+            const projectDocuments = await obtenerDocumentos(profileData.proyecto_id, "proyecto");
             setDocuments(projectDocuments);
           } catch (proyectoErr) {
             console.error('Error al obtener proyecto:', proyectoErr);
@@ -145,6 +145,7 @@ const EstudianteConGrupoPage = () => {
           version: 1,
           estado: 'pendiente',
           activo: true,
+          fase: studentProfile.proyecto?.fase_actual || 'inicial',
           created_at: new Date().toISOString(),
           file: '',
           proyecto_id: studentProfile.proyecto_id,
