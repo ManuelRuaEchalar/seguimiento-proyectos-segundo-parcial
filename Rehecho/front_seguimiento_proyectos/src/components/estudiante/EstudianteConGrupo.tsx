@@ -7,8 +7,8 @@ import { getStudentProfile, obtenerProyecto } from '@/services/api';
 import { subirDocumento, obtenerDocumentos, Document } from '@/services/documentos';
 import Header from '@/components/estudiante/Header';
 import DocumentList from '@/components/estudiante/DocumentList';
-import { Upload, FileText, Archive, X, CheckCircle, AlertCircle } from 'lucide-react';
-import styles from './page.module.css';
+import { Upload, FileText, X, CheckCircle, AlertCircle } from 'lucide-react';
+import styles from './styles/EstudianteConGrupo.module.css';
 
 interface StudentProfile {
   id: number;
@@ -34,18 +34,23 @@ interface StudentProfile {
   } | null;
 }
 
-const EstudianteConGrupoPage = () => {
+interface EstudianteConGrupoClientProps {
+  fase: string;
+}
+
+const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
   const router = useRouter();
   const { user, isLoading: authLoading, isUnauthorized } = useAuthGuard('estudiante');
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'subir' | 'ver' | 'historial'>('subir');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadMessage, setUploadMessage] = useState('');
+
+  console.log('Fase recibida en EstudianteConGrupoClient:', fase);
 
   // Load student profile and project data
   useEffect(() => {
@@ -65,8 +70,8 @@ const EstudianteConGrupoPage = () => {
             const proyectoData = await obtenerProyecto();
             profileData.proyecto = proyectoData;
 
-            // Fetch documents for the project
-            const projectDocuments = await obtenerDocumentos(profileData.proyecto_id, "proyecto");
+            // Fetch documents for the project with the specific fase
+            const projectDocuments = await obtenerDocumentos(profileData.proyecto_id, fase);
             setDocuments(projectDocuments);
           } catch (proyectoErr) {
             console.error('Error al obtener proyecto:', proyectoErr);
@@ -85,7 +90,7 @@ const EstudianteConGrupoPage = () => {
     if (user && !authLoading) {
       fetchData();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, fase]);
 
   // Handle file selection for PDF
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,160 +224,145 @@ const EstudianteConGrupoPage = () => {
         <div className={styles.proyectoContent}>
           <div className={styles.contentHeader}>
             <div>
-              <h1 className={styles.contentTitle}>Proyecto #{studentProfile.proyecto_id}</h1>
-              <p className={styles.contentSubtitle}>Gestiona tus documentos PDF del proyecto</p>
+              <h1 className={styles.contentTitle}>Mis Documentos - Fase {fase}</h1>
+              <p className={styles.contentSubtitle}>
+                {studentProfile.proyecto?.titulo || 'Gestiona tus documentos del proyecto'}
+              </p>
             </div>
           </div>
 
-          <nav className={styles.navButtons}>
-            <button
-              onClick={() => setActiveTab('subir')}
-              className={`${styles.navButton} ${activeTab === 'subir' ? styles.navButtonActive : ''}`}
-            >
-              <Upload size={18} />
-              <span>Subir PDF</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('ver')}
-              className={`${styles.navButton} ${activeTab === 'ver' ? styles.navButtonActive : ''}`}
-            >
-              <FileText size={18} />
-              <span>Ver documentos</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('historial')}
-              className={`${styles.navButton} ${activeTab === 'historial' ? styles.navButtonActive : ''}`}
-            >
-              <Archive size={18} />
-              <span>Historial</span>
-            </button>
-          </nav>
-
-          <section className={styles.documentCard}>
-            {activeTab === 'subir' && (
-              <div>
-                <h2 className={styles.contentTitle} style={{ marginBottom: '1.5rem' }}>Subir Documento PDF</h2>
-                <div className={styles.estudianteCard} style={{ marginBottom: '1.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <AlertCircle size={20} style={{ color: '#5b88a5' }} />
-                    <span style={{ fontWeight: '500', color: '#243a69' }}>Requisitos:</span>
-                  </div>
-                  <ul style={{ color: '#5b88a5', fontSize: '0.875rem', margin: '0.5rem 0 0 1.5rem' }}>
-                    <li><strong>Solo archivos PDF</strong></li>
-                    <li>Máximo 10MB por archivo</li>
-                    <li>1 archivo por subida</li>
-                  </ul>
+          {/* Two column layout */}
+          <div className={styles.twoColumnLayout}>
+            {/* Left column: Document list */}
+            <section className={styles.documentListSection}>
+              <h2 className={styles.sectionTitle}>
+                <FileText size={20} style={{ marginRight: '0.5rem' }} />
+                Documentos del Proyecto
+              </h2>
+              {documents.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <FileText size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
+                  <p>No hay documentos disponibles para esta fase.</p>
+                  <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Sube tu primer documento usando el panel de la derecha.</p>
                 </div>
+              ) : (
+                <DocumentList documentos={documents} onDocumentClick={handleDocumentClick} />
+              )}
+            </section>
 
-                <div className={styles.uploadArea}>
-                  <Upload size={48} style={{ color: '#5b88a5', margin: '0 auto 1rem', display: 'block' }} />
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#243a69', marginBottom: '0.5rem' }}>
-                    Arrastra tu archivo PDF aquí
+            {/* Right column: Upload panel */}
+            <aside className={styles.uploadPanel}>
+              <h2 className={styles.sectionTitle}>
+                <Upload size={20} style={{ marginRight: '0.5rem' }} />
+                Subir Nuevo Documento
+              </h2>
+
+              <div className={styles.estudianteCard} style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <AlertCircle size={18} style={{ color: '#5b88a5' }} />
+                  <span style={{ fontWeight: '500', color: '#243a69', fontSize: '0.875rem' }}>Requisitos:</span>
+                </div>
+                <ul style={{ color: '#5b88a5', fontSize: '0.8rem', margin: '0.5rem 0 0 1.5rem' }}>
+                  <li><strong>Solo archivos PDF</strong></li>
+                  <li>Máximo 10MB</li>
+                </ul>
+              </div>
+
+              <div className={styles.uploadArea}>
+                <Upload size={40} style={{ color: '#5b88a5', margin: '0 auto 1rem', display: 'block' }} />
+                <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#243a69', marginBottom: '0.5rem' }}>
+                  Arrastra tu archivo PDF aquí
+                </h3>
+                <p style={{ color: '#5b88a5', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                  o haz clic para seleccionar
+                </p>
+                <input
+                  id="pdf-upload"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileSelect}
+                  className={styles.fileInput}
+                />
+                <label
+                  htmlFor="pdf-upload"
+                  className={styles.submitButton}
+                >
+                  <FileText size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
+                  Seleccionar PDF
+                </label>
+              </div>
+
+              {selectedFile && (
+                <div className={styles.filesPreview}>
+                  <h3 className={styles.filesPreviewTitle}>
+                    PDF seleccionado:
                   </h3>
-                  <p style={{ color: '#5b88a5', marginBottom: '1.5rem' }}>
-                    o haz clic para seleccionar un PDF
-                  </p>
-                  <input
-                    id="pdf-upload"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleFileSelect}
-                    className={styles.fileInput}
-                  />
-                  <label
-                    htmlFor="pdf-upload"
-                    className={styles.submitButton}
-                  >
-                    <FileText size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
-                    Seleccionar PDF
-                  </label>
-                </div>
-
-                {selectedFile && (
-                  <div className={styles.filesPreview}>
-                    <h3 className={styles.filesPreviewTitle}>
-                      PDF seleccionado:
-                    </h3>
-                    <div className={styles.fileItem}>
-                      <div className={styles.fileInfo}>
-                        <div className={styles.fileIcon}>
-                          <CheckCircle size={20} style={{ color: '#10b981' }} />
-                        </div>
-                        <div className={styles.fileDetails}>
-                          <p className={styles.fileName} title={selectedFile.name}>{selectedFile.name}</p>
-                          <p className={styles.fileSize}>
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
-                        </div>
+                  <div className={styles.fileItem}>
+                    <div className={styles.fileInfo}>
+                      <div className={styles.fileIcon}>
+                        <CheckCircle size={20} style={{ color: '#10b981' }} />
                       </div>
-                      <button
-                        onClick={clearUpload}
-                        className={styles.fileRemove}
-                        title="Eliminar archivo"
-                      >
-                        <X size={16} />
-                      </button>
+                      <div className={styles.fileDetails}>
+                        <p className={styles.fileName} title={selectedFile.name}>{selectedFile.name}</p>
+                        <p className={styles.fileSize}>
+                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-
-                {selectedFile && uploadStatus === 'idle' && (
-                  <div className={styles.textRight}>
                     <button
-                      onClick={handleUploadDocuments}
-                      disabled={isUploading}
-                      className={styles.uploadButton}
+                      onClick={clearUpload}
+                      className={styles.fileRemove}
+                      title="Eliminar archivo"
                     >
-                      Subir PDF
+                      <X size={16} />
                     </button>
                   </div>
-                )}
+                </div>
+              )}
 
-                {uploadStatus !== 'idle' && (
-                  <div className={styles.filesPreview}>
-                    <h3 className={styles.filesPreviewTitle}>Estado de la subida:</h3>
-                    <div className={styles.fileItem}>
-                      <div className={styles.fileInfo}>
-                        <div className={styles.fileIcon}>
-                          {uploadStatus === 'uploading' && (
-                            <div style={{
-                              width: '20px', height: '20px',
-                              border: '2px solid #e5e7eb', borderTop: '2px solid #5b88a5',
-                              borderRadius: '50%', animation: 'spin 1s linear infinite',
-                              display: 'inline-block'
-                            }}></div>
-                          )}
-                          {uploadStatus === 'success' && <CheckCircle size={20} style={{ color: '#10b981' }} />}
-                          {uploadStatus === 'error' && <AlertCircle size={20} style={{ color: '#ef4444' }} />}
-                        </div>
-                        <div className={styles.fileDetails}>
-                          <p className={styles.fileName}>{uploadMessage}</p>
-                        </div>
+              {selectedFile && uploadStatus === 'idle' && (
+                <div style={{ marginTop: '1rem' }}>
+                  <button
+                    onClick={handleUploadDocuments}
+                    disabled={isUploading}
+                    className={styles.uploadButton}
+                    style={{ width: '100%' }}
+                  >
+                    Subir PDF
+                  </button>
+                </div>
+              )}
+
+              {uploadStatus !== 'idle' && (
+                <div className={styles.filesPreview}>
+                  <h3 className={styles.filesPreviewTitle}>Estado:</h3>
+                  <div className={styles.fileItem}>
+                    <div className={styles.fileInfo}>
+                      <div className={styles.fileIcon}>
+                        {uploadStatus === 'uploading' && (
+                          <div style={{
+                            width: '20px', height: '20px',
+                            border: '2px solid #e5e7eb', borderTop: '2px solid #5b88a5',
+                            borderRadius: '50%', animation: 'spin 1s linear infinite',
+                            display: 'inline-block'
+                          }}></div>
+                        )}
+                        {uploadStatus === 'success' && <CheckCircle size={20} style={{ color: '#10b981' }} />}
+                        {uploadStatus === 'error' && <AlertCircle size={20} style={{ color: '#ef4444' }} />}
+                      </div>
+                      <div className={styles.fileDetails}>
+                        <p className={styles.fileName} style={{ fontSize: '0.875rem' }}>{uploadMessage}</p>
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'ver' && (
-              <div>
-                <h2 className={styles.contentTitle} style={{ marginBottom: '1.5rem' }}>Documentos del Proyecto</h2>
-                <DocumentList documentos={documents} onDocumentClick={handleDocumentClick} />
-              </div>
-            )}
-
-            {activeTab === 'historial' && (
-              <div>
-                <h2 className={styles.contentTitle} style={{ marginBottom: '1.5rem' }}>Historial de Actividades</h2>
-                <DocumentList documentos={documents} onDocumentClick={handleDocumentClick} />
-              </div>
-            )}
-          </section>
+                </div>
+              )}
+            </aside>
+          </div>
         </div>
       </main>
     </div>
   );
 };
 
-export default EstudianteConGrupoPage;
+export default EstudianteConGrupoClient;

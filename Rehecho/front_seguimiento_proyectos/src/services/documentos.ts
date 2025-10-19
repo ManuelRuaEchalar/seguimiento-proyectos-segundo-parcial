@@ -366,3 +366,55 @@ export const obtenerDocumentosPorEstado = async (
     throw error;
   }
 };
+
+/**
+ * Cambiar el estado de un documento
+ * @param id ID del documento
+ * @param nuevoEstado Nuevo estado (pendiente, en_revision, revisado, aprobado, rechazado)
+ */
+export const cambiarEstadoDocumento = async (
+  id: number,
+  nuevoEstado: string
+): Promise<{ success: boolean; error?: string }> => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    return {
+      success: false,
+      error: 'NEXT_PUBLIC_API_URL no está configurada'
+    };
+  }
+
+  const estadosValidos = ['pendiente', 'en_revision', 'revisado', 'aprobado', 'rechazado'];
+  if (!estadosValidos.includes(nuevoEstado)) {
+    return {
+      success: false,
+      error: `Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`
+    };
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/documento/cambiar-estado`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include', // Usa cookies JWT
+      body: JSON.stringify({ id, nuevoEstado })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || 'Error al cambiar el estado' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error cambiando estado del documento:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Error de conexión'
+    };
+  }
+};

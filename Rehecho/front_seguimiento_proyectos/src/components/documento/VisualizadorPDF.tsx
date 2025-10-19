@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Observacion } from '@/types';
 import { createObservacion, cambiarEstado } from '@/services/observaciones';
+import { cambiarEstadoDocumento } from '@/services/documentos';
 import {
   AreaHighlight,
   Highlight,
@@ -92,7 +93,7 @@ const usePageTracking = () => {
         if (!element.getAttribute('data-page-number')) {
           element.setAttribute('data-page-number', (index + 1).toString());
         }
-        
+
         if (observerRef.current) {
           observerRef.current.observe(element);
         }
@@ -117,12 +118,12 @@ const usePageTracking = () => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as Element;
-            if (element.classList.contains('react-pdf__Page') || 
-                element.querySelector('.react-pdf__Page') ||
-                element.classList.contains('page') ||
-                element.querySelector('.page') ||
-                element.classList.contains('PdfHighlighter__page') ||
-                element.querySelector('.PdfHighlighter__page')) {
+            if (element.classList.contains('react-pdf__Page') ||
+              element.querySelector('.react-pdf__Page') ||
+              element.classList.contains('page') ||
+              element.querySelector('.page') ||
+              element.classList.contains('PdfHighlighter__page') ||
+              element.querySelector('.PdfHighlighter__page')) {
               shouldReobserve = true;
             }
           }
@@ -203,25 +204,25 @@ const convertObservacionToHighlight = (observacion: any): IHighlight => {
       rects:
         observacion.rects && Array.isArray(observacion.rects)
           ? observacion.rects.map((rect: any) => ({
-              x1: rect.x1 || observacion.bounding_x1,
-              y1: rect.y1 || observacion.bounding_y1,
-              x2: rect.x2 || observacion.bounding_x2,
-              y2: rect.y2 || observacion.bounding_y2,
-              width: rect.width || width,
-              height: rect.height || height,
-              pageNumber: rect.pageNumber || pageNumber,
-            }))
+            x1: rect.x1 || observacion.bounding_x1,
+            y1: rect.y1 || observacion.bounding_y1,
+            x2: rect.x2 || observacion.bounding_x2,
+            y2: rect.y2 || observacion.bounding_y2,
+            width: rect.width || width,
+            height: rect.height || height,
+            pageNumber: rect.pageNumber || pageNumber,
+          }))
           : [
-              {
-                x1: observacion.bounding_x1,
-                y1: observacion.bounding_y1,
-                x2: observacion.bounding_x2,
-                y2: observacion.bounding_y2,
-                width,
-                height,
-                pageNumber,
-              },
-            ],
+            {
+              x1: observacion.bounding_x1,
+              y1: observacion.bounding_y1,
+              x2: observacion.bounding_x2,
+              y2: observacion.bounding_y2,
+              width,
+              height,
+              pageNumber,
+            },
+          ],
       pageNumber,
     };
   } else {
@@ -297,25 +298,25 @@ const convertCorreccionToHighlight = (correccion: any): IHighlight => {
       rects:
         correccion.rects && Array.isArray(correccion.rects)
           ? correccion.rects.map((rect: any) => ({
-              x1: rect.x1 || correccion.bounding_x1,
-              y1: rect.y1 || correccion.bounding_y1,
-              x2: rect.x2 || correccion.bounding_x2,
-              y2: rect.y2 || correccion.bounding_y2,
-              width: rect.width || width,
-              height: rect.height || height,
-              pageNumber: rect.pageNumber || pageNumber,
-            }))
+            x1: rect.x1 || correccion.bounding_x1,
+            y1: rect.y1 || correccion.bounding_y1,
+            x2: rect.x2 || correccion.bounding_x2,
+            y2: rect.y2 || correccion.bounding_y2,
+            width: rect.width || width,
+            height: rect.height || height,
+            pageNumber: rect.pageNumber || pageNumber,
+          }))
           : [
-              {
-                x1: correccion.bounding_x1,
-                y1: correccion.bounding_y1,
-                x2: correccion.bounding_x2,
-                y2: correccion.bounding_y2,
-                width,
-                height,
-                pageNumber,
-              },
-            ],
+            {
+              x1: correccion.bounding_x1,
+              y1: correccion.bounding_y1,
+              x2: correccion.bounding_x2,
+              y2: correccion.bounding_y2,
+              width,
+              height,
+              pageNumber,
+            },
+          ],
       pageNumber,
     };
   } else {
@@ -366,23 +367,23 @@ const convertCorreccionToHighlight = (correccion: any): IHighlight => {
   return highlight;
 };
 
-export function VisualizadorPDF({ 
-  blob, 
-  observaciones, 
+export function VisualizadorPDF({
+  blob,
+  observaciones,
   observacionesOtrasVersiones = [], // Valor por defecto
-  correcciones, 
-  infoProyecto, 
-  selectedObservation, 
+  correcciones,
+  infoProyecto,
+  selectedObservation,
   onObservationClick,
-  onRejectionWithNewObservation, 
-  contentType = 'application/pdf', 
-  onApprovalComplete 
+  onRejectionWithNewObservation,
+  contentType = 'application/pdf',
+  onApprovalComplete
 }: VisualizadorPDFProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPdfReady, setIsPdfReady] = useState<boolean>(false);
-  
+
   const scrollToHighlightRef = useRef<((highlight: IHighlight) => void) | null>(null);
   const loadedObservacionesRef = useRef<string>("");
   const { currentPage, totalPages, setTotalPages } = usePageTracking();
@@ -404,7 +405,7 @@ export function VisualizadorPDF({
       codigoDoc: infoProyecto.codigoDoc,
       infoProyectoCompleto: infoProyecto
     });
-    
+
     if (!infoProyecto.codigoProyecto) {
       console.error('⚠️ ADVERTENCIA: codigoProyecto es undefined o null');
     }
@@ -463,7 +464,7 @@ export function VisualizadorPDF({
       const converted = [...textHighlights, ...correccionHighlights];
       setHighlights(converted);
       loadedObservacionesRef.current = currentItemsId;
-      
+
       console.log("Highlights cargados exitosamente:", {
         observaciones: textHighlights.length,
         correcciones: correccionHighlights.length,
@@ -552,16 +553,16 @@ export function VisualizadorPDF({
 
   const handleReject = useCallback(async (commentText?: string) => {
     if (!showApprovalForm?.id) return;
-    
+
     try {
       await cambiarEstado(Number(showApprovalForm.id), 'rechazado');
-      
+
       setHighlights((prevHighlights) =>
         prevHighlights.map((h) =>
           h.id === showApprovalForm.id ? { ...h, estado: 'rechazado' } : h
         )
       );
-      
+
       if (onRejectionWithNewObservation && commentText) {
         const rejectedHighlight = highlights.find(h => h.id === showApprovalForm.id);
         if (rejectedHighlight) {
@@ -570,7 +571,7 @@ export function VisualizadorPDF({
       } else {
         onApprovalComplete?.();
       }
-      
+
     } catch (error) {
       console.error('Error al rechazar:', error);
     }
@@ -619,25 +620,23 @@ export function VisualizadorPDF({
         proyecto_id: infoProyecto.codigoProyecto,
         documento_id: infoProyecto.codigoDoc,
       };
-
-      // Descargar como JSON
-      const jsonString = JSON.stringify(observacionData, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `observacion_${newHighlight.id}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
       console.log("📤 Datos a enviar al backend:", observacionData);
       console.log("🔑 proyecto_id:", observacionData.proyecto_id, "tipo:", typeof observacionData.proyecto_id);
       console.log("🔑 documento_id:", observacionData.documento_id, "tipo:", typeof observacionData.documento_id);
-      
+
       await createObservacion(observacionData);
       console.log("✅ Highlight guardado en BD");
+      // Si es la primera observación (antes había 0), cambiar estado del documento a "revisado"
+      const observacionesSinCorrecciones = highlights.filter(h => !h.isCorreccion);
+      if (observacionesSinCorrecciones.length === 0) {
+        console.log("📝 Primera observación detectada, cambiando estado del documento a 'revisado'");
+        const resultado = await cambiarEstadoDocumento(infoProyecto.codigoDoc, 'revisado');
+        if (resultado.success) {
+          console.log("✅ Estado del documento cambiado a 'revisado'");
+        } else {
+          console.error("❌ Error al cambiar estado del documento:", resultado.error);
+        }
+      }
     } catch (error) {
       console.error("❌ Error al guardar el highlight en BD:", error);
       let errorMessage = "Error desconocido";
@@ -658,11 +657,11 @@ export function VisualizadorPDF({
           const { id, position: originalPosition, content: originalContent, ...rest } = h;
           return id === highlightId
             ? {
-                id,
-                position: { ...originalPosition, ...position },
-                content: { ...originalContent, ...content },
-                ...rest,
-              }
+              id,
+              position: { ...originalPosition, ...position },
+              content: { ...originalContent, ...content },
+              ...rest,
+            }
             : h;
         })
       );
@@ -727,7 +726,7 @@ export function VisualizadorPDF({
               <PdfHighlighter
                 pdfDocument={pdfDocument}
                 enableAreaSelection={(event) => event.altKey}
-                onScrollChange={() => {}}
+                onScrollChange={() => { }}
                 scrollRef={(scrollToFunction) => {
                   console.log("scrollRef asignado:", !!scrollToFunction);
                   scrollToHighlightRef.current = scrollToFunction;

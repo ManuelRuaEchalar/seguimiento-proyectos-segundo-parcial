@@ -202,4 +202,43 @@ export class DocumentoService {
     throw new NotFoundException(`No se encontraron documentos para el proyecto ${proyectoId} en fase ${fase}`);
   }
 }
+
+async cambiarEstadoDocumento(
+  id: number,
+  nuevoEstado: $Enums.EstadoDocumento
+) {
+  if (!id || isNaN(id) || id <= 0) {
+    throw new BadRequestException('El ID del documento debe ser un número positivo');
+  }
+
+  // Verificar si existe el documento
+  const documento = await this.prisma.documento.findUnique({
+    where: { id },
+    select: { id: true, estado: true, activo: true }
+  });
+
+  if (!documento || !documento.activo) {
+    throw new NotFoundException(`Documento con ID ${id} no encontrado o inactivo`);
+  }
+
+  // Actualizar estado
+  const actualizado = await this.prisma.documento.update({
+    where: { id },
+    data: { estado: nuevoEstado },
+    select: {
+      id: true,
+      titulo: true,
+      version: true,
+      estado: true,
+      fase: true,
+      proyecto_id: true
+    }
+  });
+
+  console.log(`✅ Estado del documento ${id} cambiado a "${nuevoEstado}"`);
+
+  return actualizado;
+}
+
+
 }

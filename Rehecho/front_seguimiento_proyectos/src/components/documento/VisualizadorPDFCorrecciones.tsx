@@ -157,17 +157,17 @@ const usePageTracking = () => {
 
 const getNextId = () => String(Math.random()).slice(2);
 
+// Actualiza la definición de HighlightPopup
 const HighlightPopup = ({
   comment,
 }: {
-  comment: { text: string; emoji: string };
+  comment: { text: string; emoji?: string };
 }) =>
   comment.text ? (
     <div className={styles['highlight-popup']}>
-      {comment.emoji} {comment.text}
+      {comment.emoji && `${comment.emoji} `}{comment.text}
     </div>
   ) : null;
-
 const convertObservacionToHighlight = (observacion: any): IHighlight => {
   let position;
 
@@ -478,18 +478,6 @@ export function VisualizadorPDFCorrecciones({ blob, observaciones, correcciones,
 
     console.log("Nueva corrección:", newHighlight);
 
-    // Create and download JSON file
-    const jsonContent = JSON.stringify(newHighlight, null, 2);
-    const blob = new Blob([jsonContent], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `highlight_${newHighlight.id}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
     try {
       await createCorreccion(newHighlight);
       console.log("Corrección guardada en BD");
@@ -632,13 +620,13 @@ export function VisualizadorPDFCorrecciones({ blob, observaciones, correcciones,
 
                   return (
                     <Popup
-                      popupContent={<HighlightPopup {...highlight} />}
-                      onMouseOver={(popupContent) => setTip(highlight, (highlight) => popupContent)}
-                      onMouseOut={hideTip}
-                      key={index}
-                    >
-                      {component}
-                    </Popup>
+  popupContent={<HighlightPopup comment={highlight.comment} />}
+  onMouseOver={(popupContent) => setTip(highlight, (highlight) => popupContent)}
+  onMouseOut={hideTip}
+  key={index}
+>
+  {component}
+</Popup>
                   );
                 }}
                 highlights={highlights}
