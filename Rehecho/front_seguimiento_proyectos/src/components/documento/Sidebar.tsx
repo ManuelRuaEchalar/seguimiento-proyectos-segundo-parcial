@@ -218,14 +218,16 @@ export function Sidebar({
         )}
 
         {/* Observaciones de otras versiones */}
-{observacionesOtrasVersiones.length > 0 && (
+{observacionesOtrasVersiones.filter(obs => obs.estado?.toLowerCase() === 'pendiente').length > 0 && (
   <div className={styles.section}>
     <h3 className={styles.sectionTitle}>Observaciones a revisar</h3>
     <p className={styles.sectionDescription}>
       Lista de observaciones asociadas al proyecto.
     </p>
     <ul className={styles.observacionesList}>
-      {observacionesOtrasVersiones.map((observacion, index) => (
+      {observacionesOtrasVersiones
+        .filter(obs => obs.estado?.toLowerCase() === 'pendiente') // AGREGAR ESTE FILTRO
+        .map((observacion, index) => (
         <li
           key={index}
           className={`${styles.observacionItem} ${styles.observacionOtraVersion}`}

@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { VisualizadorPDFCorrecciones } from './VisualizadorPDFCorrecciones';
+import { useRouter } from 'next/navigation'; // <- AÑADIR ESTA LÍNEA
 import styles from './style/DocumentoLayoutClientCorrecciones.module.css';
 
 interface DatosDocumento {
@@ -52,6 +53,7 @@ export default function DocumentoLayoutClientCorrecciones({
   contentType
 }: DocumentoLayoutClientProps) {
   console.log("observaciones recibidas del padre: ", observaciones);
+  const router = useRouter(); // <- AÑADIR ESTA LÍNEA
   
   return (
     <div className={styles.documentoPageLayout}>
@@ -61,6 +63,29 @@ export default function DocumentoLayoutClientCorrecciones({
             En tu documento selecciona las partes que modificaste y guárdalas para que tu docente las pueda ver.
           </span>
         </div>
+        
+        {/* AÑADIR ESTE BLOQUE COMPLETO */}
+        <button 
+          onClick={() => router.back()} 
+          className={styles.finishButton}
+          aria-label="Finalizar corrección"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Corrección Terminada</span>
+        </button>
+        {/* FIN DEL BLOQUE */}
       </nav>
 
       <div className={styles.documentoBody}>

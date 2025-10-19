@@ -13,6 +13,36 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.backButton {
+  background-color: transparent;
+  border: 2px solid var(--columbia-blue);
+  color: var(--white);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.backButton:hover {
+  background-color: var(--columbia-blue);
+  color: var(--delft-blue);
+  transform: translateX(-2px);
+}
+
+.backButton:active {
+  transform: scale(0.95);
+}
+
+.backButton svg {
+  width: 20px;
+  height: 20px;
+}
+
 .headerContainer {
   max-width: 1200px;
   margin: 0 auto;

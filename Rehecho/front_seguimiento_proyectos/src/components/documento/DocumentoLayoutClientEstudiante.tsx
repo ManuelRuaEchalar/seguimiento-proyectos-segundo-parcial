@@ -2,7 +2,6 @@
 'use client';
 import React from 'react';
 import DocumentoNavbar from './DocumentoNavBar';
-import SidebarDerecha from './SidebarDerecha';
 import { VisualizadorPDFEstudiante } from './VisualizadorPDFEstudiante';
 import styles from './style/DocumentoLayoutClientEstudiante.module.css';
 
@@ -12,6 +11,7 @@ interface DatosDocumento {
   estado: string;
   fechaSubida: string;
   file: string;
+  fase: string;
 }
 
 interface DatosEstudiante {
@@ -54,12 +54,6 @@ export default function DocumentoLayoutClientEstudiante({
   observacionesProyecto,
   contentType
 }: DocumentoLayoutClientProps) {
-  const handleObservationClick = (observacion: any) => {
-    console.log('Observación seleccionada:', observacion);
-    // Aquí puedes implementar la lógica para navegar al comentario
-    // Por ejemplo, podrías hacer scroll al highlight correspondiente
-  };
-
   return (
     <div className={styles.documentoPageLayout}>
       <DocumentoNavbar
@@ -67,26 +61,19 @@ export default function DocumentoLayoutClientEstudiante({
         version={datosDocumento.version}
         estado={datosDocumento.estado}
         fechaSubida={datosDocumento.fechaSubida}
+        fase={datosDocumento.fase}
       />
 
       <div className={styles.documentoBody}>
-        {/* Contenedor del PDF con su sidebar izquierdo interno */}
         <div className={styles.pdfContainer}>
           <VisualizadorPDFEstudiante 
             blob={blob} 
             observaciones={observaciones} 
             correcciones={correcciones} 
             infoProyecto={infoProyecto}
+            observacionesProyecto={observacionesProyecto}
           />
         </div>
-        
-        {/* Sidebar derecho independiente */}
-        <aside className={styles.sidebarContainer}>
-          <SidebarDerecha
-            observaciones={observacionesProyecto} 
-            onObservationClick={handleObservationClick}
-          />
-        </aside>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
-// @/components/documento/DocumentoNavbar.tsx
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './style/DocumentoNavbar.module.css';
 
 interface DocumentoNavbarProps {
@@ -8,6 +8,7 @@ interface DocumentoNavbarProps {
   version: string;
   estado: string;
   fechaSubida: string;
+  fase?: string;
 }
 
 export default function DocumentoNavbar({
@@ -15,20 +16,17 @@ export default function DocumentoNavbar({
   version,
   estado,
   fechaSubida,
+  fase
 }: DocumentoNavbarProps) {
+  const router = useRouter();
+
   const handleVolver = () => {
     console.log('Botón volver clickeado');
-    window.history.back();
-  };
-
-  const handleCompararVersion = () => {
-    console.log('Botón comparar versión anterior clickeado');
-    // Lógica para comparar versiones
-  };
-
-  const handleAprobar = () => {
-    console.log('Botón aprobar clickeado');
-    // Lógica para aprobar documento
+    if (fase) {
+      router.push(`/dashboard/estudiante/proyecto/etapa-proyecto/${fase}`);
+    } else {
+      router.back();
+    }
   };
 
   const getEstadoClass = (estado: string) => {
@@ -81,43 +79,7 @@ export default function DocumentoNavbar({
       </div>
 
       <div className={styles.navbarCenter}>
-        <button 
-          onClick={handleCompararVersion}
-          className={styles.btnComparar}
-          aria-label="Comparar con versión anterior"
-        >
-          <svg 
-            width="18" 
-            height="18" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
-          >
-            <polyline points="17 1 21 5 17 9" />
-            <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-            <polyline points="7 23 3 19 7 15" />
-            <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-          </svg>
-          <span>Comparar versión anterior</span>
-        </button>
-        <button 
-          onClick={handleAprobar}
-          className={styles.btnAprobar}
-          aria-label="Aprobar documento"
-        >
-          <svg 
-            width="18" 
-            height="18" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-          <span>Aprobar</span>
-        </button>
+        
       </div>
 
       <div className={styles.navbarRight}>

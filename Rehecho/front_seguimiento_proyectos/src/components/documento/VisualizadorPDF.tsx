@@ -19,6 +19,7 @@ import type {
 import { Sidebar } from "./Sidebar";
 import { Spinner } from "./Spinner";
 import styles from './style/VisualizadorPDF.module.css';
+import { fetchProjectObservaciones } from "@/services/proyecto";
 
 interface infoProyecto {
   codigoProyecto: number;
@@ -28,14 +29,15 @@ interface infoProyecto {
 interface VisualizadorPDFProps {
   blob: Blob | null;
   observaciones: Observacion[] | null;
-  observacionesOtrasVersiones?: any[]; // Nuevo prop
+  observacionesOtrasVersiones?: any[];
   correcciones: any[] | null;
   infoProyecto: infoProyecto;
   selectedObservation?: any;
   contentType?: string;
-  onObservationClick?: (observacion: any) => void; // Nuevo prop
+  onObservationClick?: (observacion: any) => void;
   onApprovalComplete?: () => void;
   onRejectionWithNewObservation?: (rejectedCorrection: any, commentText: string) => void;
+  onActualizarEstadoObservacion?: (observacionId: number, nuevoEstado: string) => void; // CAMBIAR ESTA LÍNEA
 }
 
 // Hook personalizado para el seguimiento de páginas
@@ -370,14 +372,15 @@ const convertCorreccionToHighlight = (correccion: any): IHighlight => {
 export function VisualizadorPDF({
   blob,
   observaciones,
-  observacionesOtrasVersiones = [], // Valor por defecto
+  observacionesOtrasVersiones = [],
   correcciones,
   infoProyecto,
   selectedObservation,
   onObservationClick,
   onRejectionWithNewObservation,
   contentType = 'application/pdf',
-  onApprovalComplete
+  onApprovalComplete,
+  onActualizarEstadoObservacion // CAMBIAR ESTA LÍNEA
 }: VisualizadorPDFProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
@@ -535,47 +538,59 @@ export function VisualizadorPDF({
     return undefined;
   }, [selectedObservation, infoProyecto.codigoDoc]);
 
-  const handleApprove = useCallback(async () => {
-    if (!showApprovalForm?.id) return;
-    try {
-      await cambiarEstado(Number(showApprovalForm.id), 'aprobado');
-      console.log('Observación aprobada');
-      setHighlights((prevHighlights) =>
-        prevHighlights.map((h) =>
-          h.id === showApprovalForm.id ? { ...h, estado: 'aprobado' } : h
-        )
-      );
-      onApprovalComplete?.();
-    } catch (error) {
-      console.error('Error al aprobar:', error);
+const handleApprove = useCallback(async () => {
+  if (!showApprovalForm?.id) return;
+  try {
+    await cambiarEstado(Number(showApprovalForm.id), 'aprobado');
+    console.log('Observación aprobada');
+    
+    setHighlights((prevHighlights) =>
+      prevHighlights.map((h) =>
+        h.id === showApprovalForm.id ? { ...h, estado: 'aprobado' } : h
+      )
+    );
+    
+    // Actualizar el estado en el componente padre
+    if (onActualizarEstadoObservacion) {
+      onActualizarEstadoObservacion(Number(showApprovalForm.id), 'aprobado');
     }
-  }, [showApprovalForm?.id, onApprovalComplete]);
+    
+    onApprovalComplete?.();
+  } catch (error) {
+    console.error('Error al aprobar:', error);
+  }
+}, [showApprovalForm?.id, onApprovalComplete, onActualizarEstadoObservacion]); // ACTUALIZAR DEPENDENCIAS
 
-  const handleReject = useCallback(async (commentText?: string) => {
-    if (!showApprovalForm?.id) return;
+const handleReject = useCallback(async (commentText?: string) => {
+  if (!showApprovalForm?.id) return;
 
-    try {
-      await cambiarEstado(Number(showApprovalForm.id), 'rechazado');
+  try {
+    await cambiarEstado(Number(showApprovalForm.id), 'rechazado');
 
-      setHighlights((prevHighlights) =>
-        prevHighlights.map((h) =>
-          h.id === showApprovalForm.id ? { ...h, estado: 'rechazado' } : h
-        )
-      );
+    setHighlights((prevHighlights) =>
+      prevHighlights.map((h) =>
+        h.id === showApprovalForm.id ? { ...h, estado: 'rechazado' } : h
+      )
+    );
 
-      if (onRejectionWithNewObservation && commentText) {
-        const rejectedHighlight = highlights.find(h => h.id === showApprovalForm.id);
-        if (rejectedHighlight) {
-          await onRejectionWithNewObservation(rejectedHighlight, commentText);
-        }
-      } else {
-        onApprovalComplete?.();
+    // Actualizar el estado en el componente padre
+    if (onActualizarEstadoObservacion) {
+      onActualizarEstadoObservacion(Number(showApprovalForm.id), 'rechazado');
+    }
+
+    if (onRejectionWithNewObservation && commentText) {
+      const rejectedHighlight = highlights.find(h => h.id === showApprovalForm.id);
+      if (rejectedHighlight) {
+        await onRejectionWithNewObservation(rejectedHighlight, commentText);
       }
-
-    } catch (error) {
-      console.error('Error al rechazar:', error);
+    } else {
+      onApprovalComplete?.();
     }
-  }, [showApprovalForm?.id, onApprovalComplete, onRejectionWithNewObservation, highlights]);
+
+  } catch (error) {
+    console.error('Error al rechazar:', error);
+  }
+}, [showApprovalForm?.id, onApprovalComplete, onRejectionWithNewObservation, highlights, onActualizarEstadoObservacion]); // ACTUALIZAR DEPENDENCIAS
 
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
@@ -690,15 +705,15 @@ export function VisualizadorPDF({
   return (
     <div className={styles.pdfViewerContainer}>
       <Sidebar
-        highlights={highlights.filter((h) => !h.isCorreccion)}
-        observacionesOtrasVersiones={observacionesOtrasVersiones}
-        resetHighlights={resetHighlights}
-        onHighlightClick={handleHighlightClick}
-        onObservationClick={onObservationClick}
-        showApprovalForm={showApprovalForm}
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
+  highlights={highlights.filter((h) => !h.isCorreccion)}
+  observacionesOtrasVersiones={observacionesOtrasVersiones}
+  resetHighlights={resetHighlights}
+  onHighlightClick={handleHighlightClick}
+  onObservationClick={onObservationClick}
+  showApprovalForm={showApprovalForm}
+  onApprove={handleApprove}
+  onReject={handleReject}
+/>
       <div className={styles.pdfViewerContent} style={{ position: 'relative' }}>
         <div className={styles.pageIndicator}>
           Página {currentPage} {totalPages > 0 && `de ${totalPages}`}

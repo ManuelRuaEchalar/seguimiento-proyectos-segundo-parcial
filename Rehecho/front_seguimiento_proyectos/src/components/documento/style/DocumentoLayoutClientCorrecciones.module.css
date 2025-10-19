@@ -158,3 +158,82 @@
     background-color: rgba(255, 255, 255, 0.9);
   }
 }
+
+/* Finish Button */
+.finishButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #22c55e;
+  color: var(--white);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
+.finishButton:hover {
+  background: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.finishButton:active {
+  transform: translateY(0);
+}
+
+.finishButton svg {
+  flex-shrink: 0;
+}
+
+/* Ajustar el navbar para acomodar el botón */
+.simpleNavbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--delft-blue) 0%, var(--gunmetal) 100%);
+  border-bottom: 2px solid var(--columbia-blue);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 70px;
+  gap: 1rem; /* <- AÑADIR ESTA LÍNEA si no existe */
+}
+
+/* Responsive para el botón */
+@media (max-width: 1024px) {
+  .finishButton {
+    font-size: 0.9375rem;
+    padding: 0.625rem 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .simpleNavbar {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .finishButton {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .finishButton {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .finishButton svg {
+    width: 18px;
+    height: 18px;
+  }
+}
