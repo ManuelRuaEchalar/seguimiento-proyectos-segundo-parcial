@@ -22,6 +22,51 @@
   animation: fadeIn 0.3s ease;
 }
 
+/* Back Button */
+.backButton {
+  background-color: transparent;
+  border: 2px solid var(--columbia-blue);
+  color: var(--white);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.backButton:hover {
+  background-color: var(--columbia-blue);
+  color: var(--delft-blue);
+  transform: translateX(-3px);
+  box-shadow: 0 4px 12px rgba(204, 218, 230, 0.3);
+}
+
+.backButton:active {
+  transform: scale(0.95) translateX(-3px);
+}
+
+.backButton svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Responsive para el botón */
+@media (max-width: 768px) {
+  .backButton {
+    width: 40px;
+    height: 40px;
+  }
+
+  .backButton svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

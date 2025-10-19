@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Observacion } from '@/types';
+import { SidebarEstudiante } from "@/components/documento/SidebarEstudiante";
 import styles from './style/VisualizadorPDFEstudiante.module.css';
 
 import {
@@ -10,8 +11,6 @@ import {
 import type {
   IHighlight,
 } from "./react-pdf-highlighter";
-
-import { Sidebar } from "./Sidebar";
 import { Spinner } from "./Spinner";
 import { PdfHighlighterEstudiante } from "./react-pdf-highlighter/components/PdfHighlighterEstudiante";
 
@@ -25,6 +24,7 @@ interface VisualizadorPDFEstudianteProps {
   observaciones: Observacion[] | null;
   correcciones: any[] | null;
   infoProyecto: infoProyecto;
+  observacionesProyecto?: any[]; // AGREGAR ESTO
 }
 
 // Hook personalizado para el seguimiento de páginas
@@ -366,7 +366,13 @@ const convertCorreccionToHighlight = (correccion: any): IHighlight => {
   return highlight;
 };
 
-export function VisualizadorPDFEstudiante({ blob, observaciones, correcciones, infoProyecto }: VisualizadorPDFEstudianteProps) {
+export function VisualizadorPDFEstudiante({ 
+  blob, 
+  observaciones, 
+  correcciones, 
+  infoProyecto,
+  observacionesProyecto = [] // AGREGAR ESTO
+}: VisualizadorPDFEstudianteProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
   const [error, setError] = useState<string | null>(null);
@@ -498,11 +504,12 @@ export function VisualizadorPDFEstudiante({ blob, observaciones, correcciones, i
 
   return (
     <div className={styles.pdfViewerContainer}>
-      <Sidebar
-        highlights={highlights}
-        onHighlightClick={handleHighlightClick}
-        resetHighlights={() => {}}
-      />
+      <SidebarEstudiante
+  highlights={highlights}
+  observacionesProyecto={observacionesProyecto}
+  onHighlightClick={handleHighlightClick}
+  resetHighlights={() => {}}
+/>
       <div className={styles.pdfViewerContent}>
         <div className={styles.pageIndicator}>
           Página {currentPage} {totalPages > 0 && `de ${totalPages}`}
@@ -559,7 +566,14 @@ export function VisualizadorPDFEstudiante({ blob, observaciones, correcciones, i
 
                   return (
                     <Popup
-                      popupContent={<HighlightPopup {...highlight} />}
+                      popupContent={
+                        <HighlightPopup
+                          comment={{
+                            text: (highlight.comment && highlight.comment.text) || "",
+                            emoji: (highlight.comment && highlight.comment.emoji) || ""
+                          }}
+                        />
+                      }
                       onMouseOver={(popupContent) => setTip(highlight, (highlight) => popupContent)}
                       onMouseOut={hideTip}
                       key={index}

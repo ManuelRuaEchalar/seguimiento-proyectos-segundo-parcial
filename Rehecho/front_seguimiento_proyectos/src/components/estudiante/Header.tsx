@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import styles from '@/components/estudiante/styles/Header.module.css';
 
 interface HeaderProps {
@@ -14,6 +15,8 @@ interface HeaderProps {
 }
 
 export default function Header({ user, grupo_id = "1", proyecto_id = "1" }: HeaderProps) {
+  const router = useRouter();
+
   if (!user) {
     return (
       <header className={styles.header}>
@@ -30,6 +33,27 @@ export default function Header({ user, grupo_id = "1", proyecto_id = "1" }: Head
   return (
     <header className={styles.header}>
       <div className={styles.headerContainer}>
+        {/* Botón de regresar */}
+        <button 
+          onClick={() => router.back()} 
+          className={styles.backButton}
+          aria-label="Volver atrás"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+
         {/* Avatar e información del usuario */}
         <div className={styles.headerUserSection}>
           <div className={styles.userAvatar}>

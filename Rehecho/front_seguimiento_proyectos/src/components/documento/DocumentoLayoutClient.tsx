@@ -1,11 +1,12 @@
 'use client';
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { VisualizadorPDF } from './VisualizadorPDF';
-import { fetchDoc } from '@/services/proyecto';
+import { fetchDoc, fetchProjectObservaciones } from '@/services/proyecto';
 import { fetchObservaciones } from '@/services/observaciones';
 import { fetchCorrecciones } from '@/services/correcciones';
 import { createObservacion } from '@/services/observaciones';
 import { changeProyectoFase } from '@/services/proyecto';
+import { useRouter } from 'next/navigation'; // <- AÑADIR ESTA LÍNEA
 import styles from './style/DocumentoLayoutClient.module.css';
 
 interface DatosDocumento {
@@ -65,6 +66,39 @@ export default function DocumentoLayoutClient({
   const [showInfoPopup, setShowInfoPopup] = useState(true);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [isApprovingDocument, setIsApprovingDocument] = useState(false);
+  const router = useRouter();
+  // Después de los estados existentes
+const [observacionesProyectoState, setObservacionesProyectoState] = useState<any[]>(observacionesProyecto);
+
+// REEMPLAZAR la función recargarObservacionesProyecto por esta:
+const recargarObservacionesProyecto = useCallback(async () => {
+  try {
+    // Opción 1: Recargar desde la API y filtrar manualmente
+    const nuevasObs = await fetchProjectObservaciones(
+      infoProyecto.codigoProyecto, 
+      infoProyecto.codigoDoc
+    );
+    console.log('🔄 Observaciones recargadas desde API:', nuevasObs);
+    
+    // Asegurarse de incluir TODAS las observaciones, no solo pendientes
+    setObservacionesProyectoState(nuevasObs);
+    
+  } catch (error) {
+    console.error('Error al recargar observaciones del proyecto:', error);
+  }
+}, [infoProyecto.codigoProyecto, infoProyecto.codigoDoc]);
+
+// AGREGAR esta nueva función
+const actualizarEstadoObservacion = useCallback((observacionId: number, nuevoEstado: string) => {
+  setObservacionesProyectoState(prevObs => 
+    prevObs.map(obs => 
+      obs.id === observacionId 
+        ? { ...obs, estado: nuevoEstado }
+        : obs
+    )
+  );
+  console.log(`✅ Estado de observación ${observacionId} actualizado a: ${nuevoEstado}`);
+}, []);
 
   console.log('📦 DocumentoLayoutClient - observacionesProyecto original:', {
     total: observacionesProyecto?.length || 0,
@@ -94,26 +128,26 @@ export default function DocumentoLayoutClient({
 
   // Preparar observaciones de otras versiones
   const observacionesOtrasVersiones = useMemo(() => {
-    const result = (observacionesProyecto || [])
-      .filter(obs => obs.documento_id !== infoProyecto.codigoDoc)
-      .map(obs => ({
-        ...obs,
-        comment: { text: obs.commentText || obs.comment?.text || '' },
-        content: { text: obs.contentText || obs.content?.text || '' },
-        position: { 
-          pageNumber: obs.boundingPage || obs.position?.pageNumber || 1 
-        },
-        esDeOtraVersion: true
-      }));
-    
-    console.log('📋 DocumentoLayoutClient - observacionesOtrasVersiones:', {
-      total: result.length,
-      datos: result,
-      primeraObservacion: result[0]
-    });
-    
-    return result;
-  }, [observacionesProyecto, infoProyecto.codigoDoc]);
+  const result = (observacionesProyectoState || []) // CAMBIAR observacionesProyecto por observacionesProyectoState
+    .filter(obs => obs.documento_id !== infoProyecto.codigoDoc)
+    .map(obs => ({
+      ...obs,
+      comment: { text: obs.commentText || obs.comment?.text || '' },
+      content: { text: obs.contentText || obs.content?.text || '' },
+      position: { 
+        pageNumber: obs.boundingPage || obs.position?.pageNumber || 1 
+      },
+      esDeOtraVersion: true
+    }));
+  
+  console.log('📋 DocumentoLayoutClient - observacionesOtrasVersiones:', {
+    total: result.length,
+    datos: result,
+    primeraObservacion: result[0]
+  });
+  
+  return result;
+}, [observacionesProyectoState, infoProyecto.codigoDoc]); // CAMBIAR dependencia
 
   const handleObservationClick = useCallback(async (observacion: any) => {
     console.log("Clicked observation:", observacion);
@@ -157,14 +191,15 @@ export default function DocumentoLayoutClient({
     }
   }, [infoProyecto.codigoDoc, infoProyecto.codigoProyecto]);
 
-  const handleApprovalComplete = useCallback(() => {
-    setSelectedObservation(null);
-    setSecondBlob(null);
-    setSecondContentType(null);
-    setSecondObservaciones(null);
-    setSecondCorrecciones(null);
-    setSecondInfoProyecto(null);
-  }, []);
+const handleApprovalComplete = useCallback(() => {
+  // QUITAR la línea: await recargarObservacionesProyecto();
+  setSelectedObservation(null);
+  setSecondBlob(null);
+  setSecondContentType(null);
+  setSecondObservaciones(null);
+  setSecondCorrecciones(null);
+  setSecondInfoProyecto(null);
+}, []); // QUITAR dependencia recargarObservacionesProyecto
 
   const handleRejectionWithNewObservation = useCallback(async (rejectedCorrection: any, commentText: string) => {
     try {
@@ -190,7 +225,7 @@ export default function DocumentoLayoutClient({
     try {
       await changeProyectoFase(infoProyecto.codigoProyecto);
       alert('Documento aprobado exitosamente. El estudiante puede avanzar a la siguiente fase.');
-      window.location.href = `/dashboard/docente`;
+      window.location.href = '/dashboard/docente';
     } catch (error) {
       console.error('Error al aprobar documento:', error);
       alert('Error al aprobar el documento. Por favor, intente nuevamente.');
@@ -254,6 +289,28 @@ export default function DocumentoLayoutClient({
       {/* Navbar con estadísticas */}
       <nav className={styles.comparisonNavbar}>
         <div className={styles.navbarContent}>
+          {/* AÑADIR ESTE BLOQUE COMPLETO */}
+          <button 
+            onClick={() => router.back()} 
+            className={styles.backButton}
+            aria-label="Volver atrás"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          {/* FIN DEL BLOQUE */}
+          
           <div className={styles.statsContainer}>
             <div className={styles.statItem}>
               <span className={styles.statLabel}>Total:</span>
@@ -285,29 +342,31 @@ export default function DocumentoLayoutClient({
         <div className={`${styles.pdfContainer} ${secondBlob ? styles.dual : styles.single}`}>
           <div className={styles.pdfViewerWrapper}>
             <VisualizadorPDF
-              blob={blob}
-              observaciones={observacionesLocales}
-              observacionesOtrasVersiones={observacionesOtrasVersiones}
-              correcciones={modifiedCorrecciones}
-              infoProyecto={infoProyecto}
-              selectedObservation={selectedObservation}
-              contentType={contentType}
-              onObservationClick={handleObservationClick}
-            />
+  blob={blob}
+  observaciones={observacionesLocales}
+  observacionesOtrasVersiones={observacionesOtrasVersiones}
+  correcciones={modifiedCorrecciones}
+  infoProyecto={infoProyecto}
+  selectedObservation={selectedObservation}
+  contentType={contentType}
+  onObservationClick={handleObservationClick}
+  onActualizarEstadoObservacion={actualizarEstadoObservacion} // CAMBIAR ESTO
+/>
           </div>
           {secondBlob && secondInfoProyecto && (
-            <div className={styles.pdfViewerWrapper}>
-              <VisualizadorPDF
-                blob={secondBlob}
-                observaciones={secondObservaciones ?? []}
-                correcciones={secondCorrecciones ?? []}
-                infoProyecto={secondInfoProyecto}
-                selectedObservation={selectedObservation}
-                contentType={secondContentType || 'application/pdf'}
-                onApprovalComplete={handleApprovalComplete}
-                onRejectionWithNewObservation={handleRejectionWithNewObservation}
-              />
-            </div>
+  <div className={styles.pdfViewerWrapper}>
+    <VisualizadorPDF
+      blob={secondBlob}
+      observaciones={secondObservaciones ?? []}
+      correcciones={secondCorrecciones ?? []}
+      infoProyecto={secondInfoProyecto}
+      selectedObservation={selectedObservation}
+      contentType={secondContentType || 'application/pdf'}
+      onApprovalComplete={handleApprovalComplete}
+      onRejectionWithNewObservation={handleRejectionWithNewObservation}
+      onActualizarEstadoObservacion={actualizarEstadoObservacion} // CAMBIAR ESTO
+    />
+  </div>
           )}
         </div>
       </div>

@@ -21,6 +21,36 @@
   border-radius: 0 0 8px 8px;
 }
 
+.backButton {
+  background-color: transparent;
+  border: 2px solid var(--columbia-blue);
+  color: var(--white);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.backButton:hover {
+  background-color: var(--columbia-blue);
+  color: var(--delft-blue);
+  transform: translateX(-3px);
+  box-shadow: 0 4px 12px rgba(204, 218, 230, 0.3);
+}
+
+.backButton:active {
+  transform: scale(0.95) translateX(-3px);
+}
+
+.backButton svg {
+  width: 22px;
+  height: 22px;
+}
 .sectionTitle {
   font-size: 1.1rem;
   font-weight: 600;
