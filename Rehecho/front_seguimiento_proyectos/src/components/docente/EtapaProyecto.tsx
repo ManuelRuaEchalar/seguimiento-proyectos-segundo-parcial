@@ -68,6 +68,7 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
 
       // Fetch student data by ID
       const studentData = await fetchEstudianteById(id);
+      console.log('Datos del estudiante obtenidos:', studentData);
       
       let projectDocuments: Document[] = [];
 

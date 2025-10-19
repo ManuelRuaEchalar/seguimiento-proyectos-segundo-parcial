@@ -38,8 +38,10 @@ export default function DocenteProyectoDashboardClient({ estudianteId }: Props) 
         // Si el estudiante tiene un proyecto, traer detalles adicionales
         if (profileData.proyecto_id) {
           try {
-            const proyectoData = await fetchProyecto(profileData.proyecto_id);
+            console.log('Cargando detalles del proyecto para ID:', profileData.proyecto_id);
+            const proyectoData = await fetchProyecto(profileData.id);
             profileData.proyecto = proyectoData;
+            console.log('Detalles del proyecto cargados:', proyectoData);
           } catch (proyectoErr) {
             console.warn('Error al obtener detalles del proyecto:', proyectoErr);
           }
@@ -134,7 +136,7 @@ export default function DocenteProyectoDashboardClient({ estudianteId }: Props) 
                 </div>
               </div>
 
-              <Etapa faseActual={studentProfile.proyecto?.fase_actual || 'tema'} rol={"docente"} proyectoId={studentProfile.proyecto?.id}/>
+              <Etapa faseActual={studentProfile.proyecto?.fase_actual || 'tema'} rol={"docente"} proyectoId={studentProfile.id}/>
             </>
           ) : (
             <div className={styles.errorContainer}>

@@ -190,7 +190,7 @@ export default function DocumentoLayoutClient({
     try {
       await changeProyectoFase(infoProyecto.codigoProyecto);
       alert('Documento aprobado exitosamente. El estudiante puede avanzar a la siguiente fase.');
-      window.location.href = '/docente';
+      window.location.href = `/dashboard/docente`;
     } catch (error) {
       console.error('Error al aprobar documento:', error);
       alert('Error al aprobar el documento. Por favor, intente nuevamente.');
