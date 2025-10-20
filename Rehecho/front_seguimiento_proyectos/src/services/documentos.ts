@@ -372,9 +372,141 @@ export const obtenerDocumentosPorEstado = async (
  * @param id ID del documento
  * @param nuevoEstado Nuevo estado (pendiente, en_revision, revisado, aprobado, rechazado)
  */
-export const cambiarEstadoDocumento = async (
-  id: number,
-  nuevoEstado: string
+// export const cambiarEstadoDocumento = async (
+//   id: number,
+//   nuevoEstado: string
+// ): Promise<{ success: boolean; error?: string }> => {
+//   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+//   if (!apiUrl) {
+//     return {
+//       success: false,
+//       error: 'NEXT_PUBLIC_API_URL no está configurada'
+//     };
+//   }
+
+//   const estadosValidos = ['pendiente', 'en_revision', 'revisado', 'aprobado', 'rechazado'];
+//   if (!estadosValidos.includes(nuevoEstado)) {
+//     return {
+//       success: false,
+//       error: `Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`
+//     };
+//   }
+
+//   try {
+//     const response = await fetch(`${apiUrl}/documento/cambiar-estado`, {
+//       method: 'PATCH',
+//       headers: {
+//         'Content-Type': 'application/json'
+//       },
+//       credentials: 'include', // Usa cookies JWT
+//       body: JSON.stringify({ id, nuevoEstado })
+//     });
+
+//     const data = await response.json();
+
+//     if (!response.ok) {
+//       return { success: false, error: data.error || 'Error al cambiar el estado' };
+//     }
+
+//     return { success: true };
+//   } catch (error) {
+//     console.error('Error cambiando estado del documento:', error);
+//     return {
+//       success: false,
+//       error: error instanceof Error ? error.message : 'Error de conexión'
+//     };
+//   }
+// };
+/**
+ * Servicio para gestionar documentos
+ */
+
+export async function cambiarEstadoDocumento(
+  documentoId: number,
+  nuevoEstado: 'pendiente' | 'en_revision' | 'revisado' | 'aprobado' | 'rechazado'
+) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+  }
+
+  console.log(`📤 Cambiando estado del documento ${documentoId} a "${nuevoEstado}"`);
+
+  const response = await fetch(`${apiUrl}/documento/cambiar-estado`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ 
+      id: documentoId, 
+      nuevoEstado 
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Error al cambiar estado del documento');
+  }
+
+  const data = await response.json();
+  console.log('✅ Estado del documento actualizado:', data);
+
+  return data;
+}
+
+/**
+ * Rechazar documento con motivo
+ */
+// export async function rechazarDocumento(
+//   documentoId: number,
+//   motivo: string,
+//   proyectoId: number
+// ) {
+//   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+//   if (!apiUrl) {
+//     throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+//   }
+
+//   console.log(`📤 Rechazando documento ${documentoId} con motivo`);
+
+//   const response = await fetch(`${apiUrl}/documento/rechazar`, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     credentials: 'include',
+//     body: JSON.stringify({ 
+//       documentoId, 
+//       motivo,
+//       proyectoId
+//     }),
+//   });
+
+//   if (!response.ok) {
+//     const error = await response.json();
+//     throw new Error(error.message || 'Error al rechazar documento');
+//   }
+
+//   const data = await response.json();
+//   console.log('✅ Documento rechazado:', data);
+
+//   return data;
+// }
+
+/**
+ * Rechazar documento con motivo
+ * @param documentoId ID del documento
+ * @param motivo Motivo del rechazo
+ * @param proyectoId ID del proyecto
+ */
+export const rechazarDocumento = async (
+  documentoId: number,
+  motivo: string,
+  proyectoId: number
 ): Promise<{ success: boolean; error?: string }> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -385,33 +517,25 @@ export const cambiarEstadoDocumento = async (
     };
   }
 
-  const estadosValidos = ['pendiente', 'en_revision', 'revisado', 'aprobado', 'rechazado'];
-  if (!estadosValidos.includes(nuevoEstado)) {
-    return {
-      success: false,
-      error: `Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`
-    };
-  }
-
   try {
-    const response = await fetch(`${apiUrl}/documento/cambiar-estado`, {
-      method: 'PATCH',
+    const response = await fetch(`${apiUrl}/documento/rechazar`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      credentials: 'include', // Usa cookies JWT
-      body: JSON.stringify({ id, nuevoEstado })
+      credentials: 'include',
+      body: JSON.stringify({ documentoId, motivo, proyectoId })
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, error: data.error || 'Error al cambiar el estado' };
+      return { success: false, error: data.error || 'Error al rechazar documento' };
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Error cambiando estado del documento:', error);
+    console.error('Error rechazando documento:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Error de conexión'

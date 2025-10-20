@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -45,7 +44,6 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
   const { user, isLoading: authLoading, isUnauthorized } = useAuthGuard('docente');
   console.log('Fase recibida en EtapaProyecto:', fase);
   
-  // Combinar estados relacionados en un solo objeto
   const [state, setState] = useState<{
     estudianteData: EstudianteData | null;
     documents: Document[];
@@ -60,28 +58,24 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
   
   const [activeTab, setActiveTab] = useState<'ver' | 'historial'>('ver');
 
-  // Memoizar la función de fetch con useCallback
   const fetchData = useCallback(async () => {
     try {
-      // Un solo setState al inicio
       setState(prev => ({ ...prev, isLoading: true, error: '' }));
 
-      // Fetch student data by ID
       const studentData = await fetchEstudianteById(id);
       console.log('Datos del estudiante obtenidos:', studentData);
       
       let projectDocuments: Document[] = [];
 
-      // Fetch documents if student has a project
       if (studentData.proyecto_id) {
         try {
           projectDocuments = await obtenerDocumentos(studentData.proyecto_id, fase);
+          console.log('📄 Documentos obtenidos:', projectDocuments);
         } catch (docErr) {
           console.error('Error al obtener documentos:', docErr);
         }
       }
 
-      // Un solo setState al final con todos los datos
       setState({
         estudianteData: studentData,
         documents: projectDocuments,
@@ -89,27 +83,24 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
         error: ''
       });
     } catch (err) {
-      // Un solo setState para el error
       setState(prev => ({
         ...prev,
         error: err instanceof Error ? err.message : 'Error al obtener datos del estudiante',
         isLoading: false
       }));
     }
-  }, [id]);
+  }, [id, fase]);
 
-  // Load student and project data
   useEffect(() => {
     if (!user?.id) return;
     fetchData();
   }, [user?.id, fetchData]);
 
-  // Handle document click for navigation
   const handleDocumentClick = useCallback((documento: Document) => {
+    console.log('📄 Documento clickeado:', documento);
     router.push(`/dashboard/docente/documento/${documento.id}`);
   }, [router]);
 
-  // Format user data for Header component
   const headerUser = user?.nombre && user?.apellido && user?.email && user?.rol
     ? {
         nombre: user.nombre,
@@ -216,7 +207,6 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
             </div>
           </div>
 
-          {/* Project Info Card */}
           {state.estudianteData.proyecto && (
             <div className={styles.estudianteCard} style={{ marginBottom: '1.5rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
@@ -263,12 +253,12 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
             {activeTab === 'ver' && (
               <div>
                 <h2 className={styles.contentTitle} style={{ marginBottom: '1.5rem' }}>
-                  Documentos del Proyecto
+                  Documentos del Proyecto - Fase: {fase.toUpperCase()}
                 </h2>
                 {state.documents.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '2rem', color: '#5b88a5' }}>
                     <FileText size={48} style={{ margin: '0 auto 1rem', display: 'block', opacity: 0.5 }} />
-                    <p>No hay documentos disponibles para este proyecto.</p>
+                    <p>El estudiante aún no ha subido documentos para esta fase.</p>
                   </div>
                 ) : (
                   <DocumentList documentos={state.documents} onDocumentClick={handleDocumentClick} />

@@ -119,7 +119,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
     }
   };
 
-  // Handle PDF upload
+  // Handle PDF upload - CORREGIDO: Sin redirección automática
   const handleUploadDocuments = async () => {
     if (!selectedFile || !studentProfile?.proyecto_id) {
       setUploadStatus('error');
@@ -136,7 +136,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
 
       if (result.success && result.id) {
         setUploadStatus('success');
-        setUploadMessage(`¡PDF subido correctamente! ID: ${result.id}`);
+        setUploadMessage(`¡PDF subido correctamente!`);
         setSelectedFile(null);
 
         // Clear file input
@@ -150,17 +150,21 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
           version: 1,
           estado: 'pendiente',
           activo: true,
-          fase: studentProfile.proyecto?.fase_actual || 'inicial',
+          fase: fase,
           created_at: new Date().toISOString(),
           file: '',
           proyecto_id: studentProfile.proyecto_id,
         };
         setDocuments((prev) => [...prev, newDocumento]);
 
-        // Redirect to new document if more than one document exists
-        if (documents.length >= 1) {
-          router.push(`/dashboard/estudiante/documentoNuevo/${result.id}`);
-        }
+        // ELIMINADO: La redirección automática
+        // Ya no redirige aquí, el estudiante debe hacer clic en "Ver Documento"
+        
+        // Opcional: Auto-limpiar el mensaje de éxito después de 3 segundos
+        setTimeout(() => {
+          setUploadStatus('idle');
+          setUploadMessage('');
+        }, 3000);
       } else {
         setUploadStatus('error');
         setUploadMessage(`Error al subir: ${result.error}`);
@@ -182,7 +186,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
     if (fileInput) fileInput.value = '';
   };
 
-  // Handle document click for navigation
+  // Handle document click for navigation - Aquí SI redirige cuando hace clic
   const handleDocumentClick = (documento: Document) => {
     router.push(`/dashboard/estudiante/documento/${documento.id}`);
   };
@@ -265,6 +269,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
                 <ul style={{ color: '#5b88a5', fontSize: '0.8rem', margin: '0.5rem 0 0 1.5rem' }}>
                   <li><strong>Solo archivos PDF</strong></li>
                   <li>Máximo 10MB</li>
+                  <li>En Fase 1 solo subes el documento, sin correcciones</li>
                 </ul>
               </div>
 

@@ -1,12 +1,10 @@
 'use client';
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { VisualizadorPDF } from './VisualizadorPDF';
-import { fetchDoc, fetchProjectObservaciones } from '@/services/proyecto';
-import { fetchObservaciones } from '@/services/observaciones';
-import { fetchCorrecciones } from '@/services/correcciones';
-import { createObservacion } from '@/services/observaciones';
+import { fetchDoc } from '@/services/proyecto';
+import { cambiarEstadoDocumento, rechazarDocumento } from '@/services/documentos';
 import { changeProyectoFase } from '@/services/proyecto';
-import { useRouter } from 'next/navigation'; // <- AÑADIR ESTA LÍNEA
+import { useRouter } from 'next/navigation';
 import styles from './style/DocumentoLayoutClient.module.css';
 
 interface DatosDocumento {
@@ -57,181 +55,61 @@ export default function DocumentoLayoutClient({
   infoProyecto,
   contentType,
 }: DocumentoLayoutClientProps) {
-  const [secondBlob, setSecondBlob] = useState<Blob | null>(null);
-  const [secondContentType, setSecondContentType] = useState<string | null>(null);
-  const [selectedObservation, setSelectedObservation] = useState<any | null>(null);
-  const [secondInfoProyecto, setSecondInfoProyecto] = useState<infoProyecto | null>(null);
-  const [secondObservaciones, setSecondObservaciones] = useState<any[] | null>(null);
-  const [secondCorrecciones, setSecondCorrecciones] = useState<any[] | null>(null);
+  const router = useRouter();
+  
+  // Estados
   const [showInfoPopup, setShowInfoPopup] = useState(true);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
-  const [isApprovingDocument, setIsApprovingDocument] = useState(false);
-  const router = useRouter();
-  // Después de los estados existentes
-const [observacionesProyectoState, setObservacionesProyectoState] = useState<any[]>(observacionesProyecto);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
 
-// REEMPLAZAR la función recargarObservacionesProyecto por esta:
-const recargarObservacionesProyecto = useCallback(async () => {
-  try {
-    // Opción 1: Recargar desde la API y filtrar manualmente
-    const nuevasObs = await fetchProjectObservaciones(
-      infoProyecto.codigoProyecto, 
-      infoProyecto.codigoDoc
-    );
-    console.log('🔄 Observaciones recargadas desde API:', nuevasObs);
-    
-    // Asegurarse de incluir TODAS las observaciones, no solo pendientes
-    setObservacionesProyectoState(nuevasObs);
-    
-  } catch (error) {
-    console.error('Error al recargar observaciones del proyecto:', error);
-  }
-}, [infoProyecto.codigoProyecto, infoProyecto.codigoDoc]);
-
-// AGREGAR esta nueva función
-const actualizarEstadoObservacion = useCallback((observacionId: number, nuevoEstado: string) => {
-  setObservacionesProyectoState(prevObs => 
-    prevObs.map(obs => 
-      obs.id === observacionId 
-        ? { ...obs, estado: nuevoEstado }
-        : obs
-    )
-  );
-  console.log(`✅ Estado de observación ${observacionId} actualizado a: ${nuevoEstado}`);
-}, []);
-
-  console.log('📦 DocumentoLayoutClient - observacionesProyecto original:', {
-    total: observacionesProyecto?.length || 0,
-    datos: observacionesProyecto,
-    primeraObservacion: observacionesProyecto?.[0]
-  });
-
-  // Calcular estadísticas de correcciones
-  const estadisticasCorrecciones = useMemo(() => {
-    const total = correcciones.length;
-    const aprobadas = correcciones.filter(c => c.estado === 'aprobado').length;
-    const rechazadas = correcciones.filter(c => c.estado === 'rechazado').length;
-    const pendientes = correcciones.filter(c => c.estado === 'pendiente').length;
-    
-    return { total, aprobadas, rechazadas, pendientes };
-  }, [correcciones]);
-
-  // Modificar correcciones del primer visualizador para convertir observacion_id a string
-  const modifiedCorrecciones = useMemo(() => {
-    return correcciones.map(c => ({ ...c, observacion_id: String(c.observacion_id) }));
-  }, [correcciones]);
-
-  // Preparar observaciones locales (del documento actual)
-  const observacionesLocales = useMemo(() => {
-    return observaciones || [];
-  }, [observaciones]);
-
-  // Preparar observaciones de otras versiones
-  const observacionesOtrasVersiones = useMemo(() => {
-  const result = (observacionesProyectoState || []) // CAMBIAR observacionesProyecto por observacionesProyectoState
-    .filter(obs => obs.documento_id !== infoProyecto.codigoDoc)
-    .map(obs => ({
-      ...obs,
-      comment: { text: obs.commentText || obs.comment?.text || '' },
-      content: { text: obs.contentText || obs.content?.text || '' },
-      position: { 
-        pageNumber: obs.boundingPage || obs.position?.pageNumber || 1 
-      },
-      esDeOtraVersion: true
-    }));
-  
-  console.log('📋 DocumentoLayoutClient - observacionesOtrasVersiones:', {
-    total: result.length,
-    datos: result,
-    primeraObservacion: result[0]
-  });
-  
-  return result;
-}, [observacionesProyectoState, infoProyecto.codigoDoc]); // CAMBIAR dependencia
-
-  const handleObservationClick = useCallback(async (observacion: any) => {
-    console.log("Clicked observation:", observacion);
-    
-    try {
-      if (observacion.esDeOtraVersion) {
-        const { blob: newBlob, contentType: newContentType } = await fetchDoc(observacion.documento_id);
-        const newObs = await fetchObservaciones(observacion.documento_id);
-        const newCorr = await fetchCorrecciones(observacion.documento_id);
-
-        const newCorrWithString = newCorr.map((c: { observacion_id: any; }) => ({ 
-          ...c, 
-          observacion_id: String(c.observacion_id) 
-        }));
-
-        setSecondBlob(newBlob);
-        setSecondContentType(newContentType);
-        setSecondObservaciones(newObs);
-        setSecondCorrecciones(newCorrWithString);
-        setSecondInfoProyecto({
-          codigoProyecto: infoProyecto.codigoProyecto,
-          codigoDoc: observacion.documento_id,
-        });
-        setSelectedObservation({ 
-          ...observacion, 
-          codigoDoc: observacion.documento_id 
-        });
-      } else {
-        setSelectedObservation({ 
-          ...observacion, 
-          codigoDoc: infoProyecto.codigoDoc 
-        });
-        setSecondBlob(null);
-        setSecondContentType(null);
-        setSecondObservaciones(null);
-        setSecondCorrecciones(null);
-        setSecondInfoProyecto(null);
-      }
-    } catch (error) {
-      console.error('Error fetching second document:', error);
-    }
-  }, [infoProyecto.codigoDoc, infoProyecto.codigoProyecto]);
-
-const handleApprovalComplete = useCallback(() => {
-  // QUITAR la línea: await recargarObservacionesProyecto();
-  setSelectedObservation(null);
-  setSecondBlob(null);
-  setSecondContentType(null);
-  setSecondObservaciones(null);
-  setSecondCorrecciones(null);
-  setSecondInfoProyecto(null);
-}, []); // QUITAR dependencia recargarObservacionesProyecto
-
-  const handleRejectionWithNewObservation = useCallback(async (rejectedCorrection: any, commentText: string) => {
-    try {
-      const newHighlight = {
-        content: rejectedCorrection.content,
-        position: rejectedCorrection.position,
-        comment: { text: commentText, emoji: "❌" },
-        estado: "pendiente",
-        documento_id: infoProyecto.codigoDoc,
-        proyecto_id: infoProyecto.codigoProyecto,
-        observacionId: ""
-      };
-      
-      await createObservacion(newHighlight);
-      handleApprovalComplete();
-    } catch (error) {
-      console.error('Error al crear nueva observación:', error);
-    }
-  }, [infoProyecto, handleApprovalComplete]);
-
+  // 🆕 APROBAR DOCUMENTO
   const handleApproveDocument = async () => {
-    setIsApprovingDocument(true);
+    setIsProcessing(true);
     try {
+      // 1. Cambiar estado del documento a "aprobado"
+      await cambiarEstadoDocumento(infoProyecto.codigoDoc, 'aprobado');
+      
+      // 2. Avanzar fase del proyecto
       await changeProyectoFase(infoProyecto.codigoProyecto);
-      alert('Documento aprobado exitosamente. El estudiante puede avanzar a la siguiente fase.');
-      window.location.href = '/dashboard/docente';
+      
+      alert('✅ Documento aprobado exitosamente. El estudiante puede avanzar a la siguiente fase.');
+      router.push('/dashboard/docente');
     } catch (error) {
       console.error('Error al aprobar documento:', error);
-      alert('Error al aprobar el documento. Por favor, intente nuevamente.');
+      alert('❌ Error al aprobar el documento. Por favor, intente nuevamente.');
     } finally {
-      setIsApprovingDocument(false);
+      setIsProcessing(false);
       setShowApprovalModal(false);
+    }
+  };
+
+  // 🆕 RECHAZAR DOCUMENTO
+  const handleRejectDocument = async () => {
+    if (!rejectionReason.trim()) {
+      alert('⚠️ Por favor, ingrese un motivo para el rechazo.');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // Rechazar documento con motivo
+      await rechazarDocumento(
+        infoProyecto.codigoDoc, 
+        rejectionReason,
+        infoProyecto.codigoProyecto
+      );
+      
+      alert('✅ Documento rechazado. El estudiante podrá ver el motivo y subir una nueva versión.');
+      router.push('/dashboard/docente');
+    } catch (error) {
+      console.error('Error al rechazar documento:', error);
+      alert('❌ Error al rechazar el documento. Por favor, intente nuevamente.');
+    } finally {
+      setIsProcessing(false);
+      setShowRejectionModal(false);
+      setRejectionReason('');
     }
   };
 
@@ -243,16 +121,16 @@ const handleApprovalComplete = useCallback(() => {
           <div className={styles.popupContent}>
             <h3 className={styles.popupTitle}>Información de Visualización</h3>
             <p className={styles.popupText}>
-              En la parte superior está el documento nuevo, en la parte inferior el documento viejo.
+              Este documento está en <strong>modo de solo lectura</strong>.
             </p>
             <p className={styles.popupText}>
-              La corrección del estudiante está resaltada de color <span className={styles.highlightStudent}>celeste</span> y la del docente de color <span className={styles.highlightTeacher}>piel</span>.
+              Usted solo puede <strong>aprobar</strong> o <strong>rechazar</strong> el documento para que el estudiante pueda avanzar a la siguiente fase.
             </p>
             <button 
               className={styles.popupButton}
               onClick={() => setShowInfoPopup(false)}
             >
-              Aceptar
+              Entendido
             </button>
           </div>
         </div>
@@ -264,20 +142,23 @@ const handleApprovalComplete = useCallback(() => {
           <div className={styles.popupContent}>
             <h3 className={styles.popupTitle}>Confirmar Aprobación</h3>
             <p className={styles.popupText}>
-              ¿Está seguro de aprobar este documento? Esta acción permitirá que el estudiante pase a la siguiente fase de su proyecto de grado.
+              ¿Está seguro de aprobar este documento? 
+            </p>
+            <p className={styles.popupText}>
+              Esta acción permitirá que el estudiante <strong>{datosEstudiante.nombre}</strong> pase a la siguiente fase de su proyecto de grado.
             </p>
             <div className={styles.modalButtons}>
               <button 
                 className={styles.approveButton}
                 onClick={handleApproveDocument}
-                disabled={isApprovingDocument}
+                disabled={isProcessing}
               >
-                {isApprovingDocument ? 'Aprobando...' : 'Aprobar'}
+                {isProcessing ? 'Aprobando...' : 'Confirmar Aprobación'}
               </button>
               <button 
                 className={styles.cancelButton}
                 onClick={() => setShowApprovalModal(false)}
-                disabled={isApprovingDocument}
+                disabled={isProcessing}
               >
                 Cancelar
               </button>
@@ -286,10 +167,49 @@ const handleApprovalComplete = useCallback(() => {
         </div>
       )}
 
-      {/* Navbar con estadísticas */}
+      {/* 🆕 Modal de rechazo */}
+      {showRejectionModal && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popupContent}>
+            <h3 className={styles.popupTitle}>Rechazar Documento</h3>
+            <p className={styles.popupText}>
+              Por favor, indique el motivo del rechazo. El estudiante podrá ver esta observación y corregir su documento.
+            </p>
+            <textarea
+              className={styles.rejectionTextarea}
+              placeholder="Escriba el motivo del rechazo..."
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              rows={6}
+              disabled={isProcessing}
+            />
+            <div className={styles.modalButtons}>
+              <button 
+                className={styles.rejectButton}
+                onClick={handleRejectDocument}
+                disabled={isProcessing || !rejectionReason.trim()}
+              >
+                {isProcessing ? 'Rechazando...' : 'Confirmar Rechazo'}
+              </button>
+              <button 
+                className={styles.cancelButton}
+                onClick={() => {
+                  setShowRejectionModal(false);
+                  setRejectionReason('');
+                }}
+                disabled={isProcessing}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navbar con información del documento */}
       <nav className={styles.comparisonNavbar}>
         <div className={styles.navbarContent}>
-          {/* AÑADIR ESTE BLOQUE COMPLETO */}
+          {/* Botón volver */}
           <button 
             onClick={() => router.back()} 
             className={styles.backButton}
@@ -309,65 +229,60 @@ const handleApprovalComplete = useCallback(() => {
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
           </button>
-          {/* FIN DEL BLOQUE */}
           
-          <div className={styles.statsContainer}>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>Total:</span>
-              <span className={styles.statValue}>{estadisticasCorrecciones.total}</span>
-            </div>
-            <div className={`${styles.statItem} ${styles.statApproved}`}>
-              <span className={styles.statLabel}>Aprobadas:</span>
-              <span className={styles.statValue}>{estadisticasCorrecciones.aprobadas}</span>
-            </div>
-            <div className={`${styles.statItem} ${styles.statRejected}`}>
-              <span className={styles.statLabel}>Rechazadas:</span>
-              <span className={styles.statValue}>{estadisticasCorrecciones.rechazadas}</span>
-            </div>
-            <div className={`${styles.statItem} ${styles.statPending}`}>
-              <span className={styles.statLabel}>Pendientes:</span>
-              <span className={styles.statValue}>{estadisticasCorrecciones.pendientes}</span>
-            </div>
+          {/* Información del documento */}
+          <div className={styles.documentInfo}>
+            <h2 className={styles.documentTitle}>
+              {datosDocumento.titulo}
+            </h2>
+            <p className={styles.documentVersion}>
+              Versión {datosDocumento.version} • Estudiante: {datosEstudiante.nombre}
+            </p>
           </div>
-          <button 
-            className={styles.approveDocumentButton}
-            onClick={() => setShowApprovalModal(true)}
-          >
-            Aprobar Documento
-          </button>
+
+          {/* Botones de acción */}
+          <div className={styles.actionButtons}>
+            <button 
+              className={styles.rejectDocumentButton}
+              onClick={() => setShowRejectionModal(true)}
+              disabled={isProcessing}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+              Rechazar
+            </button>
+            <button 
+              className={styles.approveDocumentButton}
+              onClick={() => setShowApprovalModal(true)}
+              disabled={isProcessing}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Aprobar Documento
+            </button>
+          </div>
         </div>
       </nav>
 
+      {/* Visor de PDF en modo solo lectura */}
       <div className={styles.documentoBody}>
-        <div className={`${styles.pdfContainer} ${secondBlob ? styles.dual : styles.single}`}>
+        <div className={styles.pdfContainer}>
           <div className={styles.pdfViewerWrapper}>
             <VisualizadorPDF
-  blob={blob}
-  observaciones={observacionesLocales}
-  observacionesOtrasVersiones={observacionesOtrasVersiones}
-  correcciones={modifiedCorrecciones}
-  infoProyecto={infoProyecto}
-  selectedObservation={selectedObservation}
-  contentType={contentType}
-  onObservationClick={handleObservationClick}
-  onActualizarEstadoObservacion={actualizarEstadoObservacion} // CAMBIAR ESTO
-/>
+              blob={blob}
+              observaciones={observaciones}
+              observacionesOtrasVersiones={[]}
+              correcciones={correcciones}
+              infoProyecto={infoProyecto}
+              selectedObservation={null}
+              contentType={contentType}
+              modoSoloLectura={true} // 🔒 MODO SOLO LECTURA ACTIVADO
+            />
           </div>
-          {secondBlob && secondInfoProyecto && (
-  <div className={styles.pdfViewerWrapper}>
-    <VisualizadorPDF
-      blob={secondBlob}
-      observaciones={secondObservaciones ?? []}
-      correcciones={secondCorrecciones ?? []}
-      infoProyecto={secondInfoProyecto}
-      selectedObservation={selectedObservation}
-      contentType={secondContentType || 'application/pdf'}
-      onApprovalComplete={handleApprovalComplete}
-      onRejectionWithNewObservation={handleRejectionWithNewObservation}
-      onActualizarEstadoObservacion={actualizarEstadoObservacion} // CAMBIAR ESTO
-    />
-  </div>
-          )}
         </div>
       </div>
     </div>

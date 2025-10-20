@@ -154,3 +154,4 @@ export async function changeProyectoFase(id: number) {
   console.log('Respuesta del servidor (cambio de fase):', data);
   return data;
 }
+
