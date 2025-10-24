@@ -36,3 +36,33 @@ export async function fetchEstudianteById(id: number) {
   console.log('Respuesta del servidor:', data);
   return data;
 }
+
+export async function fetchDocumentosPendientes() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+
+  console.log('🔍 Solicitando documentos pendientes desde:', `${apiUrl}/documento/get-pendientes`);
+
+  const response = await fetch(`${apiUrl}/documento/get-pendientes`, {
+    method: 'GET',
+    credentials: 'include', // Envía la cookie httpOnly con el access_token
+  });
+
+  if (!response.ok) {
+    console.error('❌ Error al obtener documentos pendientes:', response.status, response.statusText);
+    const errorData = await response.text();
+    console.error('Detalle del error:', errorData);
+
+    if (response.status === 401) {
+      throw new Error('Sesión no autenticada. Inicia sesión nuevamente.');
+    } else if (response.status === 403) {
+      throw new Error('No tienes permiso para ver los documentos pendientes.');
+    }
+
+    throw new Error('Error al obtener documentos pendientes.');
+  }
+
+  const data = await response.json();
+  console.log('✅ Documentos pendientes recibidos:', data);
+  return data;
+}

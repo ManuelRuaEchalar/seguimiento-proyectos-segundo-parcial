@@ -1,0 +1,31 @@
+/* src/components/PendientesList.module.css */
+
+.container {
+  background-color: #F6F9FF;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: bold;
+  color: #272D3A;
+  margin: 0;
+}
+
+.badge {
+  background-color: #1E396C;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 16px;
+}

@@ -12,7 +12,8 @@ import {
   HttpException,
   HttpStatus,
   Query,
-  Patch
+  Patch,
+  UseGuards
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DocumentoService } from './documento.service';
@@ -23,10 +24,25 @@ import { File as MulterFile } from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
 import { $Enums } from '@prisma/client';
+import { JwtGuard } from 'src/auth/guard/jwt.guard';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
 
 @Controller('documento')
 export class DocumentoController {
   constructor(private documentoService: DocumentoService) {}
+
+  @Get('get-pendientes')
+ @UseGuards(JwtGuard)
+  async getPendientes(@GetUser('id') docenteId: number) {
+    // docenteId viene directamente del access_token
+    console.log('📘 Docente autenticado con ID:', docenteId);
+
+    const pendientes = await this.documentoService.getPendientes(docenteId);
+    return {
+      success: true,
+      data: pendientes,
+    };
+  }
 
   @Post('get-doc')
   async getDoc(@Body('id') id: number, @Res() res: Response) {
@@ -284,47 +300,61 @@ async getDocumentsByProyecto(
   }
 }
 
+// documento.controller.ts
+
 @Patch('cambiar-estado')
-  async cambiarEstado(
-    @Body('id') id: number,
-    @Body('nuevoEstado') nuevoEstado: string,
-    @Res() res: Response
-  ) {
-    try {
-      if (!id || isNaN(id)) {
-        throw new BadRequestException('El ID del documento debe ser un número válido');
+async cambiarEstado(
+  @Body('id') id: number,
+  @Body('nuevoEstado') nuevoEstado: string,
+  @Body('justificacion') justificacion: string,
+  @Res() res: Response
+) {
+  try {
+    if (!id || isNaN(id)) {
+      throw new BadRequestException('El ID del documento debe ser un número válido');
+    }
+
+    const estadosValidos = Object.values($Enums.EstadoDocumento);
+    if (!estadosValidos.includes(nuevoEstado as $Enums.EstadoDocumento)) {
+      throw new BadRequestException(`Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`);
+    }
+
+    // Validar justificación para rechazos
+    if (nuevoEstado === 'rechazado') {
+      if (!justificacion || justificacion.trim().length === 0) {
+        throw new BadRequestException('Se requiere una justificación para rechazar el documento');
       }
-
-      const estadosValidos = Object.values($Enums.EstadoDocumento);
-      if (!estadosValidos.includes(nuevoEstado as $Enums.EstadoDocumento)) {
-        throw new BadRequestException(`Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`);
+      if (justificacion.trim().length < 10) {
+        throw new BadRequestException('La justificación debe tener al menos 10 caracteres');
       }
+    }
 
-      const actualizado = await this.documentoService.cambiarEstadoDocumento(
-        id,
-        nuevoEstado as $Enums.EstadoDocumento
-      );
+    const actualizado = await this.documentoService.cambiarEstadoDocumento(
+      id,
+      nuevoEstado as $Enums.EstadoDocumento,
+      justificacion
+    );
 
-      return res.status(200).json({
-        success: true,
-        message: `Estado del documento actualizado a "${nuevoEstado}"`,
-        documento: actualizado
-      });
-    } catch (error) {
-      console.error('❌ Error en cambiarEstado:', error);
+    return res.status(200).json({
+      success: true,
+      message: `Estado del documento actualizado a "${nuevoEstado}"`,
+      documento: actualizado
+    });
+  } catch (error) {
+    console.error('❌ Error en cambiarEstado:', error);
 
-      if (error instanceof NotFoundException || error instanceof BadRequestException) {
-        return res.status(error.getStatus()).json({
-          success: false,
-          error: error.message
-        });
-      }
-
-      return res.status(500).json({
+    if (error instanceof NotFoundException || error instanceof BadRequestException) {
+      return res.status(error.getStatus()).json({
         success: false,
-        error: 'Error interno del servidor al cambiar el estado del documento'
+        error: error.message
       });
     }
+
+    return res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor al cambiar el estado del documento'
+    });
   }
+}
   
 }

@@ -57,6 +57,7 @@ model Documento {
   titulo         String
   version        Int
   estado         EstadoDocumento
+  justificacion  String
   activo         Boolean @default(true)
   created_at     DateTime @default(now())
   file           String

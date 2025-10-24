@@ -1,0 +1,84 @@
+/* src/components/Pendiente.module.css */
+
+.pendiente {
+  display: flex;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.leftSection {
+  flex: 0 0 60%;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.leftSection.hovered {
+  background-color: #F6F9FF;
+}
+
+.titleContainer {
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #272D3A;
+  margin: 0;
+}
+
+.button {
+  padding: 6px 18px;
+  background-color: #9BC7E8;
+  color: #171717;
+  border-radius: 6px;
+  font-weight: 600;
+  border: 1px solid #171717;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  align-self: flex-start;
+}
+
+.button:hover {
+  background-color: #1E396C;
+  color: #fff;
+}
+
+.rightSection {
+  flex: 0 0 40%;
+  background-color: #1F2937;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.studentName {
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 4px 0;
+  font-size: 15px;
+}
+
+.carrera {
+  font-size: 13px;
+  color: #fff;
+  margin: 2px 0;
+}
+
+.cu {
+  font-family: monospace;
+  font-weight: 500;
+  color: #fff;
+  margin: 2px 0;
+  font-size: 13px;
+}

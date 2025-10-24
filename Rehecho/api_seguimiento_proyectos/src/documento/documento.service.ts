@@ -8,6 +8,63 @@ import { $Enums } from '@prisma/client';
 export class DocumentoService {
   constructor(private prisma: PrismaService) {}
 
+  async getPendientes(docenteId: number) {
+  // 1️⃣ Obtener todos los grupos del docente autenticado
+  const grupos = await this.prisma.grupo.findMany({
+    where: { docente_id: docenteId },
+    select: { id: true },
+  });
+
+  const grupoIds = grupos.map(g => g.id);
+  if (grupoIds.length === 0) return [];
+
+  // 2️⃣ Buscar documentos pendientes de proyectos con estudiantes en esos grupos
+  const documentos = await this.prisma.documento.findMany({
+    where: {
+      estado: 'pendiente',
+      activo: true,
+      proyecto: {
+        estudiantes: {
+          some: { grupo_id: { in: grupoIds } },
+        },
+      },
+    },
+    select: {
+      id: true,
+      titulo: true,
+      created_at: true,
+      proyecto: {
+        select: {
+          estudiantes: {
+            where: { grupo_id: { in: grupoIds } },
+            select: {
+              id: true,
+              cu: true,
+              carrera: true,
+              usuario: {
+                select: { nombre: true, apellido: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // 3️⃣ Formatear respuesta
+  return documentos.map(doc => ({
+    id: doc.id,
+    titulo: doc.titulo,
+    fecha_creacion: doc.created_at,
+    estudiantes: doc.proyecto.estudiantes.map(est => ({
+      id: est.id,
+      nombre_completo: `${est.usuario.nombre} ${est.usuario.apellido}`,
+      cu: est.cu,
+      carrera: est.carrera,
+    })),
+  }));
+}
+
   async getDoc(id: number) {
     // Validar que id sea un número válido
     if (!id || isNaN(id) || id <= 0) {
@@ -115,7 +172,7 @@ export class DocumentoService {
     }
   }
 
-  async crearDocumento(datos: {
+async crearDocumento(datos: {
     titulo: string;
     version: number;
     file: string;
@@ -136,6 +193,7 @@ export class DocumentoService {
           version: datos.version,
           file: datos.file,
           estado: datos.estado as any,
+          justificacion: '',
           fase: datos.fase as any,
           activo: datos.activo,
           created_at: new Date(),
@@ -147,6 +205,7 @@ export class DocumentoService {
       throw new Error('No se pudo crear el documento en la base de datos');
     }
   }
+
 
   private getMimeType(filePath: string): string {
     const ext = path.extname(filePath).toLowerCase();
@@ -182,6 +241,7 @@ export class DocumentoService {
         titulo: true,
         version: true,
         estado: true,
+        justificacion: true,
         fase: true,
         activo: true,
         created_at: true,
@@ -205,13 +265,15 @@ export class DocumentoService {
 
 async cambiarEstadoDocumento(
   id: number,
-  nuevoEstado: $Enums.EstadoDocumento
+  nuevoEstado: $Enums.EstadoDocumento,
+  justificacion?: string
 ) {
   if (!id || isNaN(id) || id <= 0) {
     throw new BadRequestException('El ID del documento debe ser un número positivo');
   }
 
-  // Verificar si existe el documento
+  var documento_estado = nuevoEstado;
+
   const documento = await this.prisma.documento.findUnique({
     where: { id },
     select: { id: true, estado: true, activo: true }
@@ -221,22 +283,41 @@ async cambiarEstadoDocumento(
     throw new NotFoundException(`Documento con ID ${id} no encontrado o inactivo`);
   }
 
-  // Actualizar estado
+  // Construir datos de actualización condicionalmente
+  const dataToUpdate: {
+    estado: $Enums.EstadoDocumento;
+    justificacion?: string | null;
+  } = { 
+    estado: nuevoEstado
+  };
+
+  // Solo modificar justificación cuando sea relevante
+  if (nuevoEstado === 'rechazado') {
+    if (!justificacion?.trim()) {
+      throw new BadRequestException('Se requiere justificación para rechazar');
+    }
+    dataToUpdate.justificacion = justificacion.trim();
+  } else if (documento.estado === 'rechazado' && documento_estado !== 'rechazado') {
+    // Limpiar justificación al salir del estado rechazado
+    dataToUpdate.justificacion = null;
+  }
+  // Si no es rechazo y no viene de rechazo, no tocar justificacion
+
   const actualizado = await this.prisma.documento.update({
     where: { id },
-    data: { estado: nuevoEstado },
+    data: dataToUpdate,
     select: {
       id: true,
       titulo: true,
       version: true,
       estado: true,
       fase: true,
-      proyecto_id: true
+      proyecto_id: true,
+      justificacion: true
     }
   });
 
   console.log(`✅ Estado del documento ${id} cambiado a "${nuevoEstado}"`);
-
   return actualizado;
 }
 

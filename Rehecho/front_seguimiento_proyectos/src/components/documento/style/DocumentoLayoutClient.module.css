@@ -290,6 +290,7 @@
 
 .documentoBody {
   display: flex;
+  background-color: #f3f6fb;
   flex: 1;
   overflow: hidden;
   position: relative;
@@ -588,3 +589,4 @@
   font-size: 1rem;
   font-weight: 500;
 }
+

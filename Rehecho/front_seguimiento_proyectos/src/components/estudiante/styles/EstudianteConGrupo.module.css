@@ -19,7 +19,7 @@
 .proyectoMain {
   flex: 1;
   padding: 2rem;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   width: 100%;
 }
@@ -28,7 +28,7 @@
   background-color: var(--white);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  padding: 2.5rem;
 }
 
 .contentHeader {
@@ -52,7 +52,7 @@
 .twoColumnLayout {
   display: grid;
   grid-template-columns: 1fr 400px;
-  gap: 2rem;
+  gap: 3rem;
   align-items: start;
 }
 
@@ -60,17 +60,13 @@
   background-color: var(--white);
   border-radius: 8px;
   border: 1px solid var(--columbia-blue);
-  padding: 1.5rem;
-  min-height: 400px;
+  padding: 2rem;
+  min-height: 500px;
 }
 
 .uploadPanel {
-  background-color: var(--ghost-white);
-  border-radius: 8px;
-  border: 1px solid var(--columbia-blue);
-  padding: 1.5rem;
   position: sticky;
-  top: 2rem;
+  top: 1rem;
 }
 
 .sectionTitle {
@@ -92,115 +88,180 @@
   text-align: center;
 }
 
-.estudianteCard {
-  background-color: var(--white);
-  border-radius: 6px;
-  padding: 1rem;
-  border: 1px solid var(--columbia-blue);
+/* Form Container */
+.formContainer {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 0;
+  border: 2px solid #1E396C;
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(30, 57, 108, 0.1);
+  overflow: hidden;
 }
 
-.uploadArea {
-  background-color: var(--white);
-  border: 2px dashed var(--columbia-blue);
+.formHeader {
+  padding: 24px 24px 16px;
+  background-color: #272D3A;
+  border-bottom: 2px solid #9BC7E8;
+}
+
+.formTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.3px;
+}
+
+.formSubtitle {
+  font-size: 12px;
+  color: #9BC7E8;
+  margin: 0;
+  font-weight: 500;
+}
+
+.uploadForm {
+  padding: 24px;
+  background-color: #F6F9FF;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1E396C;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #272D3A;
+  border: 2px solid #9BC7E8;
   border-radius: 8px;
-  padding: 1.5rem;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.2s;
+  outline: none;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
-.uploadArea:hover {
-  border-color: var(--delft-blue);
+.formInput:focus {
+  border-color: #1E396C;
+  box-shadow: 0 0 0 3px rgba(30, 57, 108, 0.1);
 }
 
-.fileInput {
+.formInput::placeholder {
+  color: #BDB3AB;
+  font-weight: 400;
+}
+
+.formInput:disabled {
+  background-color: #F6F9FF;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.fileInputWrapper {
+  position: relative;
+}
+
+.fileInputHidden {
   display: none;
 }
 
-.submitButton {
-  background-color: var(--delft-blue);
-  color: var(--white);
-  padding: 0.625rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
+.fileInputLabel {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s;
-  margin: 0 auto;
-}
-
-.submitButton:hover {
-  background-color: #14274e;
-}
-
-.filesPreview {
-  margin-top: 1rem;
-}
-
-.filesPreviewTitle {
-  font-size: 0.875rem;
+  gap: 8px;
+  width: 100%;
+  padding: 32px 16px;
+  font-size: 13px;
+  color: #1E396C;
+  background-color: #fff;
+  border: 2px dashed #9BC7E8;
+  border-radius: 8px;
+  cursor: pointer;
+  box-sizing: border-box;
+  text-align: center;
   font-weight: 600;
-  color: var(--delft-blue);
-  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
 }
 
-.fileItem {
+.fileInputLabel:hover:not([disabled]) {
+  background-color: #F6F9FF;
+  border-color: #1E396C;
+  border-style: solid;
+}
+
+.fileInputLabel.hasFile {
+  border-style: solid;
+  background-color: #F6F9FF;
+  border-color: #10b981;
+}
+
+.fileHint {
+  font-size: 11px;
+  color: #5b88a5;
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+.filePreviewBox {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  background-color: var(--white);
-  border-radius: 6px;
-  border: 1px solid var(--columbia-blue);
-  margin-bottom: 0.5rem;
+  padding: 12px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 2px solid #10b981;
+  margin-bottom: 16px;
 }
 
-.fileInfo {
+.filePreviewInfo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 10px;
   flex: 1;
   min-width: 0;
 }
 
-.fileIcon {
-  color: var(--delft-blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.fileDetails {
+.filePreviewDetails {
   flex: 1;
   min-width: 0;
 }
 
-.fileName {
-  font-size: 0.875rem;
-  color: var(--gunmetal);
-  margin: 0 0 0.25rem 0;
+.filePreviewName {
+  font-size: 13px;
+  color: #272D3A;
+  margin: 0 0 3px 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 600;
 }
 
-.fileSize {
-  font-size: 0.75rem;
-  color: var(--silver);
+.filePreviewSize {
+  font-size: 11px;
+  color: #5b88a5;
   margin: 0;
 }
 
-.fileRemove {
+.fileClearButton {
   background: none;
   border: none;
   color: #ef4444;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,29 +270,73 @@
   flex-shrink: 0;
 }
 
-.fileRemove:hover {
+.fileClearButton:hover:not(:disabled) {
   background-color: rgba(239, 68, 68, 0.1);
 }
 
-.uploadButton {
-  background-color: var(--delft-blue);
-  color: var(--white);
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.uploadButton:hover {
-  background-color: #14274e;
-}
-
-.uploadButton:disabled {
-  background-color: var(--silver);
+.fileClearButton:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
+}
+
+.formSubmitButton {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #1E396C;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 700;
+  border: 2px solid #1E396C;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formSubmitButton:hover:not(:disabled) {
+  background-color: #272d3a;
+  border-color: #272d3a;
+  color: #fff;
+}
+
+.formSubmitButton:disabled {
+  background-color: #BDB3AB;
+  border-color: #BDB3AB;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.uploadStatusBox {
+  padding: 14px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-top: 16px;
+  border: 2px solid #9BC7E8;
+}
+
+.uploadStatusContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.uploadSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #5b88a5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+.uploadStatusMessage {
+  font-size: 13px;
+  color: #272D3A;
+  margin: 0;
+  font-weight: 500;
 }
 
 .loadingContainer {
@@ -319,8 +424,24 @@
     font-size: 1.25rem;
   }
 
-  .uploadArea {
-    padding: 1rem;
+  .formHeader {
+    padding: 20px 20px 14px;
+  }
+
+  .formTitle {
+    font-size: 16px;
+  }
+
+  .formSubtitle {
+    font-size: 11px;
+  }
+
+  .uploadForm {
+    padding: 20px;
+  }
+
+  .formGroup {
+    margin-bottom: 16px;
   }
 }
 

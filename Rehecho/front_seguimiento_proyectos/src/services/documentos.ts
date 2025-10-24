@@ -8,6 +8,7 @@ export interface Document {
   titulo: string;
   version: number;
   estado: string; // EstadoDocumento enum
+  justificacion?: string | null;
   fase: string;
   activo: boolean;
   created_at: string; 
@@ -367,14 +368,18 @@ export const obtenerDocumentosPorEstado = async (
   }
 };
 
+// src/services/documentos.ts
+
 /**
  * Cambiar el estado de un documento
  * @param id ID del documento
  * @param nuevoEstado Nuevo estado (pendiente, en_revision, revisado, aprobado, rechazado)
+ * @param justificacion Justificación obligatoria cuando el estado es 'rechazado'
  */
 export const cambiarEstadoDocumento = async (
   id: number,
-  nuevoEstado: string
+  nuevoEstado: string,
+  justificacion?: string
 ): Promise<{ success: boolean; error?: string }> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -393,14 +398,31 @@ export const cambiarEstadoDocumento = async (
     };
   }
 
+  // Validar que si es rechazo, debe tener justificación
+  if (nuevoEstado === 'rechazado' && !justificacion?.trim()) {
+    return {
+      success: false,
+      error: 'Se requiere una justificación para rechazar el documento'
+    };
+  }
+
   try {
+    const body: { id: number; nuevoEstado: string; justificacion?: string } = {
+      id,
+      nuevoEstado
+    };
+
+    if (nuevoEstado === 'rechazado' && justificacion) {
+      body.justificacion = justificacion;
+    }
+
     const response = await fetch(`${apiUrl}/documento/cambiar-estado`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
       },
-      credentials: 'include', // Usa cookies JWT
-      body: JSON.stringify({ id, nuevoEstado })
+      credentials: 'include',
+      body: JSON.stringify(body)
     });
 
     const data = await response.json();

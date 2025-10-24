@@ -29,9 +29,7 @@ export async function fetchProyecto(id: number) {
   return data;
 }
 
-/**
- * Obtener documento por ID
- */
+// proyecto.ts
 export async function fetchDoc(id: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -48,17 +46,20 @@ export async function fetchDoc(id: number) {
     body: JSON.stringify({ id }),
   });
 
-  console.log(`solicitud a ${apiUrl}/documento/get-doc con body:`, { id });
-
   if (!response.ok) {
-    throw new Error('Error al cargar el documento');
+    throw new Error(`Error al cargar el documento: ${response.status}`);
   }
 
-  const blob = await response.blob();
-  return {
-    blob,
-    contentType: response.headers.get('Content-Type') || 'application/octet-stream'
-  };
+  // ✅ USAR ARRAYBUFFER PARA GARANTIZAR DESCARGA COMPLETA
+  const arrayBuffer = await response.arrayBuffer();
+  const contentType = response.headers.get('Content-Type') || 'application/pdf';
+  
+  // Crear Blob desde ArrayBuffer (más confiable)
+  const blob = new Blob([arrayBuffer], { type: contentType });
+  
+  console.log('✅ Documento descargado:', blob.size, 'bytes, tipo:', contentType);
+
+  return { blob, contentType };
 }
 
 /**
@@ -152,5 +153,36 @@ export async function changeProyectoFase(id: number) {
 
   const data = await response.json();
   console.log('Respuesta del servidor (cambio de fase):', data);
+  return data;
+}
+
+/**
+ * Servicio para obtener todos los datos de un proyecto
+ */
+export async function fetchProyectoById(id: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+  }
+
+  const response = await fetch(`${apiUrl}/proyecto/obtener`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include', // 🔒 Envia cookies (JWT)
+    body: JSON.stringify({ id }),
+  });
+
+  console.log(`Solicitud a ${apiUrl}/proyecto/obtener con body:`, { id });
+
+  if (!response.ok) {
+    console.error('Error en la respuesta del servidor:', response.status, response.statusText);
+    throw new Error('Error al obtener el proyecto');
+  }
+
+  const data = await response.json();
+  console.log('Respuesta del servidor:', data);
   return data;
 }

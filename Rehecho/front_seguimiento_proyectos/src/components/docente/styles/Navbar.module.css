@@ -1,0 +1,99 @@
+.navbar {
+  background-color: #1E396C;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 24px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  background-color: #9BC7E8;
+  border-radius: 50%;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarLetter {
+  color: #1E396C;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.docenteName {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.docenteRole {
+  font-size: 14px;
+  color: #9BC7E8;
+  margin: 0;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.groupsBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #272D3A;
+  border-radius: 20px;
+  padding: 8px 16px;
+}
+
+.groupsText {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.emailContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.emailText {
+  font-size: 14px;
+}
+
+.logoutButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 30px; /* Added to push button further right */
+}
+
+.logoutIcon {
+  width: 36px; /* Increased icon size */
+  height: 36px;
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+}

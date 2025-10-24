@@ -16,4 +16,10 @@ export class ProyectoController {
   async cambiarFase(@Body('id') id: number) {
     return this.proyectoService.cambiarFase(id);
   }
+
+  // 🔹 NUEVA RUTA: obtener proyecto completo
+  @Post('obtener')
+  async obtenerProyecto(@Body('id') id: number) {
+    return this.proyectoService.obtenerProyecto(id);
+  }
 }
