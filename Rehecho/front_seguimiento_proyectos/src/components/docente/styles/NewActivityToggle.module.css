@@ -1,0 +1,36 @@
+/* app/grupo/[id]/NewActivityToggle.module.css */
+.newActivityToggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  width: fit-content;
+}
+
+.newActivityBtn,
+.newActivityPlusBtn {
+  background-color: #1E396C;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+}
+
+.newActivityBtn {
+  flex: 1;
+}
+
+.newActivityPlusBtn {
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.newActivityBtn:hover,
+.newActivityPlusBtn:hover {
+  background-color: #272D3A;
+}

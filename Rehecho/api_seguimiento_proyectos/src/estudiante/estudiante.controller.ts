@@ -1,7 +1,9 @@
-import { Controller, Get, Put, Body, UseGuards, Post } from '@nestjs/common';
+import { Controller, Get, Put, Body, UseGuards, Post, Req } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { Param } from '@nestjs/common';
+import { Request } from 'express';
+
 
 import { EstudianteService } from './estudiante.service';
 
@@ -9,6 +11,18 @@ import { EstudianteService } from './estudiante.service';
 @Controller('estudiante')
 export class EstudianteController {
   constructor(private readonly estudianteService: EstudianteService) {}
+
+  @UseGuards(JwtGuard)
+  @Get('info')
+  async getInfo(@Req() req: Request) {
+    const user = req.user as { id: number; email: string; rol: string };
+
+    if (user.rol !== 'estudiante') {
+      return { message: 'El usuario no es un estudiante' };
+    }
+
+    return this.estudianteService.getInfoByUserId(user.id);
+  }
 
   // Obtener perfil completo del estudiante logueado
   @Get('me')

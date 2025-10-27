@@ -1,0 +1,234 @@
+.formularioContainer {
+  background-color: var(--blanco);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  width: 400px;
+  position: sticky;
+  top: 20px;
+}
+
+.formTitle {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  margin-bottom: 20px;
+}
+
+.submissionForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.formGroup input[type="text"] {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--celeste);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+.formGroup input[type="text"]:focus {
+  outline: none;
+  border-color: var(--azul);
+}
+
+.fileInputWrapper {
+  position: relative;
+  border: 2px dashed var(--celeste);
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  background-color: var(--casi-blanco);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.fileInputWrapper:hover {
+  border-color: var(--azul);
+  background-color: #e8f0fc;
+}
+
+.fileInputWrapper input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.fileName {
+  color: var(--carbon);
+  font-size: 14px;
+  display: block;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.cancelBtn,
+.submitBtn {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.cancelBtn {
+  background-color: transparent;
+  color: var(--carbon);
+  border: 1px solid var(--carbon);
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background-color: var(--carbon);
+  color: var(--blanco);
+}
+
+.cancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submitBtn {
+  background-color: var(--bosque);
+  color: var(--blanco);
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #1e3a2e;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  background-color: #fee;
+  color: #c33;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+/* Modal de Confirmación */
+.modal {
+  display: flex;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modalContent {
+  background-color: var(--blanco);
+  border-radius: 12px;
+  text-align: center;
+  padding: 40px 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.successIcon {
+  width: 80px;
+  height: 80px;
+  background-color: var(--bosque);
+  color: var(--blanco);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  margin: 0 auto 20px;
+  animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.modalContent h2 {
+  color: var(--azul-oscuro);
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.modalContent p {
+  color: var(--carbon);
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.okBtn {
+  padding: 12px 32px;
+  background-color: var(--bosque);
+  color: var(--blanco);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.okBtn:hover {
+  background-color: #1e3a2e;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .formularioContainer {
+    width: 100%;
+    position: static;
+  }
+}

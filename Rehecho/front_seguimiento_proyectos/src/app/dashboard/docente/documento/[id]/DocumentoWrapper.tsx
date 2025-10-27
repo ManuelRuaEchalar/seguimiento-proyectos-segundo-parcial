@@ -112,6 +112,7 @@ export default function DocumentoWrapper({
 
   // Determinar qué layout usar según la fase del proyecto
   const esFaseTema = proyectoCompleto?.fase_actual === 'tema';
+  console.log(`Datos del cache en DocumentoWrapper:`, datosCache);
 
   return (
     <>
@@ -131,6 +132,7 @@ export default function DocumentoWrapper({
         />
       ) : (
         <DocumentoLayoutClient
+          datosCache={datosCache}
           datosDocumento={datosDocumento}
           datosEstudiante={datosEstudiante}
           datosProyecto={datosProyecto}

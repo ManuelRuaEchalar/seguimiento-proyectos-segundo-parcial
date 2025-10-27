@@ -1,0 +1,19 @@
+.groupsSection {
+    background-color: var(--blanco);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sectionTitle {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--azul-oscuro);
+    margin-bottom: 16px;
+}
+
+.groupsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}

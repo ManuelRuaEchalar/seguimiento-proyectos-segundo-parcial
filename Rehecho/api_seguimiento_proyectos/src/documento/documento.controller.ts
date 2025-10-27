@@ -1,11 +1,11 @@
-import { 
-  Body, 
-  Controller, 
-  Post, 
-  Get, 
-  Param, 
-  Res, 
-  BadRequestException, 
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Param,
+  Res,
+  BadRequestException,
   NotFoundException,
   UploadedFile,
   UseInterceptors,
@@ -13,7 +13,8 @@ import {
   HttpStatus,
   Query,
   Patch,
-  UseGuards
+  UseGuards,
+  Req
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DocumentoService } from './documento.service';
@@ -26,13 +27,63 @@ import * as path from 'path';
 import { $Enums } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { Request } from 'express';
 
 @Controller('documento')
 export class DocumentoController {
-  constructor(private documentoService: DocumentoService) {}
+  constructor(private documentoService: DocumentoService) { }
+
+  @UseGuards(JwtGuard)
+@Get('student-docs')
+async getStudentDocs(
+  @Req() req: Request,
+  @Query('actividad_id') actividadId: string,
+) {
+  const user = req.user as { id: number; email: string; rol: string };
+
+  if (user.rol !== 'estudiante') {
+    throw new BadRequestException('El usuario no es un estudiante');
+  }
+
+  if (!actividadId) {
+    throw new BadRequestException('El ID de actividad es requerido');
+  }
+
+  const actividadIdNum = parseInt(actividadId, 10);
+  if (isNaN(actividadIdNum)) {
+    throw new BadRequestException('El ID de actividad debe ser un número válido');
+  }
+
+  return this.documentoService.getStudentDocuments(user.id, actividadIdNum);
+}
+
+  @Get('get-activity-docs/:actividadId')
+@UseGuards(JwtGuard)
+async getActivityDocs(@Param('actividadId') actividadId: string) {
+  try {
+    const idNum = parseInt(actividadId);
+    if (isNaN(idNum) || idNum <= 0) {
+      throw new BadRequestException('El ID de la actividad debe ser un número positivo');
+    }
+
+    const documentos = await this.documentoService.getActivityDocs(idNum);
+
+    return {
+      success: true,
+      data: documentos,
+    };
+  } catch (error) {
+    console.error('❌ Error en getActivityDocs:', error);
+    throw new HttpException(
+      error.message || 'Error al obtener documentos de la actividad',
+      error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+}
+
 
   @Get('get-pendientes')
- @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard)
   async getPendientes(@GetUser('id') docenteId: number) {
     // docenteId viene directamente del access_token
     console.log('📘 Docente autenticado con ID:', docenteId);
@@ -48,7 +99,7 @@ export class DocumentoController {
   async getDoc(@Body('id') id: number, @Res() res: Response) {
     try {
       const { filePath, mimeType } = await this.documentoService.getDoc(id);
-      
+
       console.log('📄 Enviando archivo:', filePath);
       console.log('📄 Tipo MIME:', mimeType);
 
@@ -62,23 +113,23 @@ export class DocumentoController {
 
       res.setHeader('Content-Type', mimeType);
       res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
-      
+
       if (path.isAbsolute(filePath)) {
         return res.sendFile(filePath);
       } else {
         return res.sendFile(filePath, { root: process.cwd() });
       }
-      
+
     } catch (error) {
       console.error('❌ Error en getDoc:', error);
-      
+
       if (error instanceof NotFoundException) {
         return res.status(404).json({
           success: false,
           error: error.message
         });
       }
-      
+
       return res.status(500).json({
         success: false,
         error: 'Error interno del servidor'
@@ -90,28 +141,28 @@ export class DocumentoController {
   async getDocInfo(@Body() body: { id: number }) {
     try {
       const { id } = body;
-      
+
       if (!id || typeof id !== 'number') {
         throw new HttpException('Código de documento inválido', HttpStatus.BAD_REQUEST);
       }
 
       console.log('📋 Obteniendo información del documento:', id);
-      
+
       const docInfo = await this.documentoService.getDocInfo(id);
-      
+
       console.log('📋 Información del documento encontrada:', docInfo);
-      
+
       return docInfo;
     } catch (error) {
       console.error('Error en getDocInfo:', error);
-      
+
       if (error.message.includes('no encontrado')) {
         throw new HttpException(
           `Documento con código ${body.id} no encontrado`,
           HttpStatus.NOT_FOUND
         );
       }
-      
+
       throw new HttpException(
         'Error interno del servidor al obtener la información del documento',
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -124,12 +175,12 @@ export class DocumentoController {
     storage: diskStorage({
       destination: (req, file, callback) => {
         const uploadPath = './public/uploads/documentos';
-        
+
         if (!fs.existsSync(uploadPath)) {
           fs.mkdirSync(uploadPath, { recursive: true });
           console.log(`✅ Carpeta creada: ${uploadPath}`);
         }
-        
+
         callback(null, uploadPath);
       },
       filename: (req, file, callback) => {
@@ -152,6 +203,7 @@ export class DocumentoController {
   async upload(
     @UploadedFile() file: MulterFile,
     @Body('proyectoId') proyectoId: string,
+    @Body('actividadId') actividadId: string,
     @Body('titulo') titulo: string,
     @Res() res: Response
   ) {
@@ -176,21 +228,24 @@ export class DocumentoController {
 
       console.log('✅ Archivo guardado exitosamente en:', file.path);
 
-      if (!proyectoId || !titulo) {
+      if (!proyectoId || !actividadId || !titulo) {
         return res.status(400).json({
           success: false,
-          error: 'Faltan datos requeridos: proyectoId o titulo'
+          error: 'Faltan datos requeridos: proyectoId, actividadId o titulo'
         });
       }
 
       const proyectoIdNum = parseInt(proyectoId);
-      if (isNaN(proyectoIdNum)) {
+      const actividadIdNum = parseInt(actividadId);
+
+      if (isNaN(proyectoIdNum) || isNaN(actividadIdNum)) {
         return res.status(400).json({
           success: false,
-          error: 'proyectoId debe ser un número válido'
+          error: 'proyectoId y actividadId deben ser números válidos'
         });
       }
 
+      // Verificar que el proyecto existe
       const proyectoExiste = await this.documentoService.verificarProyecto(proyectoIdNum);
       if (!proyectoExiste) {
         return res.status(404).json({
@@ -199,9 +254,14 @@ export class DocumentoController {
         });
       }
 
-      // Obtener la fase actual del proyecto
-      const faseProyecto = await this.documentoService.obtenerFaseProyecto(proyectoIdNum);
-      console.log('📌 Fase del proyecto:', faseProyecto);
+      // Verificar que la actividad existe
+      const actividadExiste = await this.documentoService.verificarActividad(actividadIdNum);
+      if (!actividadExiste) {
+        return res.status(404).json({
+          success: false,
+          error: 'Actividad no encontrada'
+        });
+      }
 
       const relativePath = `/uploads/documentos/${file.filename}`;
 
@@ -212,9 +272,8 @@ export class DocumentoController {
         version: 1,
         file: relativePath,
         proyecto_id: proyectoIdNum,
-        estado: 'pendiente',
-        fase: faseProyecto,
-        activo: true
+        actividad_id: actividadIdNum,
+        estado: 'pendiente'
       });
 
       console.log('✅ Documento creado en BD:', nuevoDocumento.id);
@@ -225,13 +284,12 @@ export class DocumentoController {
         message: 'PDF subido correctamente',
         fileName: file.filename,
         filePath: relativePath,
-        physicalPath: file.path,
-        fase: faseProyecto
+        physicalPath: file.path
       });
 
     } catch (error) {
       console.error('❌ Error subiendo documento:', error);
-      
+
       if (file && file.path && fs.existsSync(file.path)) {
         try {
           fs.unlinkSync(file.path);
@@ -249,112 +307,112 @@ export class DocumentoController {
   }
 
   @Get(':proyectoId')
-async getDocumentsByProyecto(
-  @Param('proyectoId') proyectoId: string,
-  @Query('fase') fase: string,
-  @Res() res: Response
-) {
-  try {
-    const proyectoIdNum = parseInt(proyectoId);
-    if (isNaN(proyectoIdNum)) {
-      throw new BadRequestException('proyectoId debe ser un número válido');
-    }
-
-    // Validar que fase sea un valor válido del enum
-    const fasesValidas = ['tema', 'perfil', 'proyecto'];
-    if (!fase || !fasesValidas.includes(fase)) {
-      throw new BadRequestException('fase debe ser uno de: tema, perfil, proyecto');
-    }
-
-    console.log('📋 Obteniendo documentos para proyecto:', proyectoIdNum, 'fase:', fase);
-
-    const documents = await this.documentoService.findByProyecto(proyectoIdNum, fase);
-    
-    console.log('📋 Documentos encontrados:', documents.length);
-
-    return res.status(200).json({
-      success: true,
-      documentos: documents
-    });
-  } catch (error) {
-    console.error('❌ Error en getDocumentsByProyecto:', error);
-
-    if (error instanceof BadRequestException) {
-      return res.status(400).json({
-        success: false,
-        error: error.message
-      });
-    }
-
-    if (error instanceof NotFoundException) {
-      return res.status(404).json({
-        success: false,
-        error: error.message
-      });
-    }
-
-    return res.status(500).json({
-      success: false,
-      error: 'Error interno del servidor al obtener los documentos'
-    });
-  }
-}
-
-// documento.controller.ts
-
-@Patch('cambiar-estado')
-async cambiarEstado(
-  @Body('id') id: number,
-  @Body('nuevoEstado') nuevoEstado: string,
-  @Body('justificacion') justificacion: string,
-  @Res() res: Response
-) {
-  try {
-    if (!id || isNaN(id)) {
-      throw new BadRequestException('El ID del documento debe ser un número válido');
-    }
-
-    const estadosValidos = Object.values($Enums.EstadoDocumento);
-    if (!estadosValidos.includes(nuevoEstado as $Enums.EstadoDocumento)) {
-      throw new BadRequestException(`Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`);
-    }
-
-    // Validar justificación para rechazos
-    if (nuevoEstado === 'rechazado') {
-      if (!justificacion || justificacion.trim().length === 0) {
-        throw new BadRequestException('Se requiere una justificación para rechazar el documento');
+  async getDocumentsByProyecto(
+    @Param('proyectoId') proyectoId: string,
+    @Query('fase') fase: string,
+    @Res() res: Response
+  ) {
+    try {
+      const proyectoIdNum = parseInt(proyectoId);
+      if (isNaN(proyectoIdNum)) {
+        throw new BadRequestException('proyectoId debe ser un número válido');
       }
-      if (justificacion.trim().length < 10) {
-        throw new BadRequestException('La justificación debe tener al menos 10 caracteres');
+
+      // Validar que fase sea un valor válido del enum
+      const fasesValidas = ['tema', 'perfil', 'proyecto'];
+      if (!fase || !fasesValidas.includes(fase)) {
+        throw new BadRequestException('fase debe ser uno de: tema, perfil, proyecto');
       }
-    }
 
-    const actualizado = await this.documentoService.cambiarEstadoDocumento(
-      id,
-      nuevoEstado as $Enums.EstadoDocumento,
-      justificacion
-    );
+      console.log('📋 Obteniendo documentos para proyecto:', proyectoIdNum, 'fase:', fase);
 
-    return res.status(200).json({
-      success: true,
-      message: `Estado del documento actualizado a "${nuevoEstado}"`,
-      documento: actualizado
-    });
-  } catch (error) {
-    console.error('❌ Error en cambiarEstado:', error);
+      const documents = await this.documentoService.findByProyecto(proyectoIdNum, fase);
 
-    if (error instanceof NotFoundException || error instanceof BadRequestException) {
-      return res.status(error.getStatus()).json({
+      console.log('📋 Documentos encontrados:', documents.length);
+
+      return res.status(200).json({
+        success: true,
+        documentos: documents
+      });
+    } catch (error) {
+      console.error('❌ Error en getDocumentsByProyecto:', error);
+
+      if (error instanceof BadRequestException) {
+        return res.status(400).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      if (error instanceof NotFoundException) {
+        return res.status(404).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
         success: false,
-        error: error.message
+        error: 'Error interno del servidor al obtener los documentos'
       });
     }
-
-    return res.status(500).json({
-      success: false,
-      error: 'Error interno del servidor al cambiar el estado del documento'
-    });
   }
-}
-  
+
+  // documento.controller.ts
+
+  @Patch('cambiar-estado')
+  async cambiarEstado(
+    @Body('id') id: number,
+    @Body('nuevoEstado') nuevoEstado: string,
+    @Body('justificacion') justificacion: string,
+    @Res() res: Response
+  ) {
+    try {
+      if (!id || isNaN(id)) {
+        throw new BadRequestException('El ID del documento debe ser un número válido');
+      }
+
+      const estadosValidos = Object.values($Enums.EstadoDocumento);
+      if (!estadosValidos.includes(nuevoEstado as $Enums.EstadoDocumento)) {
+        throw new BadRequestException(`Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`);
+      }
+
+      // Validar justificación para rechazos
+      if (nuevoEstado === 'rechazado') {
+        if (!justificacion || justificacion.trim().length === 0) {
+          throw new BadRequestException('Se requiere una justificación para rechazar el documento');
+        }
+        if (justificacion.trim().length < 10) {
+          throw new BadRequestException('La justificación debe tener al menos 10 caracteres');
+        }
+      }
+
+      const actualizado = await this.documentoService.cambiarEstadoDocumento(
+        id,
+        nuevoEstado as $Enums.EstadoDocumento,
+        justificacion
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: `Estado del documento actualizado a "${nuevoEstado}"`,
+        documento: actualizado
+      });
+    } catch (error) {
+      console.error('❌ Error en cambiarEstado:', error);
+
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        return res.status(error.getStatus()).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
+        success: false,
+        error: 'Error interno del servidor al cambiar el estado del documento'
+      });
+    }
+  }
+
 }

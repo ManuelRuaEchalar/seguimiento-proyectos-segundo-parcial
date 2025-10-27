@@ -23,13 +23,20 @@ model Usuario {
 }
 
 model Grupo {
-  id            Int        @id @default(autoincrement())
-  nombre        String
-  grado         Grado
-  estudiantes   Estudiante[]
-  docente_id    Int?
-  docente       Docente?   @relation(fields: [docente_id], references: [id])
+  id                    Int        @id @default(autoincrement())
+  nombre                String
+  grado                 Grado
+  estudiantes           Estudiante[]
+  docente_id            Int?
+  docente               Docente?   @relation(fields: [docente_id], references: [id])
+  actividades           Actividad[]
+
+  total_actividades     Int        @default(0)
+  total_estudiantes     Int        @default(0)
+  fase                  String     @default("Inicial")
+  fecha_ultima_actividad DateTime?
 }
+
 
 model Estudiante {
   id            Int        @id
@@ -57,13 +64,16 @@ model Documento {
   titulo         String
   version        Int
   estado         EstadoDocumento
-  justificacion  String
-  activo         Boolean @default(true)
+  justificacion  String?
   created_at     DateTime @default(now())
   file           String
-  fase           FaseProyecto
+
   proyecto_id    Int
   proyecto       Proyecto        @relation("ProyectoDocumentos", fields: [proyecto_id], references: [id])
+
+  actividad_id   Int
+  actividad      Actividad       @relation(fields: [actividad_id], references: [id])
+
   observaciones  Observacion[]   @relation("DocumentoObservaciones")
   correcciones   Correccion[]    @relation("DocumentoCorrecciones")
 }
@@ -118,6 +128,28 @@ model Docente {
   usuario   Usuario   @relation(fields: [id], references: [id])
   grupos    Grupo[]
 }
+
+model Actividad {
+  id             Int       @id @default(autoincrement())
+  nombre         String
+  elementos      Json      // lista de elementos requeridos (JSON)
+  descripcion    String?
+  fecha_creacion DateTime  @default(now())
+  estado         EstadoActividad @default(activo)
+
+  // Relación con Grupo (N:1)
+  grupo_id       Int
+  grupo          Grupo     @relation(fields: [grupo_id], references: [id])
+
+  // Relación con Documento (1:N)
+  documentos     Documento[]
+}
+
+enum EstadoActividad {
+  activo
+  cerrado
+}
+
 
 enum Rol {
   admin

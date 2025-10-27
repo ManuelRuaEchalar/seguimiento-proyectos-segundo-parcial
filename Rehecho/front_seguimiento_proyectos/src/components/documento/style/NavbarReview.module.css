@@ -1,0 +1,362 @@
+/* Variables CSS */
+:root {
+  --azul-oscuro: #272D3A;
+  --blanco: #fff;
+  --casi-negro: #171717;
+  --plata: #BDB3AB;
+  --casi-blanco: #F6F9FF;
+  --azul: #1E396C;
+  --celeste: #9BC7E8;
+  --carbon: #1F2937;
+  --bosque: #2D4A3E;
+  --rechazado: #902a2a;
+  --background: #ffffff;
+  --foreground: #171717;
+  --columbia-blue: #ccdae6ff;
+  --silver: #bdb3abff;
+  --delft-blue: #1a3260ff;
+  --white: #fefefeff;
+  --ghost-white: #f3f6fbff;
+  --gunmetal: #272d3aff;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--white);
+  color: var(--foreground);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid var(--columbia-blue);
+  box-shadow: 0 2px 8px rgba(26, 50, 96, 0.08);
+  min-height: 64px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.navbarLeft,
+.navbarCenter,
+.navbarRight {
+  display: flex;
+  align-items: center;
+}
+
+.navbarCenter {
+  flex-direction: column;
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.navbarRight {
+  gap: 12px;
+}
+
+/* Botón Atrás */
+.backButton {
+  background-color: transparent;
+  border: 1px solid var(--columbia-blue);
+  color: var(--delft-blue);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backButton:hover {
+  background-color: var(--ghost-white);
+  border-color: var(--delft-blue);
+  transform: translateX(-2px);
+}
+
+.backButton:active {
+  transform: translateX(0);
+}
+
+/* Título de la actividad */
+.activityTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gunmetal);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.documentVersion {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-right: 10px;
+}
+
+/* Meta info */
+.activityMeta {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  opacity: 0.7;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.activityDate {
+  display: inline;
+}
+
+/* Tags */
+.tag {
+  background-color: var(--ghost-white);
+  color: var(--gunmetal);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  border: 1px solid var(--columbia-blue);
+}
+
+/* Estados */
+.tag.pendiente {
+  background-color: var(--columbia-blue);
+  color: var(--delft-blue);
+}
+
+.tag.aprobado {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.tag.rechazado {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Botón Aprobar */
+.approveButton {
+  background-color: var(--white);
+  color: var(--bosque);
+  border: var(--bosque) 1px solid;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.approveButton:hover:not(:disabled) {
+  background-color: var(--bosque);
+  color: var(--white);
+  transform: translateY(-1px);
+}
+
+.approveButton:active {
+  transform: translateY(0);
+}
+
+.approveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal */
+.modalOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalOverlay.active {
+  display: flex;
+}
+
+.modal {
+  background-color: var(--blanco);
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modalHeader {
+  margin-bottom: 20px;
+}
+
+.modalTitle {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  margin-bottom: 8px;
+}
+
+.modalSubtitle {
+  font-size: 14px;
+  color: var(--carbon);
+}
+
+.modalContent {
+  margin-bottom: 24px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.statCard {
+  background-color: var(--casi-blanco);
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 4px solid var(--carbon);
+}
+
+.statCard.total {
+  border-left-color: var(--azul);
+}
+
+.statCard.aprobadas {
+  border-left-color: var(--bosque);
+}
+
+.statCard.rechazadas {
+  border-left-color: var(--rechazado);
+}
+
+.statCard.pendientes {
+  border-left-color: var(--carbon);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--carbon);
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--azul-oscuro);
+}
+
+.modalWarning {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 14px;
+  color: #856404;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modalButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalButton.cancel {
+  background-color: var(--plata);
+  color: var(--casi-negro);
+}
+
+.modalButton.cancel:hover:not(:disabled) {
+  background-color: #a39a93;
+}
+
+.modalButton.confirm {
+  background-color: var(--bosque);
+  color: var(--blanco);
+}
+
+.modalButton.confirm:hover:not(:disabled) {
+  background-color: #3d6352;
+}
+
+.modalButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Animaciones */
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .navbarLeft,
+  .navbarCenter,
+  .navbarRight {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .activityTitle {
+    font-size: 0.875rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    max-width: 95%;
+    padding: 20px;
+  }
+}

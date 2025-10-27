@@ -23,15 +23,17 @@ interface SubirDocumentoResult {
 }
 
 /**
- * Subir un documento PDF al proyecto
+ * Subir un documento PDF al proyecto y actividad
  * @param archivo Archivo PDF a subir
  * @param proyectoId ID del proyecto
+ * @param actividadId ID de la actividad
  * @param titulo Título del documento
  * @returns Resultado de la subida
  */
 export const subirDocumento = async (
   archivo: File, 
-  proyectoId: number, 
+  proyectoId: number,
+  actividadId: number,
   titulo: string
 ): Promise<SubirDocumentoResult> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -60,33 +62,51 @@ export const subirDocumento = async (
 
   try {
     const formData = new FormData();
-    formData.append('documento', archivo);
+    formData.append('documento', archivo, archivo.name); // ✅ Agrega el nombre explícitamente
     formData.append('proyectoId', proyectoId.toString());
+    formData.append('actividadId', actividadId.toString());
     formData.append('titulo', titulo);
+
+    console.log('📤 Enviando a:', `${apiUrl}/documento/upload`);
 
     const response = await fetch(`${apiUrl}/documento/upload`, {
       method: 'POST',
       body: formData,
-      credentials: 'include', // Para cookies de autenticación
+      credentials: 'include',
+      // ✅ NO incluyas Content-Type, el navegador lo establece automáticamente
     });
 
+    console.log('📡 Response status:', response.status);
+
+    // ✅ Verifica si la respuesta es JSON antes de parsear
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error('❌ Respuesta no es JSON:', text);
+      return {
+        success: false,
+        error: 'Respuesta inválida del servidor'
+      };
+    }
+
     const data = await response.json();
+    console.log('📡 Response data:', data);
     
     if (data.success) {
-      console.log('PDF subido exitosamente:', data.id);
+      console.log('✅ PDF subido exitosamente:', data.id);
       return { 
         success: true, 
         id: data.id 
       };
     } else {
-      console.error('Error del servidor:', data.error);
+      console.error('❌ Error del servidor:', data.error);
       return { 
         success: false, 
         error: data.error || 'Error desconocido del servidor' 
       };
     }
   } catch (error) {
-    console.error('Error de conexión:', error);
+    console.error('💥 Error de conexión:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Error de conexión al servidor' 
@@ -440,3 +460,39 @@ export const cambiarEstadoDocumento = async (
     };
   }
 };
+
+/**
+ * Obtener todos los documentos de una actividad con sus estudiantes
+ * @param actividadId ID de la actividad
+ * @returns Lista de documentos con sus proyectos y estudiantes
+ */
+export const obtenerDocumentosPorActividad = async (actividadId: number) => {
+  if (!actividadId || isNaN(actividadId) || actividadId <= 0) {
+    throw new Error('El ID de la actividad debe ser un número positivo');
+  }
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/documento/get-activity-docs/${actividadId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return data.data; // Lista de documentos
+  } catch (error) {
+    console.error('Error obteniendo documentos por actividad:', error);
+    throw error;
+  }
+};
+

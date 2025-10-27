@@ -97,7 +97,6 @@ export class EstudianteService {
                 version: true,
                 file: true,
                 estado: true,
-                activo: true,
                 created_at: true,
               },
             },
@@ -161,6 +160,74 @@ export class EstudianteService {
             fase_actual: true,
             grado_actual: true
           } 
+        },
+      },
+    });
+
+    if (!estudiante) {
+      throw new NotFoundException('Estudiante no encontrado');
+    }
+
+    return estudiante;
+  }
+
+    async getInfoByUserId(userId: number) {
+    const estudiante = await this.prisma.estudiante.findFirst({
+      where: { id: userId },
+      include: {
+        usuario: {
+          select: { 
+            id: true, 
+            nombre: true, 
+            apellido: true, 
+            email: true, 
+            rol: true 
+          },
+        },
+        grupo: {
+          select: {
+            id: true,
+            nombre: true,
+            grado: true,
+            total_actividades: true,
+            total_estudiantes: true,
+            fase: true,
+            fecha_ultima_actividad: true,
+            docente: {
+              select: {
+                id: true,
+                especialidad: true,
+                usuario: {
+                  select: {
+                    nombre: true,
+                    apellido: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+            actividades: {
+              select: {
+                id: true,
+                nombre: true,
+                descripcion: true,
+                elementos: true,
+                fecha_creacion: true,
+                estado: true,
+              },
+              orderBy: {
+                fecha_creacion: 'desc', // Más recientes primero
+              },
+            },
+          },
+        },
+        proyecto: {
+          select: {
+            id: true,
+            titulo: true,
+            fase_actual: true,
+            grado_actual: true,
+          },
         },
       },
     });

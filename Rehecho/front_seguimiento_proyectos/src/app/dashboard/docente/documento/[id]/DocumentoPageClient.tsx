@@ -23,6 +23,8 @@ export default function DocumentoPageClient({ documentoId, onDataLoaded }: Docum
       console.log('Título:', pendienteCache.titulo);
       console.log('Estado:', pendienteCache.estado);
       console.log('Nombre del estudiante:', pendienteCache.estudiante);
+      console.log('Fase:', pendienteCache.fase);
+      console.log('Versión:', pendienteCache.version);
       console.log('Carrera:', pendienteCache.carrera);
       console.log('CU:', pendienteCache.cu);
       console.log('===================================');

@@ -1,0 +1,73 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--casi-blanco);
+}
+
+.content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.cargando {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: var(--azul-oscuro);
+}
+
+.newActivityToggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.newActivityBtn,
+.newActivityPlusBtn {
+  background-color: var(--azul);
+  color: var(--blanco);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+}
+
+.newActivityBtn {
+  flex: 1;
+}
+
+.newActivityPlusBtn {
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.newActivityBtn:hover,
+.newActivityPlusBtn:hover {
+  background-color: var(--azul-oscuro);
+}
+
+.activitiesWrapper {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .activitiesWrapper {
+    flex-direction: column;
+  }
+  
+  .content {
+    padding: 16px;
+  }
+}

@@ -66,3 +66,37 @@ export async function fetchDocumentosPendientes() {
   console.log('✅ Documentos pendientes recibidos:', data);
   return data;
 }
+
+export async function fetchDocenteInfo() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+
+  const endpoint = `${apiUrl}/docente/info`;
+  console.log('📡 Solicitando info del docente a:', endpoint);
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    credentials: 'include', // ⭐ Enviar cookies automáticamente
+  });
+
+  if (!response.ok) {
+    console.error('❌ Error en la respuesta del servidor:', response.status, response.statusText);
+    const errorData = await response.text();
+    console.error('🧩 Detalle del error:', errorData);
+
+    if (response.status === 401) {
+      throw new Error('Sesión no autenticada. Por favor, inicia sesión nuevamente.');
+    } else if (response.status === 403) {
+      throw new Error('No tienes permiso para acceder a esta información (rol inválido).');
+    } else if (response.status === 404) {
+      throw new Error('Docente no encontrado');
+    }
+
+    throw new Error('Error al obtener los datos del docente');
+  }
+
+  const data = await response.json();
+  console.log('✅ Respuesta del servidor:', data);
+  return data;
+}
+

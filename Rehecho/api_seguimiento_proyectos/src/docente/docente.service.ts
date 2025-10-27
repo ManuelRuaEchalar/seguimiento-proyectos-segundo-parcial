@@ -12,7 +12,7 @@ export class DocenteService {
           select: { id: true, nombre: true, apellido: true, email: true },
         },
         grupos: {
-          select: { id: true },
+          select: { id: true, nombre: true },
         },
       },
     });
@@ -26,7 +26,7 @@ export class DocenteService {
           select: { id: true, nombre: true, apellido: true, email: true },
         },
         grupos: {
-          select: { id: true },
+          select: { id: true, nombre: true },
         },
       },
     });
@@ -34,6 +34,34 @@ export class DocenteService {
     if (!docente) {
       throw new NotFoundException('Docente no encontrado');
     }
+    return docente;
+  }
+
+  async getInfoByUserId(userId: number) {
+    const docente = await this.prisma.docente.findFirst({
+      where: { id: userId },
+      include: {
+        usuario: {
+          select: { id: true, nombre: true, apellido: true, email: true, rol: true },
+        },
+        grupos: {
+          select: {
+            id: true,
+            nombre: true,
+            grado: true,
+            total_actividades: true,
+            total_estudiantes: true,
+            fase: true,
+            fecha_ultima_actividad: true,
+          },
+        },
+      },
+    });
+
+    if (!docente) {
+      throw new NotFoundException('Docente no encontrado');
+    }
+
     return docente;
   }
 }

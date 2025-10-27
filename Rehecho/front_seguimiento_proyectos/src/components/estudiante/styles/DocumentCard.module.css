@@ -9,6 +9,7 @@
   width: 400px;
   height: auto;
   flex-direction: column;
+  padding-bottom: 6px;
 }
 
 .container:has(.note) {

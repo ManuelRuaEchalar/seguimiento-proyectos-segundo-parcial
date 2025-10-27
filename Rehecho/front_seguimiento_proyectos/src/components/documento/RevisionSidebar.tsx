@@ -32,6 +32,7 @@ const RevisionSidebar: React.FC<RevisionSidebarProps> = ({
   const [showNotaCompleta, setShowNotaCompleta] = useState(false);
   const [mostrarCampoNota, setMostrarCampoNota] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  console.log('Datos del cache en RevisionSidebar:', datosCache);
 
   // Sincronizar nota temporal si ya existe una justificación
   useEffect(() => {

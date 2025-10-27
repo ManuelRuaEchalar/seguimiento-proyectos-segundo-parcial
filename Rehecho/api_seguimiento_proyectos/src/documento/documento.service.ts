@@ -8,6 +8,155 @@ import { $Enums } from '@prisma/client';
 export class DocumentoService {
   constructor(private prisma: PrismaService) {}
 
+async getStudentDocuments(userId: number, actividadId: number) {
+  // 1. Obtener el estudiante con su proyecto
+  const estudiante = await this.prisma.estudiante.findFirst({
+    where: { id: userId },
+    select: {
+      id: true,
+      proyecto_id: true,
+    },
+  });
+
+  if (!estudiante) {
+    throw new NotFoundException('Estudiante no encontrado');
+  }
+
+  if (!estudiante.proyecto_id) {
+    throw new NotFoundException('El estudiante no tiene un proyecto asignado');
+  }
+
+  // 2. Verificar que la actividad existe
+  const actividad = await this.prisma.actividad.findUnique({
+    where: { id: actividadId },
+  });
+
+  if (!actividad) {
+    throw new NotFoundException('Actividad no encontrada');
+  }
+
+  // 3. Obtener los documentos del proyecto y actividad
+  const documentos = await this.prisma.documento.findMany({
+    where: {
+      proyecto_id: estudiante.proyecto_id,
+      actividad_id: actividadId,
+    },
+    include: {
+      observaciones: {
+        select: {
+          id: true,
+          content_text: true,
+          comment_text: true,
+          comment_emoji: true,
+          estado: true,
+          bounding_x1: true,
+          bounding_y1: true,
+          bounding_x2: true,
+          bounding_y2: true,
+          bounding_page: true,
+          rects: true,
+        },
+        orderBy: {
+          id: 'desc', // Más recientes primero
+        },
+      },
+      correcciones: {
+        select: {
+          id: true,
+          content_text: true,
+          comment_text: true,
+          comment_emoji: true,
+          estado: true,
+          bounding_x1: true,
+          bounding_y1: true,
+          bounding_x2: true,
+          bounding_y2: true,
+          bounding_page: true,
+          rects: true,
+          observacion_id: true,
+        },
+        orderBy: {
+          id: 'desc', // Más recientes primero
+        },
+      },
+      actividad: {
+        select: {
+          id: true,
+          nombre: true,
+          descripcion: true,
+        },
+      },
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+  });
+
+  return {
+    proyecto_id: estudiante.proyecto_id,
+    actividad_id: actividadId,
+    total_documentos: documentos.length,
+    documentos,
+  };
+}
+
+  async getActivityDocs(actividadId: number) {
+  // Validar el ID
+  if (!actividadId || isNaN(actividadId) || actividadId <= 0) {
+    throw new BadRequestException('El ID de la actividad debe ser un número positivo');
+  }
+
+  const documentos = await this.prisma.documento.findMany({
+    where: {
+      actividad_id: actividadId,
+    },
+    include: {
+      proyecto: {
+        include: {
+          estudiantes: {
+            include: {
+              usuario: true, // Para incluir nombre, apellido, email, etc.
+            },
+          },
+        },
+      },
+    },
+    orderBy: { created_at: 'desc' },
+  });
+
+  // ✅ CAMBIO: En lugar de lanzar error, devolver array vacío
+  // No encontrar documentos NO es un error, es un estado válido
+  if (documentos.length === 0) {
+    return []; // Devolver array vacío
+  }
+
+  // Mapeamos para retornar una estructura más limpia
+  return documentos.map((doc) => ({
+    id: doc.id,
+    titulo: doc.titulo,
+    version: doc.version,
+    estado: doc.estado,
+    justificacion: doc.justificacion,
+    created_at: doc.created_at,
+    file: doc.file,
+    proyecto: {
+      id: doc.proyecto.id,
+      titulo: doc.proyecto.titulo,
+      estudiantes: doc.proyecto.estudiantes.map((est) => ({
+        id: est.id,
+        cu: est.cu,
+        carrera: est.carrera,
+        usuario: {
+          nombre: est.usuario.nombre,
+          apellido: est.usuario.apellido,
+          email: est.usuario.email,
+        },
+      })),
+    },
+  }));
+}
+
+
   async getPendientes(docenteId: number) {
   // 1️⃣ Obtener todos los grupos del docente autenticado
   const grupos = await this.prisma.grupo.findMany({
@@ -22,7 +171,6 @@ export class DocumentoService {
   const documentos = await this.prisma.documento.findMany({
     where: {
       estado: 'pendiente',
-      activo: true,
       proyecto: {
         estudiantes: {
           some: { grupo_id: { in: grupoIds } },
@@ -32,6 +180,7 @@ export class DocumentoService {
     select: {
       id: true,
       titulo: true,
+      estado: true,
       created_at: true,
       proyecto: {
         select: {
@@ -56,6 +205,7 @@ export class DocumentoService {
     id: doc.id,
     titulo: doc.titulo,
     fecha_creacion: doc.created_at,
+    estado: doc.estado,
     estudiantes: doc.proyecto.estudiantes.map(est => ({
       id: est.id,
       nombre_completo: `${est.usuario.nombre} ${est.usuario.apellido}`,
@@ -75,13 +225,9 @@ export class DocumentoService {
       where: { id },
       select: { 
         file: true,
-        activo: true
       }
     });
 
-    if (!documento || !documento.activo) {
-      throw new NotFoundException('Documento no encontrado o no está activo');
-    }
 
     const relativePath = documento.file;
     const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
@@ -126,8 +272,6 @@ export class DocumentoService {
         titulo: true,
         version: true,
         estado: true,
-        fase: true,
-        activo: true,
         created_at: true,
         file: true,
         proyecto_id: true,
@@ -172,40 +316,32 @@ export class DocumentoService {
     }
   }
 
-async crearDocumento(datos: {
-    titulo: string;
-    version: number;
-    file: string;
-    proyecto_id: number;
-    estado: string;
-    fase: string;
-    activo: boolean;
-  }) {
-    // Validar datos de entrada
-    if (!datos.titulo || !datos.file || !datos.proyecto_id || !datos.estado || !datos.fase) {
-      throw new BadRequestException('Faltan datos requeridos para crear el documento');
-    }
+async verificarActividad(actividadId: number): Promise<boolean> {
+  const actividad = await this.prisma.actividad.findUnique({
+    where: { id: actividadId }
+  });
+  return !!actividad;
+}
 
-    try {
-      return await this.prisma.documento.create({
-        data: {
-          titulo: datos.titulo,
-          version: datos.version,
-          file: datos.file,
-          estado: datos.estado as any,
-          justificacion: '',
-          fase: datos.fase as any,
-          activo: datos.activo,
-          created_at: new Date(),
-          proyecto_id: datos.proyecto_id
-        }
-      });
-    } catch (error) {
-      console.error('Error creando documento:', error);
-      throw new Error('No se pudo crear el documento en la base de datos');
+async crearDocumento(data: {
+  titulo: string;
+  version: number;
+  file: string;
+  proyecto_id: number;
+  actividad_id: number;
+  estado: string;
+}) {
+  return this.prisma.documento.create({
+    data: {
+      titulo: data.titulo,
+      version: data.version,
+      file: data.file,
+      proyecto_id: data.proyecto_id,
+      actividad_id: data.actividad_id,
+      estado: data.estado as any,
     }
-  }
-
+  });
+}
 
   private getMimeType(filePath: string): string {
     const ext = path.extname(filePath).toLowerCase();
@@ -233,8 +369,6 @@ async crearDocumento(datos: {
     const documents = await this.prisma.documento.findMany({
       where: { 
         proyecto_id: proyectoId,
-        fase: faseEnum, // ✅ ahora es del tipo correcto
-        activo: true
       },
       select: {
         id: true,
@@ -242,8 +376,6 @@ async crearDocumento(datos: {
         version: true,
         estado: true,
         justificacion: true,
-        fase: true,
-        activo: true,
         created_at: true,
         file: true,
         proyecto_id: true
@@ -276,10 +408,10 @@ async cambiarEstadoDocumento(
 
   const documento = await this.prisma.documento.findUnique({
     where: { id },
-    select: { id: true, estado: true, activo: true }
+    select: { id: true, estado: true }
   });
 
-  if (!documento || !documento.activo) {
+  if (!documento) {
     throw new NotFoundException(`Documento con ID ${id} no encontrado o inactivo`);
   }
 
@@ -311,7 +443,6 @@ async cambiarEstadoDocumento(
       titulo: true,
       version: true,
       estado: true,
-      fase: true,
       proyecto_id: true,
       justificacion: true
     }
@@ -320,6 +451,8 @@ async cambiarEstadoDocumento(
   console.log(`✅ Estado del documento ${id} cambiado a "${nuevoEstado}"`);
   return actualizado;
 }
+
+
 
 
 }

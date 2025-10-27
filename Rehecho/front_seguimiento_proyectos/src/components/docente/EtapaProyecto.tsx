@@ -74,6 +74,7 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
       if (studentData.proyecto_id) {
         try {
           projectDocuments = await obtenerDocumentos(studentData.proyecto_id, fase);
+          console.log('Documentos del proyecto obtenidos:', projectDocuments);
         } catch (docErr) {
           console.error('Error al obtener documentos:', docErr);
         }
@@ -111,6 +112,8 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
         id: documento.id,
         titulo: documento.titulo,
         estado: estadoValido,
+        version: documento.version,
+        fase: documento.fase,
         estudiante: `${state.estudianteData.usuario.nombre} ${state.estudianteData.usuario.apellido}`,
         carrera: state.estudianteData.carrera,
         cu: state.estudianteData.cu,

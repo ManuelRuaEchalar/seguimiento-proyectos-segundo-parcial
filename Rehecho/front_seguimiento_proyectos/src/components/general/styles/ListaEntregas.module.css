@@ -1,0 +1,29 @@
+/* Entregas Section */
+.entregasContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--azul-oscuro);
+  margin-bottom: 24px;
+}
+
+.emptyState {
+  background-color: var(--blanco);
+  border-radius: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.emptyState p {
+  color: var(--carbon);
+  font-size: 16px;
+}

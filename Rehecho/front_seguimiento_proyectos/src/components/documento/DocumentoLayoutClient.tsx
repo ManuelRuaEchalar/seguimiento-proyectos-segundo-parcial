@@ -7,7 +7,9 @@ import { fetchCorrecciones } from '@/services/correcciones';
 import { createObservacion } from '@/services/observaciones';
 import { changeProyectoFase } from '@/services/proyecto';
 import { useRouter } from 'next/navigation'; // <- AÑADIR ESTA LÍNEA
+import type { Pendiente as PendienteType } from '@/types/types';
 import styles from './style/DocumentoLayoutClient.module.css';
+import NavbarReview from './NavbarReview';
 
 interface DatosDocumento {
   titulo: string;
@@ -35,6 +37,7 @@ interface infoProyecto {
 }
 
 interface DocumentoLayoutClientProps {
+  datosCache: any;
   datosDocumento: DatosDocumento;
   datosEstudiante: DatosEstudiante;
   datosProyecto: DatosProyecto;
@@ -50,6 +53,7 @@ export default function DocumentoLayoutClient({
   datosDocumento,
   datosEstudiante,
   datosProyecto,
+  datosCache,
   observaciones,
   observacionesProyecto,
   correcciones,
@@ -69,6 +73,7 @@ export default function DocumentoLayoutClient({
   const router = useRouter();
   // Después de los estados existentes
 const [observacionesProyectoState, setObservacionesProyectoState] = useState<any[]>(observacionesProyecto);
+console.log(`datosCache recibido en DocumentoLayoutClient:`, datosCache);
 
 // REEMPLAZAR la función recargarObservacionesProyecto por esta:
 const recargarObservacionesProyecto = useCallback(async () => {
@@ -235,7 +240,7 @@ const handleApprovalComplete = useCallback(() => {
     }
   };
 
-  return (
+return (
     <div className={styles.documentoPageLayout}>
       {/* Popup informativo inicial */}
       {showInfoPopup && (
@@ -258,115 +263,43 @@ const handleApprovalComplete = useCallback(() => {
         </div>
       )}
 
-      {/* Modal de confirmación de aprobación */}
-      {showApprovalModal && (
-        <div className={styles.popupOverlay}>
-          <div className={styles.popupContent}>
-            <h3 className={styles.popupTitle}>Confirmar Aprobación</h3>
-            <p className={styles.popupText}>
-              ¿Está seguro de aprobar este documento? Esta acción permitirá que el estudiante pase a la siguiente fase de su proyecto de grado.
-            </p>
-            <div className={styles.modalButtons}>
-              <button 
-                className={styles.approveButton}
-                onClick={handleApproveDocument}
-                disabled={isApprovingDocument}
-              >
-                {isApprovingDocument ? 'Aprobando...' : 'Aprobar'}
-              </button>
-              <button 
-                className={styles.cancelButton}
-                onClick={() => setShowApprovalModal(false)}
-                disabled={isApprovingDocument}
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Navbar con estadísticas */}
-      <nav className={styles.comparisonNavbar}>
-        <div className={styles.navbarContent}>
-          {/* AÑADIR ESTE BLOQUE COMPLETO */}
-          <button 
-            onClick={() => router.back()} 
-            className={styles.backButton}
-            aria-label="Volver atrás"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-          </button>
-          {/* FIN DEL BLOQUE */}
-          
-          <div className={styles.statsContainer}>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>Total:</span>
-              <span className={styles.statValue}>{estadisticasCorrecciones.total}</span>
-            </div>
-            <div className={`${styles.statItem} ${styles.statApproved}`}>
-              <span className={styles.statLabel}>Aprobadas:</span>
-              <span className={styles.statValue}>{estadisticasCorrecciones.aprobadas}</span>
-            </div>
-            <div className={`${styles.statItem} ${styles.statRejected}`}>
-              <span className={styles.statLabel}>Rechazadas:</span>
-              <span className={styles.statValue}>{estadisticasCorrecciones.rechazadas}</span>
-            </div>
-            <div className={`${styles.statItem} ${styles.statPending}`}>
-              <span className={styles.statLabel}>Pendientes:</span>
-              <span className={styles.statValue}>{estadisticasCorrecciones.pendientes}</span>
-            </div>
-          </div>
-          <button 
-            className={styles.approveDocumentButton}
-            onClick={() => setShowApprovalModal(true)}
-          >
-            Aprobar Documento
-          </button>
-        </div>
-      </nav>
+      <NavbarReview
+        datosCache={datosCache}
+        estadisticasCorrecciones={estadisticasCorrecciones}
+        onApproveDocument={handleApproveDocument}
+        isApprovingDocument={isApprovingDocument}
+      />
 
       <div className={styles.documentoBody}>
         <div className={`${styles.pdfContainer} ${secondBlob ? styles.dual : styles.single}`}>
           <div className={styles.pdfViewerWrapper}>
             <VisualizadorPDF
-  blob={blob}
-  observaciones={observacionesLocales}
-  observacionesOtrasVersiones={observacionesOtrasVersiones}
-  correcciones={modifiedCorrecciones}
-  infoProyecto={infoProyecto}
-  selectedObservation={selectedObservation}
-  contentType={contentType}
-  onObservationClick={handleObservationClick}
-  onActualizarEstadoObservacion={actualizarEstadoObservacion} // CAMBIAR ESTO
-/>
+              blob={blob}
+              observaciones={observacionesLocales}
+              observacionesOtrasVersiones={observacionesOtrasVersiones}
+              correcciones={modifiedCorrecciones}
+              infoProyecto={infoProyecto}
+              selectedObservation={selectedObservation}
+              contentType={contentType}
+              onObservationClick={handleObservationClick}
+              onActualizarEstadoObservacion={actualizarEstadoObservacion}
+            />
           </div>
           {secondBlob && secondInfoProyecto && (
-  <div className={styles.pdfViewerWrapper}>
-    <VisualizadorPDF
-      blob={secondBlob}
-      observaciones={secondObservaciones ?? []}
-      correcciones={secondCorrecciones ?? []}
-      infoProyecto={secondInfoProyecto}
-      selectedObservation={selectedObservation}
-      contentType={secondContentType || 'application/pdf'}
-      onApprovalComplete={handleApprovalComplete}
-      onRejectionWithNewObservation={handleRejectionWithNewObservation}
-      onActualizarEstadoObservacion={actualizarEstadoObservacion} // CAMBIAR ESTO
-    />
-  </div>
+            <div className={styles.pdfViewerWrapper}>
+              <VisualizadorPDF
+                blob={secondBlob}
+                observaciones={secondObservaciones ?? []}
+                correcciones={secondCorrecciones ?? []}
+                infoProyecto={secondInfoProyecto}
+                selectedObservation={selectedObservation}
+                contentType={secondContentType || 'application/pdf'}
+                onApprovalComplete={handleApprovalComplete}
+                onRejectionWithNewObservation={handleRejectionWithNewObservation}
+                onActualizarEstadoObservacion={actualizarEstadoObservacion}
+              />
+            </div>
           )}
         </div>
       </div>
