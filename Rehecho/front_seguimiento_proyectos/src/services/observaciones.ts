@@ -62,14 +62,22 @@ export async function createObservacion(highlight: any) {
   return response.json();
 }
 
-export async function cambiarEstado(id: Number, estado: string) {
+export async function cambiarEstado(
+  id: number, 
+  estado: string, 
+  comentario?: string
+) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   if (!apiUrl) {
     throw new Error('NEXT_PUBLIC_API_URL no está configurada');
   }
 
-  console.log(`Enviando solicitud a ${apiUrl}/observacion/cambiar-estado-obs con body:`, { id, estado });
+  const body = comentario 
+    ? { id, estado, comentario }
+    : { id, estado };
+
+  console.log(`Enviando solicitud a ${apiUrl}/observacion/cambiar-estado-obs con body:`, body);
 
   const response = await fetch(`${apiUrl}/observacion/cambiar-estado-obs`, {
     method: 'POST',
@@ -77,7 +85,7 @@ export async function cambiarEstado(id: Number, estado: string) {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
-    body: JSON.stringify({ id, estado }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {

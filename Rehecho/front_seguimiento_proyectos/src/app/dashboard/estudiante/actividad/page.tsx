@@ -99,6 +99,18 @@ export default function ActividadPage() {
     }
   };
 
+    const handleEntregaClick = (documentoId: number) => {
+    // Encontrar el documento completo
+    const documentoSeleccionado = documentos.find(doc => doc.id === documentoId);
+
+    if (documentoSeleccionado) {
+      // Guardar en localStorage
+      localStorage.setItem('documentoActual', JSON.stringify(documentoSeleccionado));
+      //redirigir a la página de revisión de entregas /documento
+      router.push('/dashboard/estudiante/revision');
+    }
+  };
+
   if (!actividad) {
     return null;
   }
@@ -145,7 +157,7 @@ export default function ActividadPage() {
               {loading ? (
                 <p>Cargando entregas...</p>
               ) : (
-                <ListaMisEntregas documentos={documentos} />
+                <ListaMisEntregas documentos={documentos} onRevisar={handleEntregaClick} />
               )}
             </div>
 

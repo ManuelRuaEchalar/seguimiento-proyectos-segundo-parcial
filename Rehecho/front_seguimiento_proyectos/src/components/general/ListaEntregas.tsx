@@ -29,9 +29,10 @@ interface Documento {
 
 interface ListaEntregasProps {
   documentos: Documento[];
+  onRevisar: (entregaId: number) => void;
 }
 
-export default function ListaEntregas({ documentos }: ListaEntregasProps) {
+export default function ListaEntregas({ documentos, onRevisar }: ListaEntregasProps) {
   if (!documentos || documentos.length === 0) {
     return (
       <div className={styles.entregasContainer}>
@@ -56,6 +57,7 @@ export default function ListaEntregas({ documentos }: ListaEntregasProps) {
           fechaEntrega={doc.created_at}
           estudiantes={doc.proyecto.estudiantes}
           file={doc.file}
+          onRevisar={onRevisar}
         />
       ))}
     </div>

@@ -1,0 +1,133 @@
+/* page.module.css - Estilos para ActividadPage */
+
+.documentoBody {
+  height: calc(100vh - 60px); /* Ajustar según altura del navbar */
+  width: 100%;
+  overflow: hidden;
+  background-color: #f9fafb;
+}
+
+.pdfContainer {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  gap: 0;
+}
+
+.pdfContainer.single {
+  flex-direction: row;
+}
+
+.pdfContainer.dual {
+  flex-direction: column; /* Cambio principal: apilar verticalmente */
+}
+
+.pdfViewerWrapper {
+  width: 100%; /* Ocupa todo el ancho */
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.pdfContainer.dual .pdfViewerWrapper {
+  height: 50%; /* Cada uno ocupa la mitad del alto */
+  width: 100%;
+  border-bottom: 2px solid #e5e7eb;
+  border-right: none; /* Sin borde derecho */
+}
+
+.pdfContainer.dual .pdfViewerWrapper:last-child {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .documentoBody {
+    height: calc(100vh - 56px);
+  }
+}
+
+@media (max-width: 768px) {
+  .documentoBody {
+    height: calc(100vh - 52px);
+  }
+  
+  /* En móvil mantener el mismo comportamiento vertical */
+  .pdfContainer.dual .pdfViewerWrapper {
+    height: 50%;
+    width: 100%;
+  }
+}
+
+/* Loading states */
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  background-color: #f9fafb;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #1e396c;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error states */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: #374151;
+}
+
+.errorTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #ef4444;
+}
+
+.errorMessage {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+}
+
+.errorButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #1e396c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.errorButton:hover {
+  background-color: #272d3a;
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .loadingSpinner {
+    animation: none;
+  }
+}

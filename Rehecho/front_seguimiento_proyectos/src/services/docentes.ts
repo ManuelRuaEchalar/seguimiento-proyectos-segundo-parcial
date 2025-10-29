@@ -100,3 +100,41 @@ export async function fetchDocenteInfo() {
   return data;
 }
 
+export async function fetchTeacherObservations(
+  estudianteId: number,
+  actividadId: number
+) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+
+  const endpoint = `${apiUrl}/documento/teacher-observations?estudiante_id=${estudianteId}&actividad_id=${actividadId}`;
+  console.log('📡 Solicitando observaciones del docente:', endpoint);
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    credentials: 'include', // ⭐ Enviar cookies automáticamente
+  });
+
+  if (!response.ok) {
+    console.error('❌ Error en la respuesta del servidor:', response.status, response.statusText);
+    const errorData = await response.text();
+    console.error('🧩 Detalle del error:', errorData);
+
+    if (response.status === 401) {
+      throw new Error('Sesión no autenticada. Por favor, inicia sesión nuevamente.');
+    } else if (response.status === 403) {
+      throw new Error('No tienes permiso para acceder a esta información.');
+    } else if (response.status === 404) {
+      throw new Error('Docente, estudiante, proyecto o actividad no encontrado');
+    } else if (response.status === 400) {
+      throw new Error('Solicitud inválida. Verifica los parámetros.');
+    }
+
+    throw new Error('Error al obtener las observaciones del docente');
+  }
+
+  const data = await response.json();
+  console.log('✅ Observaciones obtenidas:', data);
+  return data;
+}
+

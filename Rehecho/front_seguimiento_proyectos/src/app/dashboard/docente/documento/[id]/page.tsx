@@ -1,7 +1,7 @@
-// src/app/dashboard/docente/documento/[id]/page.tsx
+// page.tsx
 import { Metadata } from 'next';
 import { fetchDoc, fetchDocInfo, fetchProjectObservaciones } from '@/services/proyecto';
-import DocumentoWrapper from './DocumentoWrapper';
+import DocumentoLayoutClient from '@/components/documento/DocumentoLayoutClient';
 import { fetchObservaciones } from '@/services/observaciones';
 import { fetchCorrecciones } from '@/services/correcciones';
 import styles from './page.module.css';
@@ -18,6 +18,8 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { id } = await params;
+    console.log("codigo antes de mandar: ", id);
+    console.log("IMPRIMIENDO");
     return {
       title: `Documento #${id} - CloudIt`,
       description: `Visualización del documento #${id}`,
@@ -38,23 +40,33 @@ export default async function DocumentoPage(props: PageProps) {
   try {
     const { id } = await props.params;
     console.log("El codigo del doc de params es: ", id);
-    
+    console.log(typeof(id));
     const { blob, contentType } = await fetchDoc(Number(id));
-    const observaciones = await fetchObservaciones(Number(id));
+    console.log("blob conseguido");
+    const observaciones  = await fetchObservaciones(Number(id));
+    console.log("OBSERVACIONES DE LA API: ", observaciones);
     const datosDocumento = await fetchDocInfo(Number(id));
+    console.log("datos doc: ", datosDocumento);
+    
+    // CORRECCIÓN: Usar proyecto_id en lugar de proyectoId
+    console.log("proyecto_id desde API: ", datosDocumento.proyecto_id);
     
     const observacionesProyecto = await fetchProjectObservaciones(datosDocumento.proyecto_id, Number(id));
     const correcciones = await fetchCorrecciones(Number(id));
     
+    // CORRECCIÓN: Usar proyecto_id que es el campo correcto de la API
     const infoProyecto: infoProyecto = {
-      codigoProyecto: datosDocumento.proyecto_id,
+      codigoProyecto: datosDocumento.proyecto_id,  // ← CAMBIO AQUÍ
       codigoDoc: Number(id)
     };
     
+    // Validación adicional para debug
     if (!infoProyecto.codigoProyecto) {
       console.error('ERROR CRÍTICO: proyecto_id no existe en datosDocumento:', datosDocumento);
       throw new Error('No se pudo obtener el proyecto_id del documento');
     }
+    
+    console.log("infoProyecto creado correctamente:", infoProyecto);
     
     const datosEstudiante = {
       nombre: "María González Pérez",
@@ -69,8 +81,7 @@ export default async function DocumentoPage(props: PageProps) {
     };
     
     return (
-      <DocumentoWrapper
-        documentoId={Number(id)}
+      <DocumentoLayoutClient
         datosDocumento={datosDocumento}
         datosEstudiante={datosEstudiante}
         datosProyecto={datosProyecto}

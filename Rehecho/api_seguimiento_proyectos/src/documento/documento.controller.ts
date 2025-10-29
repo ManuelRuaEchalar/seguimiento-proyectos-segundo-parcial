@@ -34,6 +34,33 @@ export class DocumentoController {
   constructor(private documentoService: DocumentoService) { }
 
   @UseGuards(JwtGuard)
+@Get('teacher-observations')
+async getTeacherObservations(
+  @Req() req: Request,
+  @Query('estudiante_id') estudianteId: string,
+  @Query('actividad_id') actividadId: string,
+) {
+  const user = req.user as { id: number; email: string; rol: string };
+
+  if (!estudianteId || !actividadId) {
+    throw new BadRequestException('El ID de estudiante y actividad son requeridos');
+  }
+
+  const estudianteIdNum = parseInt(estudianteId, 10);
+  const actividadIdNum = parseInt(actividadId, 10);
+
+  if (isNaN(estudianteIdNum) || isNaN(actividadIdNum)) {
+    throw new BadRequestException('Los IDs deben ser números válidos');
+  }
+
+  return this.documentoService.getTeacherObservations(
+    user.id,
+    estudianteIdNum,
+    actividadIdNum
+  );
+}
+
+  @UseGuards(JwtGuard)
 @Get('student-docs')
 async getStudentDocs(
   @Req() req: Request,

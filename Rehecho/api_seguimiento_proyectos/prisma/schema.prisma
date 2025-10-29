@@ -90,15 +90,20 @@ model Observacion {
   bounding_x2    Float
   bounding_y2    Float
   bounding_page  Int
-  rects          Json         
+  rects          Json
+
+  // 🔁 Este campo se llena cuando la observación surge de una corrección rechazada
+  correccion_id  Int?   @unique
+  correccion     Correccion? @relation("CorreccionToObservacion", fields: [correccion_id], references: [id])
+
+  // 🔁 Una observación puede tener una corrección (normal flujo estudiante → docente)
+  respuesta      Correccion? @relation("ObservacionToCorreccion")
 
   documento_id   Int
   proyecto_id    Int
 
   proyecto       Proyecto      @relation("ProyectoObservaciones", fields: [proyecto_id], references: [id])
   documento      Documento     @relation("DocumentoObservaciones", fields: [documento_id], references: [id])
-
-  correccion     Correccion?   @relation("ObservacionCorreccion")
 }
 
 model Correccion {
@@ -115,12 +120,17 @@ model Correccion {
   bounding_page   Int
   rects           Json     
 
+  // 🔁 Corrección responde a una observación (normal flujo)
   observacion_id  Int   @unique
-  observacion     Observacion @relation("ObservacionCorreccion", fields: [observacion_id], references: [id])
+  observacion     Observacion @relation("ObservacionToCorreccion", fields: [observacion_id], references: [id])
+
+  // 🔁 Corrección puede haber sido rechazada → genera nueva observación
+  observacion_rechazo Observacion? @relation("CorreccionToObservacion")
 
   documento_id    Int
   documento       Documento @relation("DocumentoCorrecciones", fields: [documento_id], references: [id])
 }
+
 
 model Docente {
   id        Int       @id

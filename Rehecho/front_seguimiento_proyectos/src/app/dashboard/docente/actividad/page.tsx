@@ -67,6 +67,7 @@ export default function ActividadPage() {
           const docs = await obtenerDocumentosPorActividad(actividadData.id);
           console.log('📄 Documentos obtenidos:', docs);
           setDocumentos(docs);
+          console.log(`Documentos son:${documentos}`);
         } catch (error) {
           console.error('❌ Error al obtener documentos:', error);
         } finally {
@@ -94,6 +95,18 @@ export default function ActividadPage() {
     return null;
   }
 
+  const handleEntregaClick = (documentoId: number) => {
+    // Encontrar el documento completo
+    const documentoSeleccionado = documentos.find(doc => doc.id === documentoId);
+
+    if (documentoSeleccionado) {
+      // Guardar en localStorage
+      localStorage.setItem('documentoActual', JSON.stringify(documentoSeleccionado));
+      //redirigir a la página de revisión de entregas /documento
+      router.push('/dashboard/docente/revision');
+    }
+  };
+
   // Preparar los datos para el Navbar
 const actividadInfo = {
   nombre: actividad.nombre || 'Sin título',
@@ -115,7 +128,7 @@ const actividadInfo = {
         {loading ? (
           <div className={styles.loading}>Cargando entregas...</div>
         ) : (
-          <ListaEntregas documentos={documentos} />
+          <ListaEntregas documentos={documentos} onRevisar={handleEntregaClick} />
         )}
       </main>
     </div>

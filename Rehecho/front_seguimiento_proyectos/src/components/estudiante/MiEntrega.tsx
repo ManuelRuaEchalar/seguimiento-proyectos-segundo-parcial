@@ -12,9 +12,10 @@ interface Documento {
 
 interface MiEntregaProps {
   documento: Documento;
+  onRevisar: (entregaId: number) => void;
 }
 
-export default function MiEntrega({ documento }: MiEntregaProps) {
+export default function MiEntrega({ documento, onRevisar }: MiEntregaProps) {
   const router = useRouter();
 
   const formatearFecha = (fecha: string) => {
@@ -73,7 +74,7 @@ export default function MiEntrega({ documento }: MiEntregaProps) {
         <p className={styles.metaLine}>
           Última entrega • {formatearFecha(documento.created_at)}
         </p>
-        <button className={styles.button} onClick={handleRevisar}>
+        <button className={styles.button} onClick={() => onRevisar(documento.id)}>
           Revisar
         </button>
       </div>

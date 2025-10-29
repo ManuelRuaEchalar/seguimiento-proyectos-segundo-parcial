@@ -21,6 +21,12 @@
   transition: transform 0.3s ease, width 0.3s ease;
   overflow: hidden;
   height: 100%;
+  position: relative;
+}
+
+.sidebar.collapsed {
+  transform: translateX(100%);
+  width: 0;
 }
 
 .sidebarHeader {
@@ -29,12 +35,42 @@
   color: var(--blanco);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start; /* Cambiado para mejor alineación */
+  gap: 12px;
 }
 
 .sidebarTitle {
   font-size: 18px;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.sidebarInstructions {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 4px 0 0 0;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.toggleBtn {
+  background: none;
+  border: none;
+  color: var(--blanco);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.toggleBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .sidebarContent {
@@ -43,17 +79,229 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px; /* Aumentado para mejor separación */
 }
 
-/* Observaciones Sections */
+/* ===== ESTILOS PARA VISTA ESTUDIANTE ===== */
+
+/* Secciones para estudiante */
+.section {
+  background-color: var(--casi-blanco);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.sectionDescription {
+  font-size: 14px;
+  color: var(--carbon);
+  margin: 0 0 12px 0;
+  opacity: 0.8;
+}
+
+.badge {
+  background-color: var(--azul);
+  color: var(--blanco);
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Lista de highlights para estudiante */
+.highlightsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.highlightItem {
+  background-color: var(--blanco);
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 4px solid var(--carbon);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.highlightItem:hover {
+  background-color: #f3f4f6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.correccionItem {
+  border-left-color: var(--bosque);
+}
+
+.highlightContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.highlightEstado {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blanco);
+  align-self: flex-start;
+}
+
+.highlightComment {
+  font-size: 14px;
+  color: var(--casi-negro);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.highlightBlockquote {
+  font-size: 13px;
+  color: var(--carbon);
+  margin: 0;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.quoteIcon {
+  flex-shrink: 0;
+  color: var(--azul);
+}
+
+.highlightLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--carbon);
+  margin-top: 8px;
+}
+
+/* Lista de observaciones para estudiante */
+.observacionesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.observacionItem {
+  background-color: var(--blanco);
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 4px solid var(--carbon);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.observacionItem:hover {
+  background-color: #f3f4f6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.observacionPendiente {
+  border-left-color: var(--rechazado);
+}
+
+.observacionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.observacionComment {
+  font-size: 14px;
+  color: var(--casi-negro);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.observacionBlockquote {
+  font-size: 13px;
+  color: var(--carbon);
+  margin: 0;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.observacionMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--carbon);
+}
+
+.observacionLocation, .observacionVersion {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.estadoBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blanco);
+  align-self: flex-start;
+}
+
+.estadoBadgeAprobado {
+  background-color: #398869;
+}
+
+.estadoBadgeRechazado {
+  background-color: var(--rechazado);
+}
+
+.estadoBadgePendiente {
+  background-color: var(--carbon);
+}
+
+/* ===== ESTILOS PARA VISTA DOCENTE ===== */
+
 .observacionesSection {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.sectionHeader {
+.observacionesSection .sectionHeader {
   font-size: 16px;
   font-weight: 600;
   color: var(--azul-oscuro);
@@ -150,9 +398,13 @@
   text-align: center;
   padding: 40px 20px;
   color: var(--carbon);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
-.emptyState p {
+.emptyStateText {
   margin: 8px 0;
   font-size: 16px;
   font-weight: 500;
@@ -162,6 +414,7 @@
   font-size: 14px;
   color: #6b7280;
   font-weight: 400;
+  margin: 0;
 }
 
 /* Footer */
@@ -181,6 +434,10 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .resetBtn:hover {

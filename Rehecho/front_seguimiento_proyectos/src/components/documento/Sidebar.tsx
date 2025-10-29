@@ -11,6 +11,9 @@ interface Props {
   showApprovalForm?: { id: string };
   onApprove?: () => void;
   onReject?: (commentText?: string) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+  role?: 'docente' | 'estudiante';
 }
 
 const updateHash = (highlight: IHighlight) => {
@@ -26,6 +29,9 @@ export function Sidebar({
   showApprovalForm,
   onApprove,
   onReject,
+  isCollapsed = false,
+  onToggleCollapse,
+  role = 'docente',
 }: Props) {
   const [rejectionComment, setRejectionComment] = useState('');
   const [showRejectionForm, setShowRejectionForm] = useState(false);
@@ -64,12 +70,24 @@ export function Sidebar({
     return styles.estadoPendiente;
   };
 
-  // Formulario de aprobación
-  if (showApprovalForm) {
+  // Separar observaciones y correcciones de los highlights
+  const observacionesHighlights = highlights.filter(h => !h.isCorreccion);
+  const correccionesHighlights = highlights.filter(h => h.isCorreccion);
+
+  // Filtrar solo observaciones pendientes
+  const observacionesPendientes = observacionesOtrasVersiones.filter(
+    obs => obs.estado?.toLowerCase() === 'pendiente'
+  );
+
+  // Formulario de aprobación (solo para docentes)
+  if (showApprovalForm && role === 'docente') {
     return (
-      <div className={styles.sidebar}>
+      <div className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.sidebarTitle}>¿Aprobar corrección?</div>
+          <button onClick={onToggleCollapse} className={styles.toggleBtn} aria-label="Cerrar sidebar">
+            →
+          </button>
         </div>
         <div className={styles.sidebarContent}>
           {!showRejectionForm ? (
@@ -111,18 +129,34 @@ export function Sidebar({
   }
 
   return (
-    <div className={styles.sidebar}>
+    <div className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
       <div className={styles.sidebarHeader}>
-        <div className={styles.sidebarTitle}>Observaciones</div>
+        <h2 className={styles.sidebarTitle}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
+          {role === 'docente' ? 'Observaciones' : 'Correcciones y Observaciones'}
+        </h2>
+        {onToggleCollapse && (
+          <button onClick={onToggleCollapse} className={styles.toggleBtn} aria-label="Cerrar sidebar">
+            →
+          </button>
+        )}
       </div>
 
       <div className={styles.sidebarContent}>
-        {/* Observaciones actuales */}
-        {highlights.length > 0 && (
+        {/* Observaciones del documento actual */}
+        {observacionesHighlights.length > 0 && (
           <div className={styles.observacionesSection}>
-            <h3 className={styles.sectionHeader}>Observaciones actuales</h3>
+            <h3 className={styles.sectionHeader}>
+              Observaciones actuales
+            </h3>
             <div className={styles.observacionesLista}>
-              {highlights.map((highlight, index) => (
+              {observacionesHighlights.map((highlight, index) => (
                 <div
                   key={index}
                   className={styles.observacion}
@@ -134,17 +168,14 @@ export function Sidebar({
                       Pág. {highlight.position.pageNumber}
                     </span>
                   </div>
-                  <div className={styles.observacionComentario}> <b>{highlight.comment.text}</b>
-
+                  <div className={styles.observacionComentario}>
+                    <b>{highlight.comment.text}</b>
                   </div>
                   {highlight.content.text && (
                     <div className={styles.observacionTexto}>
                       "{highlight.content.text.slice(0, 120).trim()}..."
                     </div>
                   )}
-
-
-
                   <span className={`${styles.observacionEstado} ${getEstadoClass(highlight.estado)}`}>
                     {highlight.estado || 'Pendiente'}
                   </span>
@@ -154,62 +185,106 @@ export function Sidebar({
           </div>
         )}
 
-        {/* Observaciones de otras versiones */}
-        {observacionesOtrasVersiones.filter(obs => obs.estado?.toLowerCase() === 'pendiente').length > 0 && (
+        {/* Correcciones del documento actual */}
+        {correccionesHighlights.length > 0 && (
           <div className={styles.observacionesSection}>
-            <h3 className={styles.sectionHeader}>Observaciones a revisar</h3>
+            <h3 className={styles.sectionHeader}>
+              Correcciones
+            </h3>
             <div className={styles.observacionesLista}>
-              {observacionesOtrasVersiones
-                .filter(obs => obs.estado?.toLowerCase() === 'pendiente')
-                .map((observacion, index) => (
-                  <div
-                    key={index}
-                    className={`${styles.observacion} ${styles.externa}`}
-                    onClick={() => handleObservationClick(observacion)}
-                  >
-                    <div className={styles.observacionHeader}>
-                      <span className={styles.observacionDoc}>Versión anterior</span>
-                      <span className={styles.observacionPagina}>
-                        Pág. {observacion.position?.pageNumber || observacion.boundingPage}
-                      </span>
-                    </div>
-
-                    {observacion.content_text && (
-                      <div className={styles.observacionTexto}>
-                        "{observacion.content_text.slice(0, 120).trim()}..."
-                      </div>
-                    )}
-
-                    {observacion.comment_text && (
-                      <div className={styles.observacionComentario}>
-                        {observacion.comment_text}
-                      </div>
-                    )}
-
-                    <span className={`${styles.observacionEstado} ${getEstadoClass(observacion.estado)}`}>
-                      {observacion.estado}
+              {correccionesHighlights.map((highlight, index) => (
+                <div
+                  key={index}
+                  className={styles.observacion}
+                  onClick={() => handleHighlightClick(highlight)}
+                >
+                  <div className={styles.observacionHeader}>
+                    <span className={styles.observacionDoc}>Este documento</span>
+                    <span className={styles.observacionPagina}>
+                      Pág. {highlight.position.pageNumber}
                     </span>
                   </div>
-                ))}
+                  <div className={styles.observacionComentario}>
+                    <b>{highlight.comment.text}</b>
+                  </div>
+                  {highlight.content.text && (
+                    <div className={styles.observacionTexto}>
+                      "{highlight.content.text.slice(0, 120).trim()}..."
+                    </div>
+                  )}
+                  <span className={`${styles.observacionEstado} ${getEstadoClass(highlight.estado)}`}>
+                    {highlight.estado || 'Pendiente'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Observaciones pendientes del proyecto */}
+        {observacionesPendientes.length > 0 && (
+          <div className={styles.observacionesSection}>
+            <h3 className={styles.sectionHeader}>
+              Observaciones a revisar
+            </h3>
+            <div className={styles.observacionesLista}>
+              {observacionesPendientes.map((observacion, index) => (
+                <div
+                  key={index}
+                  className={`${styles.observacion} ${styles.externa}`}
+                  onClick={() => handleObservationClick(observacion)}
+                >
+                  <div className={styles.observacionHeader}>
+                    <span className={styles.observacionDoc}>Versión anterior</span>
+                    <span className={styles.observacionPagina}>
+                      Pág. {observacion.position?.pageNumber || observacion.bounding_page || 'N/A'}
+                    </span>
+                  </div>
+                  {observacion.content_text && (
+                    <div className={styles.observacionTexto}>
+                      "{observacion.content_text.slice(0, 120).trim()}..."
+                    </div>
+                  )}
+                  {observacion.comment_text && (
+                    <div className={styles.observacionComentario}>
+                      {observacion.comment_text}
+                    </div>
+                  )}
+                  <span className={`${styles.observacionEstado} ${getEstadoClass(observacion.estado)}`}>
+                    {observacion.estado}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         {/* Estado vacío */}
-        {highlights.length === 0 && observacionesOtrasVersiones.length === 0 && (
+        {observacionesHighlights.length === 0 && correccionesHighlights.length === 0 && observacionesPendientes.length === 0 && (
           <div className={styles.emptyState}>
-            <p>No hay observaciones aún</p>
-            <p className={styles.emptyStateSubtext}>
-              Selecciona texto en el documento para agregar una observación
-            </p>
+            {role === 'estudiante' ? (
+              <>
+                <p>No hay observaciones ni correcciones</p>
+                <p className={styles.emptyStateSubtext}>
+                  Tu documento no tiene observaciones pendientes
+                </p>
+              </>
+            ) : (
+              <>
+                <p>No hay observaciones aún</p>
+                <p className={styles.emptyStateSubtext}>
+                  Selecciona texto en el documento para agregar una observación
+                </p>
+              </>
+            )}
           </div>
         )}
       </div>
 
-      {highlights.length > 0 && (
+      {(observacionesHighlights.length > 0 || correccionesHighlights.length > 0) && (
         <div className={styles.sidebarFooter}>
           <button onClick={resetHighlights} className={styles.resetBtn}>
-            Limpiar observaciones
+            {role === 'estudiante' ? 'Limpiar vista' : 'Limpiar observaciones'}
           </button>
         </div>
       )}

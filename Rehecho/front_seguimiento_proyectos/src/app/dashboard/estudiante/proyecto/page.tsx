@@ -23,6 +23,9 @@ export default function ProyectoPage() {
         const data = await fetchEstudianteInfo();
         console.log('📊 Información del estudiante:', data);
         setEstudianteInfo(data);
+        
+        // Guardar en localStorage
+        localStorage.setItem('estudianteInfo', JSON.stringify(data));
       } catch (err: any) {
         console.error('❌ Error al cargar info del estudiante:', err.message);
         setError(err.message);
@@ -59,6 +62,9 @@ export default function ProyectoPage() {
     try {
       const data = await fetchEstudianteInfo();
       setEstudianteInfo(data);
+      
+      // Guardar en localStorage
+      localStorage.setItem('estudianteInfo', JSON.stringify(data));
     } catch (err: any) {
       console.error('❌ Error al recargar info:', err.message);
     }

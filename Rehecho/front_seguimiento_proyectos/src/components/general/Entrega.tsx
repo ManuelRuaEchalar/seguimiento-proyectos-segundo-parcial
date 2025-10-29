@@ -20,6 +20,7 @@ interface EntregaProps {
   fechaEntrega: string;
   estudiantes: Estudiante[];
   file: string;
+  onRevisar: (entregaId: number) => void;
 }
 
 export default function Entrega({
@@ -30,6 +31,7 @@ export default function Entrega({
   fechaEntrega,
   estudiantes,
   file,
+  onRevisar
 }: EntregaProps) {
   const router = useRouter();
 
@@ -79,7 +81,7 @@ export default function Entrega({
           Última entrega • {formatearFecha(fechaEntrega)}
         </p>
 
-        <button className={styles.button} onClick={handleRevisar}>
+        <button className={styles.button} onClick={() => onRevisar(id)}>
           Revisar
         </button>
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { editarActividad } from '@/services/actividades';
 import { subirDocumento } from '@/services/documentos';
+import { useRouter } from 'next/navigation';
 import styles from './styles/Actividad.module.css';
 
 type ActividadRole = 'docente' | 'estudiante';
@@ -31,6 +32,7 @@ export default function Actividad({
   onActividadActualizada,
   onVerEntregas 
 }: ActividadProps) {
+  const router = useRouter();
   const [cerrando, setCerrando] = useState(false);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [confirmacionAbierta, setConfirmacionAbierta] = useState(false);
@@ -119,10 +121,15 @@ export default function Actividad({
 
   try {
     const resultado = await subirDocumento(archivo, proyectoId, actividad.id, titulo);
+    console.log('✅ Resultado de la subida:', resultado);
     
     if (resultado.success) {
       cerrarModal();
       setConfirmacionAbierta(true);
+      // Guardar en localStorage
+      localStorage.setItem('documentoActual', JSON.stringify(resultado));
+      //redirigir a la página de revisión de entregas /documento
+      router.push('/dashboard/estudiante/correccion');
     } else {
       setError(resultado.error || 'Error al subir el documento');
     }
