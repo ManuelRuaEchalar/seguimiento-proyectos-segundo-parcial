@@ -50,7 +50,7 @@ export function VisualizadorPDF({
   role,
   onObservationClick,
   onRejectionWithNewObservation,
-  contentType = 'application/pdf',
+  contentType = "application/pdf",
   onApprovalComplete,
   onActualizarEstadoObservacion
 }: VisualizadorPDFProps) {
@@ -154,8 +154,8 @@ export function VisualizadorPDF({
       }
     };
 
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
+    window.addEventListener("error", handleError);
+    return () => window.removeEventListener("error", handleError);
   }, []);
 
   const handleToggleSidebar = () => {
@@ -175,7 +175,9 @@ export function VisualizadorPDF({
       <div className={styles.pdfViewerError}>
         <h2 className={styles.errorTitle}>Error loading PDF</h2>
         <p className={styles.errorMessage}>{error}</p>
-        <button className={styles.errorButton} onClick={() => setError(null)}>Try Again</button>
+        <button className={styles.errorButton} onClick={() => setError(null)}>
+          Try Again
+        </button>
       </div>
     );
   }
@@ -270,25 +272,33 @@ export function VisualizadorPDF({
                 enableAreaSelection={(event) => event.altKey}
                 onScrollChange={() => {}}
                 scrollRef={(scrollToFunction) => {
-                  console.log("scrollRef asignado:", !!scrollToFunction);
                   scrollToHighlightRef.current = scrollToFunction;
                 }}
-                onSelectionFinished={(position, content, hideTipAndSelection, transformSelection) => (
-                  <Tip
-                    onOpen={transformSelection}
-                    onConfirm={(comment) => {
-                      addHighlight({
-                        content,
-                        position,
-                        comment,
-                        estado: "pendiente",
-                        observacionId: ""
-                      });
-                      hideTipAndSelection();
-                    }}
-                  />
-                )}
-                highlightTransform={(highlight, index, setTip, hideTip, viewportToScaled, screenshot, isScrolledTo) => {
+                // 🔒 NO MOSTRAR TIP EN MODO SOLO LECTURA
+                onSelectionFinished={(
+                  position: ScaledPosition,
+                  content: { text?: string; image?: string },
+                  hideTipAndSelection: () => void,
+                  transformSelection: () => void
+                ) => {
+                  // En modo solo lectura no mostramos tip ni permitimos acciones, retornamos null (Element | null)
+                  if (modoSoloLectura) {
+                    return null;
+                  }
+
+                  // Por ahora no mostramos un elemento al finalizar la selección,
+                  // devolvemos null para cumplir la firma requerida.
+                  return null;
+                }}
+                highlightTransform={(
+                  highlight,
+                  index,
+                  setTip,
+                  hideTip,
+                  viewportToScaled,
+                  screenshot,
+                  isScrolledTo
+                ) => {
                   const isCorreccion = highlight.isCorreccion || false;
                   const component = (
                     <Highlight
@@ -302,10 +312,17 @@ export function VisualizadorPDF({
                     />
                   );
 
+                  // 🔒 EN MODO SOLO LECTURA, NO MOSTRAR POPUP AL HOVER
+                  if (modoSoloLectura) {
+                    return component;
+                  }
+
                   return (
                     <Popup
                       popupContent={<HighlightPopup {...highlight} />}
-                      onMouseOver={(popupContent) => setTip(highlight, (highlight) => popupContent)}
+                      onMouseOver={(popupContent) =>
+                        setTip(highlight, (highlight) => popupContent)
+                      }
                       onMouseOut={hideTip}
                       key={index}
                     >

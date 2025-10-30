@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { register } from '@/services/api';
@@ -36,7 +37,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -44,6 +45,13 @@ export default function RegisterPage() {
     <div className={styles.container}>
       <div className={styles.leftSection}>
         <h2>SEGUIMIENTO DE PROYECTOS DE GRADO</h2>
+        <Image
+          src="/images/EscudoUSFX (2).png"
+          alt="Escudo USFX"
+          width={800}
+          height={800}
+          priority
+        />
         <p>Universidad San Francisco Xavier de Chuquisaca</p>
       </div>
 
@@ -97,15 +105,28 @@ export default function RegisterPage() {
             onChange={handleChange}
             required
           />
-          <Input
-            label="Carrera"
-            type="text"
+
+          {/* Select de carreras */}
+          <label htmlFor="carrera">Carrera</label>
+          <select
+            id="carrera"
             name="carrera"
-            placeholder="Carrera"
             value={form.carrera}
             onChange={handleChange}
             required
-          />
+            className={styles.select}
+          >
+            <option value="">Selecciona una carrera</option>
+            <option value="Ingeniería en Ciencias de la Computación">
+              Ingeniería en Ciencias de la Computación
+            </option>
+            <option value="Ingeniería de Sistemas">
+              Ingeniería de Sistemas
+            </option>
+            <option value="Diseño y Animación Digital">
+              Diseño y Animación Digital
+            </option>
+          </select>
 
           <Button type="submit" disabled={loading}>
             {loading ? 'Registrando...' : 'Registrarse'}

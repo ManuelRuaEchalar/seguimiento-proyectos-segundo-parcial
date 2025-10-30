@@ -120,16 +120,8 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
     }
   };
 
-  // Handle PDF upload
-  const handleUploadDocuments = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!titulo.trim()) {
-      setUploadStatus('error');
-      setUploadMessage('El título es obligatorio');
-      return;
-    }
-
+  // Handle PDF upload - CORREGIDO: Sin redirección automática
+  const handleUploadDocuments = async () => {
     if (!selectedFile || !studentProfile?.proyecto_id) {
       setUploadStatus('error');
       setUploadMessage('Selecciona un archivo PDF y asegúrate de que el proyecto esté cargado');
@@ -145,8 +137,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
 
       if (result.success && result.id) {
         setUploadStatus('success');
-        setUploadMessage(`¡Documento subido correctamente! ID: ${result.id}`);
-        setTitulo('');
+        setUploadMessage(`¡PDF subido correctamente!`);
         setSelectedFile(null);
 
         // Clear file input
@@ -160,17 +151,21 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
           version: 1,
           estado: 'pendiente',
           activo: true,
-          fase: studentProfile.proyecto?.fase_actual || 'inicial',
+          fase: fase,
           created_at: new Date().toISOString(),
           file: '',
           proyecto_id: studentProfile.proyecto_id,
         };
         setDocuments((prev) => [...prev, newDocumento]);
 
-        // Redirect to new document if more than one document exists
-        if (documents.length >= 1) {
-          router.push(`/dashboard/estudiante/documentoNuevo/${result.id}`);
-        }
+        // ELIMINADO: La redirección automática
+        // Ya no redirige aquí, el estudiante debe hacer clic en "Ver Documento"
+        
+        // Opcional: Auto-limpiar el mensaje de éxito después de 3 segundos
+        setTimeout(() => {
+          setUploadStatus('idle');
+          setUploadMessage('');
+        }, 3000);
       } else {
         setUploadStatus('error');
         setUploadMessage(`Error al subir: ${result.error}`);
@@ -193,7 +188,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
     if (fileInput) fileInput.value = '';
   };
 
-  // Handle document click for navigation
+  // Handle document click for navigation - Aquí SI redirige cuando hace clic
   const handleDocumentClick = (documento: Document) => {
     router.push(`/dashboard/estudiante/documento/${documento.id}`);
   };
@@ -268,18 +263,61 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
                   <h2 className={styles.formTitle}>Proponer Tema</h2>
                   <p className={styles.formSubtitle}>Complete los campos para enviar su propuesta</p>
                 </div>
-                
-                <form onSubmit={handleUploadDocuments} className={styles.uploadForm}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Título del Tema</label>
-                    <input
-                      type="text"
-                      value={titulo}
-                      onChange={(e) => setTitulo(e.target.value)}
-                      placeholder="Ingrese el título del tema"
-                      className={styles.formInput}
-                      disabled={isUploading}
-                    />
+                <ul style={{ color: '#5b88a5', fontSize: '0.8rem', margin: '0.5rem 0 0 1.5rem' }}>
+                  <li><strong>Solo archivos PDF</strong></li>
+                  <li>Máximo 10MB</li>
+                  <li>En Fase 1 solo subes el documento, sin correcciones</li>
+                </ul>
+              </div>
+
+              <div className={styles.uploadArea}>
+                <Upload size={40} style={{ color: '#5b88a5', margin: '0 auto 1rem', display: 'block' }} />
+                <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#243a69', marginBottom: '0.5rem' }}>
+                  Arrastra tu archivo PDF aquí
+                </h3>
+                <p style={{ color: '#5b88a5', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                  o haz clic para seleccionar
+                </p>
+                <input
+                  id="pdf-upload"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileSelect}
+                  className={styles.fileInput}
+                />
+                <label
+                  htmlFor="pdf-upload"
+                  className={styles.submitButton}
+                >
+                  <FileText size={16} style={{ marginRight: '0.5rem', display: 'inline' }} />
+                  Seleccionar PDF
+                </label>
+              </div>
+
+              {selectedFile && (
+                <div className={styles.filesPreview}>
+                  <h3 className={styles.filesPreviewTitle}>
+                    PDF seleccionado:
+                  </h3>
+                  <div className={styles.fileItem}>
+                    <div className={styles.fileInfo}>
+                      <div className={styles.fileIcon}>
+                        <CheckCircle size={20} style={{ color: '#10b981' }} />
+                      </div>
+                      <div className={styles.fileDetails}>
+                        <p className={styles.fileName} title={selectedFile.name}>{selectedFile.name}</p>
+                        <p className={styles.fileSize}>
+                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={clearUpload}
+                      className={styles.fileRemove}
+                      title="Eliminar archivo"
+                    >
+                      <X size={16} />
+                    </button>
                   </div>
 
                   <div className={styles.formGroup}>

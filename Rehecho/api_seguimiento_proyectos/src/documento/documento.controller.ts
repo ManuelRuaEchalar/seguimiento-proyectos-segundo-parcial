@@ -344,4 +344,43 @@ async upload(
     }
   }
 
+  @Post('rechazar')
+async rechazarDocumento(
+  @Body() body: { documentoId: number; motivo: string; proyectoId: number },
+  @Res() res: Response
+) {
+  try {
+    const { documentoId, motivo, proyectoId } = body;
+
+    if (!documentoId || !motivo || !proyectoId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Faltan datos requeridos: documentoId, motivo o proyectoId'
+      });
+    }
+
+    // Cambiar estado del documento a "rechazado"
+    await this.documentoService.cambiarEstadoDocumento(
+      documentoId,
+      'rechazado' as $Enums.EstadoDocumento
+    );
+
+    // Aquí puedes crear una observación general con el motivo del rechazo
+    // o guardarlo en una nueva tabla "RechazosDocumento"
+    console.log(`📝 Documento ${documentoId} rechazado. Motivo: ${motivo}`);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Documento rechazado exitosamente',
+      motivo
+    });
+  } catch (error) {
+    console.error('❌ Error al rechazar documento:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor al rechazar el documento'
+    });
+  }
+}
+  
 }

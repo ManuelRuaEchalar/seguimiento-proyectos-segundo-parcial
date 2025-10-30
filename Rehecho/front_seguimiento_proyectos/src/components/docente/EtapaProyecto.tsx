@@ -100,33 +100,10 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
     fetchData();
   }, [user?.id, fetchData]);
 
-  // Handle document click - MODIFICADO para guardar en context
   const handleDocumentClick = useCallback((documento: Document) => {
-
-      const estadoValido = ['pendiente', 'aprobado', 'rechazado'].includes(documento.estado)
-  ? (documento.estado as 'pendiente' | 'aprobado' | 'rechazado')
-  : 'pendiente';
-    // Guardar datos en el context antes de navegar
-    if (state.estudianteData) {
-      const pendienteData: PendienteType = {
-        id: documento.id,
-        titulo: documento.titulo,
-        estado: estadoValido,
-        version: documento.version,
-        fase: documento.fase,
-        estudiante: `${state.estudianteData.usuario.nombre} ${state.estudianteData.usuario.apellido}`,
-        carrera: state.estudianteData.carrera,
-        cu: state.estudianteData.cu,
-        tema: state.estudianteData.proyecto?.titulo || 'Sin título'
-      };
-
-      console.log('💾 Guardando datos del documento en context:', pendienteData);
-      addPendiente(pendienteData);
-    }
-
-    // Navegar al documento
+    console.log('📄 Documento clickeado:', documento);
     router.push(`/dashboard/docente/documento/${documento.id}`);
-  }, [router, state.estudianteData, fase, addPendiente]);
+  }, [router]);
 
   const headerUser = user?.nombre && user?.apellido && user?.email && user?.rol
     ? {
@@ -274,25 +251,13 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
             </div>
           </div>
 
-          <div className={styles.twoColumnLayout}>
-            <section className={styles.documentListSection}>
-              {state.estudianteData.proyecto && (
-                <div className={styles.estudianteCard}>
-                  <div className={styles.cardContent}>
-                    <div className={styles.cardItem}>
-                      <div className={styles.cardLabel}>
-                        <FileText size={16} />
-                        <span>Fase:</span>
-                      </div>
-                      <p className={styles.cardValue}>{fase}</p>
-                    </div>
-                    <div className={styles.cardItem}>
-                      <div className={styles.cardLabel}>
-                        <BookOpen size={16} />
-                        <span>Grado Actual:</span>
-                      </div>
-                      <p className={styles.cardValue}>{state.estudianteData.proyecto.grado_actual}</p>
-                    </div>
+          {state.estudianteData.proyecto && (
+            <div className={styles.estudianteCard} style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                    <FileText size={16} style={{ color: '#5b88a5' }} />
+                    <span style={{ fontWeight: '500', color: '#243a69', fontSize: '0.875rem' }}>Fase:</span>
                   </div>
                 </div>
               )}
@@ -357,8 +322,59 @@ const EtapaProyecto = ({ id, fase }: EtapaProyectoProps) => {
                   </p>
                 </div>
               </div>
-            </aside>
-          </div>
+            </div>
+          )}
+
+          <nav className={styles.navButtons}>
+            <button
+              onClick={() => setActiveTab('ver')}
+              className={`${styles.navButton} ${activeTab === 'ver' ? styles.navButtonActive : ''}`}
+            >
+              <FileText size={18} />
+              <span>Ver documentos</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('historial')}
+              className={`${styles.navButton} ${activeTab === 'historial' ? styles.navButtonActive : ''}`}
+            >
+              <Archive size={18} />
+              <span>Historial</span>
+            </button>
+          </nav>
+
+          <section className={styles.documentCard}>
+            {activeTab === 'ver' && (
+              <div>
+                <h2 className={styles.contentTitle} style={{ marginBottom: '1.5rem' }}>
+                  Documentos del Proyecto - Fase: {fase.toUpperCase()}
+                </h2>
+                {state.documents.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#5b88a5' }}>
+                    <FileText size={48} style={{ margin: '0 auto 1rem', display: 'block', opacity: 0.5 }} />
+                    <p>El estudiante aún no ha subido documentos para esta fase.</p>
+                  </div>
+                ) : (
+                  <DocumentList documentos={state.documents} onDocumentClick={handleDocumentClick} />
+                )}
+              </div>
+            )}
+
+            {activeTab === 'historial' && (
+              <div>
+                <h2 className={styles.contentTitle} style={{ marginBottom: '1.5rem' }}>
+                  Historial de Actividades
+                </h2>
+                {state.documents.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#5b88a5' }}>
+                    <Archive size={48} style={{ margin: '0 auto 1rem', display: 'block', opacity: 0.5 }} />
+                    <p>No hay actividades registradas para este proyecto.</p>
+                  </div>
+                ) : (
+                  <DocumentList documentos={state.documents} onDocumentClick={handleDocumentClick} />
+                )}
+              </div>
+            )}
+          </section>
         </div>
       </main>
     </div>

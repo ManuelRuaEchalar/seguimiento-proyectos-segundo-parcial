@@ -450,12 +450,12 @@ export const cambiarEstadoDocumento = async (
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, error: data.error || 'Error al cambiar el estado' };
+      return { success: false, error: data.error || 'Error al rechazar documento' };
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Error cambiando estado del documento:', error);
+    console.error('Error rechazando documento:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Error de conexión'

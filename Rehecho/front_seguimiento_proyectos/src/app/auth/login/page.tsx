@@ -1,7 +1,7 @@
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { login } from '@/services/api';
@@ -33,6 +33,13 @@ export default function LoginPage() {
     <div className={styles.container}>
       <div className={styles.leftSection}>
         <h2>SEGUIMIENTO DE PROYECTOS DE GRADO</h2>
+        <Image
+          src="/images/EscudoUSFX (2).png"
+          alt="Escudo USFX"
+          width={800}
+          height={800}
+          priority
+        />        
         <p>Universidad San Francisco Xavier de Chuquisaca</p>
       </div>
 
@@ -60,7 +67,7 @@ export default function LoginPage() {
             {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </Button>
           <p>
-            ¿No tienes cuenta? <a href="/auth/register">Regístrate aquí</a>
+            No tienes cuenta? <a href="/auth/register">Regístrate aquí</a>
           </p>
         </form>
       </div>
