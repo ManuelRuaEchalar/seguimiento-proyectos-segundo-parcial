@@ -1,18 +1,22 @@
 import { useState } from 'react';
 import { subirDocumento } from '@/services/documentos';
+import { useRouter } from 'next/navigation';
 import styles from './styles/FormularioEntrega.module.css';
 
 interface FormularioEntregaProps {
   actividadId: number;
   proyectoId: number | null;
+  fase?: string;
   onEntregaExitosa: () => void;
 }
 
 export default function FormularioEntrega({ 
   actividadId, 
-  proyectoId, 
+  proyectoId,
+  fase,
   onEntregaExitosa 
 }: FormularioEntregaProps) {
+    const router = useRouter();
   const [titulo, setTitulo] = useState('');
   const [archivo, setArchivo] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +86,11 @@ export default function FormularioEntrega({
       if (resultado.success) {
         limpiarFormulario();
         setConfirmacionAbierta(true);
+        localStorage.setItem('documentoActual', JSON.stringify(resultado));
+        if (resultado.version != 1 && fase != 'tema') {
+              //redirigir a la página de revisión de entregas /documento
+              router.push('/dashboard/estudiante/correccion');
+        }
       } else {
         setError(resultado.error || 'Error al subir el documento');
       }

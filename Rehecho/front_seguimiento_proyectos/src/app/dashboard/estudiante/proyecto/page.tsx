@@ -42,7 +42,7 @@ export default function ProyectoPage() {
 
   useEffect(() => {
     if (estudianteInfo?.grupo?.fase) {
-      setFaseActual(estudianteInfo.grupo.fase);
+      setFaseActual(estudianteInfo.proyecto.fase_actual);
     }
   }, [estudianteInfo]);
 
@@ -123,6 +123,8 @@ export default function ProyectoPage() {
     (!grupo.elementos || grupo.elementos.length === 0) && 
     (grupo.elementos_hechos && grupo.elementos_hechos.length > 0);
 
+  const noTitle = estudianteInfo.proyecto.titulo === '' || estudianteInfo.proyecto.titulo === null;
+
   return (
     <div className={styles.container}>
       <Navbar
@@ -158,12 +160,12 @@ export default function ProyectoPage() {
               />
             )}
 
-            
+            {noTitle && (
               <ConfiguracionProyecto
                 emisor_id={estudianteInfo.id}
                 proyecto_emisor_id={estudianteInfo.proyecto.id}
               />
-
+            )}
             {actividadesPerfil.length > 0 ? (
               <ListaActividades
                 rol="estudiante"

@@ -19,6 +19,7 @@ export interface Document {
 interface SubirDocumentoResult {
   success: boolean;
   id?: number;
+  version?: number;
   error?: string;
 }
 
@@ -95,7 +96,8 @@ export const subirDocumento = async (
     if (data.success) {
       console.log('✅ PDF subido exitosamente:', data.id);
       return { 
-        success: true, 
+        success: true,
+        version: data.version, 
         id: data.id 
       };
     } else {

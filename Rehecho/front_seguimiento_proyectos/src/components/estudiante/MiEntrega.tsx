@@ -13,10 +13,12 @@ interface Documento {
 interface MiEntregaProps {
   documento: Documento;
   onRevisar: (entregaId: number) => void;
+  fase?: string;
 }
 
-export default function MiEntrega({ documento, onRevisar }: MiEntregaProps) {
+export default function MiEntrega({ documento, onRevisar, fase }: MiEntregaProps) {
   const router = useRouter();
+  const isTemaFase = fase === 'tema';
 
   const formatearFecha = (fecha: string) => {
     const date = new Date(fecha);
@@ -61,9 +63,11 @@ export default function MiEntrega({ documento, onRevisar }: MiEntregaProps) {
   return (
     <div className={styles.entrega}>
       <div className={styles.leftSection}>
-        <span className={`${styles.badge} ${styles.versionBadge}`}>
-          v{documento.version}
-        </span>
+        {!isTemaFase && (
+          <span className={`${styles.badge} ${styles.versionBadge}`}>
+            v{documento.version}
+          </span>
+        )}
         <span className={`${styles.badge} ${styles.statusBadge} ${obtenerEstiloEstado(documento.estado)}`}>
           {obtenerTextoEstado(documento.estado)}
         </span>

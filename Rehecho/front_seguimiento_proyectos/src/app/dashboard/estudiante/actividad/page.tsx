@@ -14,6 +14,7 @@ interface Actividad {
   descripcion: string;
   fecha_creacion: string;
   estado: string;
+  fase?: string;
   elementos?: string[];
 }
 
@@ -162,7 +163,7 @@ export default function ActividadPage() {
               {loading ? (
                 <p>Cargando entregas...</p>
               ) : (
-                <ListaMisEntregas documentos={documentos} onRevisar={handleEntregaClick} />
+                <ListaMisEntregas documentos={documentos} onRevisar={handleEntregaClick} fase={actividad.fase} />
               )}
             </div>
 
@@ -170,6 +171,7 @@ export default function ActividadPage() {
             <FormularioEntrega
               actividadId={actividad.id}
               proyectoId={proyectoId}
+              fase={actividad.fase}
               onEntregaExitosa={handleActualizarEntregas}
             />
           </div>

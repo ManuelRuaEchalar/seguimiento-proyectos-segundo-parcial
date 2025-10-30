@@ -74,9 +74,11 @@ export default function Entrega({
     <>
       <div className={`${styles.entrega} ${isTemaFase ? styles.entregaTema : ''}`}>
         <div className={styles.leftSection}>
-          <span className={`${styles.badge} ${styles.versionBadge}`}>
-            v{version}
-          </span>
+          {!isTemaFase && (
+            <span className={`${styles.badge} ${styles.versionBadge}`}>
+              v{version}
+            </span>
+          )}
           <span className={`${styles.badge} ${styles.statusBadge} ${getEstadoClass()}`}>
             {estado.charAt(0).toUpperCase() + estado.slice(1)}
           </span>

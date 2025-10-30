@@ -128,8 +128,10 @@ export default function Actividad({
         setConfirmacionAbierta(true);
         // Guardar en localStorage
         localStorage.setItem('documentoActual', JSON.stringify(resultado));
-        //redirigir a la página de revisión de entregas /documento
-        router.push('/dashboard/estudiante/correccion');
+        if (resultado.version != 1 && fase != 'tema') {
+              //redirigir a la página de revisión de entregas /documento
+              router.push('/dashboard/estudiante/correccion');
+        }
       } else {
         setError(resultado.error || 'Error al subir el documento');
       }

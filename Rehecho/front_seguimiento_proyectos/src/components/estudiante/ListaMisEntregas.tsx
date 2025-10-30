@@ -13,10 +13,11 @@ interface Documento {
 
 interface ListaMisEntregasProps {
   documentos: Documento[];
+  fase?: string;
   onRevisar: (entregaId: number) => void;
 }
 
-export default function ListaMisEntregas({ documentos, onRevisar }: ListaMisEntregasProps) {
+export default function ListaMisEntregas({ documentos, fase, onRevisar }: ListaMisEntregasProps) {
   if (documentos.length === 0) {
     return (
       <div className={styles.emptyState}>
@@ -29,7 +30,7 @@ export default function ListaMisEntregas({ documentos, onRevisar }: ListaMisEntr
   return (
     <div className={styles.listaEntregas}>
       {documentos.map((documento) => (
-        <MiEntrega key={documento.id} documento={documento} onRevisar={onRevisar}/>
+        <MiEntrega key={documento.id} documento={documento} fase={fase} onRevisar={onRevisar}/>
       ))}
     </div>
   );
