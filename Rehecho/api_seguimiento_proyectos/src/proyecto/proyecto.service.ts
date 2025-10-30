@@ -68,4 +68,54 @@ export class ProyectoService {
       proyecto: proyectoActualizado,
     };
   }
+
+  async obtenerProyecto(id: number) {
+    if (!id || typeof id !== 'number') {
+      throw new BadRequestException('El ID del proyecto es obligatorio y debe ser numérico.');
+    }
+
+    const proyecto = await this.prisma.proyecto.findUnique({
+      where: { id },
+    });
+
+    if (!proyecto) {
+      throw new NotFoundException('Proyecto no encontrado.');
+    }
+
+    return {
+      message: 'Proyecto obtenido exitosamente',
+      proyecto,
+    };
+  }
+}
+
+/**
+ * Servicio para obtener todos los datos de un proyecto
+ */
+export async function fetchProyectoById(id: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+  }
+
+  const response = await fetch(`${apiUrl}/proyecto/obtener`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include', // 🔒 Envia cookies (JWT)
+    body: JSON.stringify({ id }),
+  });
+
+  console.log(`Solicitud a ${apiUrl}/proyecto/obtener con body:`, { id });
+
+  if (!response.ok) {
+    console.error('Error en la respuesta del servidor:', response.status, response.statusText);
+    throw new Error('Error al obtener el proyecto');
+  }
+
+  const data = await response.json();
+  console.log('Respuesta del servidor:', data);
+  return data;
 }

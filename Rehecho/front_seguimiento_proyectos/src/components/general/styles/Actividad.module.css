@@ -1,0 +1,463 @@
+.activityCard {
+  display: flex;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.activityCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.activityLeft {
+  flex: 0 0 55%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--blanco);
+  transition: background-color 0.3s ease;
+}
+
+.activityCard.active .activityLeft {
+  background-color: var(--casi-blanco);
+}
+
+.activityHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.activityTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--azul-oscuro);
+}
+
+.activityStatus {
+  font-size: 14px;
+  color: var(--carbon);
+  margin-bottom: 6px;
+}
+
+.activityStatusActual {
+  font-size: 14px;
+  color: #398869;
+  margin-bottom: 6px;
+}
+
+.activityDate {
+  font-size: 13px;
+  color: var(--plata);
+  font-family: monospace;
+  margin-bottom: 12px;
+}
+
+.activityButtons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.viewBtn {
+  padding: 8px 20px;
+  background-color: transparent;
+  color: var(--carbon);
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid var(--carbon);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.viewBtn:hover {
+  background-color: var(--carbon);
+  color: var(--blanco);
+}
+
+.activityCard.active .viewBtn {
+  background-color: transparent;
+  color: var(--bosque);
+  border-color: var(--bosque);
+}
+
+.activityCard.active .viewBtn:hover {
+  background-color: var(--bosque);
+  color: var(--blanco);
+}
+
+.activityRight {
+  flex: 0 0 45%;
+  background-color: var(--carbon);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.activityCard.active .activityRight {
+  background-color: var(--bosque);
+}
+
+.activityTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: var(--blanco);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.activityMeta {
+  font-size: 13px;
+  color: var(--blanco);
+  margin: 3px 0;
+}
+
+.activityMeta.number {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.closeActivityBtn {
+  padding: 8px 20px;
+  background-color: transparent;
+  color: #703d3d;
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid #8B4B4B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.closeActivityBtn:hover:not(:disabled) {
+  background-color: #8B4B4B;
+  color: var(--blanco);
+}
+
+.closeActivityBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.newSubmissionBtn {
+  padding: 8px 20px;
+  background-color: var(--bosque);
+  color: var(--casi-blanco);
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid var(--bosque);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.newSubmissionBtn:hover {
+  background-color: #2f6b52;
+  border-color: #2f6b52;
+}
+
+@media (max-width: 768px) {
+  .activityCard {
+    flex-direction: column;
+  }
+  
+  .activityLeft,
+  .activityRight {
+    flex: none;
+    width: 100%;
+  }
+  
+  .activityButtons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .viewBtn,
+  .closeActivityBtn,
+  .newSubmissionBtn {
+    text-align: center;
+  }
+}
+
+/* Modal Styles */
+.modal {
+  display: flex;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modalContent {
+  background-color: var(--blanco);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalHeader {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+  padding: 20px 24px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.closeModal {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--blanco);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.closeModal:hover {
+  color: var(--celeste);
+}
+
+.submissionForm {
+  padding: 24px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.formGroup input[type="text"] {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--celeste);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+.formGroup input[type="text"]:focus {
+  outline: none;
+  border-color: var(--azul);
+}
+
+.fileInputWrapper {
+  position: relative;
+  border: 2px dashed var(--celeste);
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  background-color: var(--casi-blanco);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.fileInputWrapper:hover {
+  border-color: var(--azul);
+  background-color: #e8f0fc;
+}
+
+.fileInputWrapper input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.fileName {
+  color: var(--carbon);
+  font-size: 14px;
+  display: block;
+}
+
+.modalFooter {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.cancelBtn,
+.submitBtn {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.cancelBtn {
+  background-color: transparent;
+  color: var(--carbon);
+  border: 1px solid var(--carbon);
+}
+
+.cancelBtn:hover {
+  background-color: var(--carbon);
+  color: var(--blanco);
+}
+
+.submitBtn {
+  background-color: var(--bosque);
+  color: var(--blanco);
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #1e3a2e;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  background-color: #fee;
+  color: #c33;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+/* Confirmation Modal */
+.modalContent.confirmation {
+  text-align: center;
+  padding: 40px 30px;
+}
+
+.successIcon {
+  width: 80px;
+  height: 80px;
+  background-color: var(--bosque);
+  color: var(--blanco);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  margin: 0 auto 20px;
+  animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.modalContent.confirmation h2 {
+  color: var(--azul-oscuro);
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.modalContent.confirmation p {
+  color: var(--carbon);
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.okBtn {
+  padding: 12px 32px;
+  background-color: var(--bosque);
+  color: var(--blanco);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.okBtn:hover {
+  background-color: #1e3a2e;
+}
+
+.activityMeta.number {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.activityDescription {
+  color: var(--blanco);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .submissionForm {
+    padding: 20px;
+  }
+}

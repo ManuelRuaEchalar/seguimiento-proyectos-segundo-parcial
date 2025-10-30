@@ -1,0 +1,30 @@
+.container {
+    padding: 24px;
+}
+
+.welcomeTitle {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--azul-oscuro);
+    margin-bottom: 24px;
+}
+
+.contentLayout {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.leftColumn {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.rightColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}

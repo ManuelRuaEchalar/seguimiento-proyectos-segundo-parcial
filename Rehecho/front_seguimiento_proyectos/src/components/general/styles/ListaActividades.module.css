@@ -1,0 +1,40 @@
+.previousActivities {
+  flex: 1;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--azul-oscuro);
+  margin-bottom: 24px;
+}
+
+.activitiesTimeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.emptyState {
+  background-color: var(--blanco);
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  color: var(--azul-oscuro);
+}
+
+.emptyState p {
+  margin-bottom: 8px;
+}
+
+.emptyState p:last-child {
+  margin-bottom: 0;
+  color: var(--plata);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 20px;
+  }
+}

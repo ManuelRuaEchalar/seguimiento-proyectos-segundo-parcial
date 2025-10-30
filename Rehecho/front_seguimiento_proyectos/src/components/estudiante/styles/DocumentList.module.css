@@ -9,8 +9,12 @@
 
 .documentsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  /* Cambiar column-gap a un valor más razonable: */
+  column-gap: 3rem;
+  /* Asegurar que ocupe el ancho completo: */
+  width: 100%;
 }
 
 .emptyState {
@@ -18,7 +22,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 3rem 2rem;
   background-color: var(--ghost-white);
   border-radius: 8px;
   border: 1px solid var(--columbia-blue);
@@ -44,4 +48,11 @@
   color: var(--gunmetal);
   text-align: center;
   margin: 0;
+}
+
+@media (max-width: 768px) {
+  .documentsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }

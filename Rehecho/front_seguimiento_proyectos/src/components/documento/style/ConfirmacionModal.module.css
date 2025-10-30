@@ -1,0 +1,128 @@
+/* src/components/ConfirmacionModal.module.css */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(23, 23, 23, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #fff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 420px;
+  border: 1px solid #F6F9FF;
+  overflow: hidden;
+}
+
+.iconContainer {
+  padding: 32px 32px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.iconAprobar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #1E396C;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.iconRechazar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #171717;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.content {
+  padding: 24px 32px;
+  text-align: center;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #272D3A;
+  margin: 0 0 12px 0;
+}
+
+.message {
+  font-size: 14px;
+  color: #1F2937;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.footer {
+  padding: 20px 32px 28px;
+  display: flex;
+  gap: 12px;
+}
+
+.cancelarBtn {
+  flex: 1;
+  padding: 12px;
+  background-color: transparent;
+  color: #1F2937;
+  border: 1px solid #BDB3AB;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cancelarBtn:hover {
+  background-color: #F6F9FF;
+}
+
+.confirmarAprobarBtn {
+  flex: 1;
+  padding: 12px;
+  background-color: #1E396C;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.confirmarAprobarBtn:hover {
+  background-color: #272D3A;
+}
+
+.confirmarRechazarBtn {
+  flex: 1;
+  padding: 12px;
+  background-color: #171717;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.confirmarRechazarBtn:hover {
+  background-color: #1F2937;
+}

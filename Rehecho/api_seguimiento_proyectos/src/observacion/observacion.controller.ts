@@ -64,10 +64,12 @@ async createObservacion(@Body() highlight: any) {
 }
   
 @Post('cambiar-estado-obs')
-  async cambiarEstadoObs(
-    @Body('id') id: number,
-    @Body('estado') estado: string,
-  ) {
-    return this.observacionService.updateEstadoObservacion(id, estado);
-  }
+async cambiarEstadoObs(
+  @Body('id') id: number,
+  @Body('estado') estado: string,
+  @Body('comentario') comentario?: string,
+) {
+  return this.observacionService.updateEstadoObservacion(id, estado, comentario);
+}
+
 }

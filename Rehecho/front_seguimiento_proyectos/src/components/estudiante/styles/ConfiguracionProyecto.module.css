@@ -1,0 +1,277 @@
+.configForm {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  max-width: 900px;
+  margin: 0 auto 20px auto;
+}
+
+.formTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #272D3A;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.formSubtitle {
+  font-size: 14px;
+  color: #BDB3AB;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* Flujo horizontal */
+.flowContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .flowContainer {
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+.flowStep {
+  flex: 1;
+  min-width: 280px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  display: none;
+}
+
+.flowStep.visible {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stepQuestion {
+  font-size: 16px;
+  color: #1F2937;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+/* Botones compactos */
+.optionGroup {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.optionCard {
+  flex: 1;
+  min-width: 120px;
+  padding: 14px 20px;
+  background-color: transparent;
+  border: 2px solid #272D3A;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  color: #272D3A;
+  font-size: 15px;
+}
+
+.optionCard:hover {
+  background-color: #272D3A;
+  color: #fff;
+}
+
+.optionCard.selected {
+  background-color: #2D4A3E;
+  border-color: #2D4A3E;
+  color: #fff;
+}
+
+/* Listas */
+.themeList,
+.projectList,
+.studentList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-top: 12px;
+}
+
+.themeItem,
+.projectItem,
+.studentItem {
+  padding: 14px 16px;
+  background-color: #F6F9FF;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14.5px;
+}
+
+.themeItem:hover,
+.projectItem:hover,
+.studentItem:hover {
+  background-color: #f0f7ff;
+  border-color: #1E396C;
+}
+
+.themeItem.selected,
+.projectItem.selected,
+.studentItem.selected {
+  background-color: rgba(45, 74, 62, 0.08);
+  border-color: #2D4A3E;
+  border-left: 4px solid #2D4A3E;
+  color: #2D4A3E;
+}
+
+.themeItemTitle,
+.projectItemTitle {
+  font-weight: 600;
+  color: #272D3A;
+  margin-bottom: 4px;
+}
+
+.studentCount {
+  font-size: 13px;
+  color: #BDB3AB;
+}
+
+.selectedCount {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #BDB3AB;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Botón final */
+.finalActions {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.btn {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: inline-block;
+}
+
+.btnPrimary {
+  background-color: #2D4A3E;
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background-color: #1e3a2e;
+}
+
+.btnPrimary:disabled {
+  background-color: #BDB3AB;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.alert {
+  padding: 16px 20px;
+  border-radius: 6px;
+  font-size: 15px;
+  margin: 20px 0;
+  text-align: center;
+  font-weight: 500;
+}
+
+.alertSuccess {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alertError {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Scrollbar */
+.themeList::-webkit-scrollbar,
+.projectList::-webkit-scrollbar,
+.studentList::-webkit-scrollbar {
+  width: 5px;
+}
+
+.themeList::-webkit-scrollbar-thumb,
+.projectList::-webkit-scrollbar-thumb,
+.studentList::-webkit-scrollbar-thumb {
+  background: #BDB3AB;
+  border-radius: 3px;
+}
+
+/* ... todos los estilos anteriores ... */
+
+/* Estados de carga */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2D4A3E;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emptyMessage {
+  padding: 20px;
+  text-align: center;
+  color: #BDB3AB;
+  font-size: 14px;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .optionGroup {
+    flex-direction: column;
+  }
+  .configForm {
+    padding: 24px 16px;
+  }
+}

@@ -44,6 +44,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [titulo, setTitulo] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -129,10 +130,10 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
 
     setIsUploading(true);
     setUploadStatus('uploading');
-    setUploadMessage('Subiendo PDF...');
+    setUploadMessage('Subiendo documento...');
 
     try {
-      const result = await subirDocumento(selectedFile, studentProfile.proyecto_id, selectedFile.name);
+      const result = await subirDocumento(selectedFile, studentProfile.proyecto_id, titulo);
 
       if (result.success && result.id) {
         setUploadStatus('success');
@@ -146,7 +147,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
         // Update documents state
         const newDocumento: Document = {
           id: result.id,
-          titulo: selectedFile.name,
+          titulo: titulo,
           version: 1,
           estado: 'pendiente',
           activo: true,
@@ -171,7 +172,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
       }
     } catch (error) {
       setUploadStatus('error');
-      setUploadMessage('Error de conexión al subir el PDF');
+      setUploadMessage('Error de conexión al subir el documento');
     } finally {
       setIsUploading(false);
     }
@@ -179,6 +180,7 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
 
   // Clear upload state
   const clearUpload = () => {
+    setTitulo('');
     setSelectedFile(null);
     setUploadStatus('idle');
     setUploadMessage('');
@@ -254,17 +256,12 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
               )}
             </section>
 
-            {/* Right column: Upload panel */}
+            {/* Right column: Upload form */}
             <aside className={styles.uploadPanel}>
-              <h2 className={styles.sectionTitle}>
-                <Upload size={20} style={{ marginRight: '0.5rem' }} />
-                Subir Nuevo Documento
-              </h2>
-
-              <div className={styles.estudianteCard} style={{ marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <AlertCircle size={18} style={{ color: '#5b88a5' }} />
-                  <span style={{ fontWeight: '500', color: '#243a69', fontSize: '0.875rem' }}>Requisitos:</span>
+              <div className={styles.formContainer}>
+                <div className={styles.formHeader}>
+                  <h2 className={styles.formTitle}>Proponer Tema</h2>
+                  <p className={styles.formSubtitle}>Complete los campos para enviar su propuesta</p>
                 </div>
                 <ul style={{ color: '#5b88a5', fontSize: '0.8rem', margin: '0.5rem 0 0 1.5rem' }}>
                   <li><strong>Solo archivos PDF</strong></li>
@@ -322,46 +319,72 @@ const EstudianteConGrupoClient = ({ fase }: EstudianteConGrupoClientProps) => {
                       <X size={16} />
                     </button>
                   </div>
-                </div>
-              )}
 
-              {selectedFile && uploadStatus === 'idle' && (
-                <div style={{ marginTop: '1rem' }}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Documento del Tema (PDF)</label>
+                    <div className={styles.fileInputWrapper}>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleFileSelect}
+                        className={styles.fileInputHidden}
+                        id="pdf-upload"
+                        disabled={isUploading}
+                      />
+                      <label 
+                        htmlFor="pdf-upload" 
+                        className={`${styles.fileInputLabel} ${selectedFile ? styles.hasFile : ''}`}
+                      >
+                        {selectedFile ? selectedFile.name : 'Seleccionar archivo PDF'}
+                      </label>
+                    </div>
+                    <p className={styles.fileHint}>Máximo 10MB, solo archivos PDF</p>
+                  </div>
+
+                  {selectedFile && (
+                    <div className={styles.filePreviewBox}>
+                      <div className={styles.filePreviewInfo}>
+                        <CheckCircle size={20} style={{ color: '#10b981', flexShrink: 0 }} />
+                        <div className={styles.filePreviewDetails}>
+                          <p className={styles.filePreviewName}>{selectedFile.name}</p>
+                          <p className={styles.filePreviewSize}>
+                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={clearUpload}
+                        className={styles.fileClearButton}
+                        disabled={isUploading}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  )}
+
                   <button
-                    onClick={handleUploadDocuments}
-                    disabled={isUploading}
-                    className={styles.uploadButton}
-                    style={{ width: '100%' }}
+                    type="submit"
+                    disabled={!titulo.trim() || !selectedFile || isUploading}
+                    className={styles.formSubmitButton}
                   >
-                    Subir PDF
+                    {isUploading ? 'Subiendo...' : 'Subir Tema'}
                   </button>
-                </div>
-              )}
+                </form>
 
-              {uploadStatus !== 'idle' && (
-                <div className={styles.filesPreview}>
-                  <h3 className={styles.filesPreviewTitle}>Estado:</h3>
-                  <div className={styles.fileItem}>
-                    <div className={styles.fileInfo}>
-                      <div className={styles.fileIcon}>
-                        {uploadStatus === 'uploading' && (
-                          <div style={{
-                            width: '20px', height: '20px',
-                            border: '2px solid #e5e7eb', borderTop: '2px solid #5b88a5',
-                            borderRadius: '50%', animation: 'spin 1s linear infinite',
-                            display: 'inline-block'
-                          }}></div>
-                        )}
-                        {uploadStatus === 'success' && <CheckCircle size={20} style={{ color: '#10b981' }} />}
-                        {uploadStatus === 'error' && <AlertCircle size={20} style={{ color: '#ef4444' }} />}
-                      </div>
-                      <div className={styles.fileDetails}>
-                        <p className={styles.fileName} style={{ fontSize: '0.875rem' }}>{uploadMessage}</p>
-                      </div>
+                {uploadStatus !== 'idle' && (
+                  <div className={styles.uploadStatusBox}>
+                    <div className={styles.uploadStatusContent}>
+                      {uploadStatus === 'uploading' && (
+                        <div className={styles.uploadSpinner}></div>
+                      )}
+                      {uploadStatus === 'success' && <CheckCircle size={20} style={{ color: '#10b981' }} />}
+                      {uploadStatus === 'error' && <AlertCircle size={20} style={{ color: '#ef4444' }} />}
+                      <p className={styles.uploadStatusMessage}>{uploadMessage}</p>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </aside>
           </div>
         </div>

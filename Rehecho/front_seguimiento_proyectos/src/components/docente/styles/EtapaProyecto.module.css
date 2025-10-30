@@ -17,7 +17,7 @@
 .proyectoMain {
   flex: 1;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   width: 100%;
 }
@@ -26,7 +26,7 @@
   background-color: var(--white);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  padding: 2.5rem;
 }
 
 .contentHeader {
@@ -46,6 +46,96 @@
   margin-top: 0.5rem;
 }
 
+/* Two column layout */
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 3rem;
+  align-items: start;
+}
+
+.documentListSection {
+  background-color: var(--white);
+  border-radius: 8px;
+  border: 1px solid var(--columbia-blue);
+  padding: 2rem;
+  min-height: 500px;
+}
+
+.uploadPanel {
+  position: sticky;
+  top: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--delft-blue);
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: var(--gunmetal);
+  text-align: center;
+}
+
+.emptyState svg {
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+/* Form Container */
+.formContainer {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 0;
+  border: 2px solid #1E396C;
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(30, 57, 108, 0.1);
+  overflow: hidden;
+}
+
+.formHeader {
+  padding: 24px 24px 16px;
+  background-color: #272D3A;
+  border-bottom: 2px solid #9BC7E8;
+}
+
+.formTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.3px;
+}
+
+.formSubtitle {
+  font-size: 12px;
+  color: #9BC7E8;
+  margin: 0;
+  font-weight: 500;
+}
+
+.uploadForm {
+  padding: 24px;
+  background-color: #F6F9FF;
+}
+
+.placeholderText {
+  font-size: 0.875rem;
+  color: #5b88a5;
+  text-align: center;
+  margin: 0;
+}
+
+/* Navigation Buttons */
 .navButtons {
   display: flex;
   gap: 1rem;
@@ -77,17 +167,43 @@
   color: var(--white);
 }
 
-.documentCard {
-  background-color: var(--white);
-  padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--columbia-blue);
-}
-
+/* Estudiante Card */
 .estudianteCard {
   background-color: var(--ghost-white);
   border-radius: 6px;
   padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cardContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.cardItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  color: #243a69;
+  font-size: 0.875rem;
+}
+
+.cardLabel svg {
+  color: #5b88a5;
+}
+
+.cardValue {
+  color: #243a69;
+  font-size: 0.875rem;
+  margin: 0 0 0 1.5rem;
 }
 
 .loadingContainer {
@@ -151,6 +267,47 @@
 
 .errorButton:hover {
   background-color: #dc2626;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .twoColumnLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .uploadPanel {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .proyectoMain {
+    padding: 1rem;
+  }
+
+  .proyectoContent {
+    padding: 1rem;
+  }
+
+  .contentTitle {
+    font-size: 1.25rem;
+  }
+
+  .formHeader {
+    padding: 20px 20px 14px;
+  }
+
+  .formTitle {
+    font-size: 16px;
+  }
+
+  .formSubtitle {
+    font-size: 11px;
+  }
+
+  .uploadForm {
+    padding: 20px;
+  }
 }
 
 @keyframes spin {

@@ -11,6 +11,10 @@ import { ObservacionModule } from './observacion/observacion.module';
 import { CorreccionModule } from './correccion/correccion.module';
 import { AdminModule } from './admin/admin.module';
 import { DocumentoModule } from './documento/documento.module';
+import { ActividadModule } from './actividad/actividad.module';
+import { FinalModule } from './final/final.module';
+import { TagModule } from './tag/tag.module';
+import { SolicitudModule } from './solicitud/solicitud.module';
 
 
 @Module({
@@ -22,6 +26,6 @@ AuthModule,
 UserModule, 
 EstudianteModule, 
 DocenteModule, 
-PrismaModule, GrupoModule, ProyectoModule, ObservacionModule, CorreccionModule, AdminModule, DocumentoModule],
+PrismaModule, GrupoModule, ProyectoModule, ObservacionModule, CorreccionModule, AdminModule, DocumentoModule, ActividadModule, FinalModule, TagModule, SolicitudModule],
 })
 export class AppModule {}

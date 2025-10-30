@@ -120,19 +120,55 @@ export class ObservacionService {
     }
   }
 
-  async updateEstadoObservacion(id: number, estado: string) {
-    const updatedObs = await this.prisma.observacion.update({
-      where: { id },
-      data: { estado },
-    });
+async updateEstadoObservacion(id: number, estado: string, comentario?: string) {
+  // 1️⃣ Actualizar estado de observación
+  const updatedObs = await this.prisma.observacion.update({
+    where: { id },
+    data: { estado },
+  });
 
-    await this.prisma.correccion.updateMany({
+  // 2️⃣ Actualizar todas las correcciones asociadas
+  await this.prisma.correccion.updateMany({
+    where: { observacion_id: id },
+    data: { estado },
+  });
+
+  // 3️⃣ Si la observación fue rechazada, crear una nueva basada en la corrección
+  if (estado === 'rechazado') {
+    // Buscar la corrección asociada a esta observación
+    const correccion = await this.prisma.correccion.findFirst({
       where: { observacion_id: id },
-      data: { estado },
     });
 
-    return updatedObs;
+    if (!correccion) {
+      throw new Error(`No se encontró una corrección asociada a la observación ${id}`);
+    }
+
+    // Crear nueva observación con datos de la corrección
+    const nuevaObs = await this.prisma.observacion.create({
+      data: {
+        documento_id: correccion.documento_id,
+        proyecto_id: updatedObs.proyecto_id, // ✅ se obtiene de la observación original
+        bounding_x1: correccion.bounding_x1,
+        bounding_y1: correccion.bounding_y1,
+        bounding_x2: correccion.bounding_x2,
+        bounding_y2: correccion.bounding_y2,
+        bounding_page: correccion.bounding_page,
+        rects: correccion.rects,
+        content_text: correccion.content_text,
+        comment_text: comentario || '',
+        correccion_id: correccion.id,
+        estado: 'pendiente',
+      },
+    });
+
+    return nuevaObs;
   }
+
+  // 4️⃣ Si no es rechazado, devolver la observación actualizada
+  return updatedObs;
+}
+
 
   // 🔹 Eliminar una observación
   async deleteObservacion(id: number) {

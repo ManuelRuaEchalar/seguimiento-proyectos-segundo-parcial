@@ -1,0 +1,158 @@
+/* Variables de color */
+:root {
+    --azul-oscuro: #272D3A;
+    --blanco: #fff;
+    --casi-negro: #171717;
+    --plata: #BDB3AB;
+    --casi-blanco: #F6F9FF;
+    --azul: #1E396C;
+    --celeste: #9BC7E8;
+    --carbon: #1F2937;
+    --bosque: #2D4A3E;
+    --rechazado: #7c3a3a;
+}
+
+/* Navbar base */
+.navbar {
+    background-color: var(--azul-oscuro);
+    color: var(--blanco);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    gap: 24px;
+}
+
+/* Botón atrás */
+.backButton {
+    background-color: transparent;
+    border: 1px solid var(--blanco);
+    color: var(--blanco);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.backButton:hover {
+    background-color: var(--blanco);
+    color: var(--azul-oscuro);
+}
+
+/* Información del docente */
+.teacherInfo {
+    text-align: right;
+}
+
+.teacherName {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.teacherEmail {
+    font-size: 14px;
+    color: var(--plata);
+}
+
+/* Información del estudiante */
+.studentInfo {
+    text-align: right;
+}
+
+.studentName {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.studentDetails {
+    font-size: 14px;
+    color: var(--plata);
+    margin-bottom: 2px;
+}
+
+/* Secciones de navbar para actividades */
+.navbarLeft,
+.navbarCenter,
+.navbarRight {
+    display: flex;
+    align-items: center;
+}
+
+.navbarCenter {
+    flex-direction: column;
+    text-align: center;
+    flex: 1;
+}
+
+/* Información de actividad */
+.activityTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.activityMeta {
+    font-size: 13px;
+    color: var(--plata);
+    margin-bottom: 8px;
+}
+
+.activityStatus {
+  display: inline-block;
+  border-radius: 0.3rem;   /* bordes redondeados */
+  padding: 0.15rem 0.8rem; /* espacio interno */
+  font-size: 0.9rem;       /* un poco más grande que el texto normal */
+  font-weight: 500;
+  color: #fff;             /* texto blanco */
+  margin-left: 10px;
+  background-color: var(--azul-oscuro);  /* color por defecto */
+}
+
+/* Estado activo */
+.activityStatus.activo {
+    border: var(--casi-blanco) 1px solid; /* borde blanco */
+}
+
+/* Estado cerrado */
+.activityStatus.cerrado {
+  border: #ff6b6b 1px solid; /* rojo claro */
+  color: #ff6b6b;           /* texto rojo claro */
+}
+
+.activityTags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
+
+.tag {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--blanco);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Botón cerrar actividad (solo docente) */
+.closeActivityBtn {
+            padding: 8px 20px;
+            background-color: transparent;
+            color: #d66;
+            border-radius: 6px;
+            font-weight: 500;
+            border: 1px solid #d66;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+}
+
+.closeActivityBtn:hover {
+            background-color: #d66;
+            color: var(--blanco);
+}

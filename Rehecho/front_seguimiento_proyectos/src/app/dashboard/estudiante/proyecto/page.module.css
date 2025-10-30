@@ -1,0 +1,57 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--casi-blanco);
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.loading,
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-size: 1.1rem;
+  color: var(--carbon);
+}
+
+.error {
+  color: var(--rojo);
+}
+
+.actividadesContainer {
+  margin-top: 1rem;
+}
+
+.noActividades {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  color: var(--carbon);
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(30, 57, 108, 0.1);
+}
+
+.faseNoImplementada {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(30, 57, 108, 0.1);
+}
+
+.faseNoImplementada h3 {
+  color: var(--azul);
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.faseNoImplementada p {
+  color: var(--carbon);
+  font-size: 1rem;
+}

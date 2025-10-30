@@ -1,0 +1,101 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--casi-blanco);
+}
+
+.content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.cargando {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: var(--azul-oscuro);
+}
+
+.newActivityToggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.newActivityBtn,
+.newActivityPlusBtn {
+  background-color: var(--azul);
+  color: var(--blanco);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+}
+
+.newActivityBtn {
+  flex: 1;
+}
+
+.newActivityPlusBtn {
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.newActivityBtn:hover,
+.newActivityPlusBtn:hover {
+  background-color: var(--azul-oscuro);
+}
+
+.activitiesWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+/* Cuando hay formulario de actividad visible, usar layout horizontal */
+.activitiesWrapper.withForm {
+  flex-direction: row;
+  gap: 24px;
+}
+
+.faseNoImplementada {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(30, 57, 108, 0.1);
+}
+
+.faseNoImplementada h3 {
+  color: var(--azul);
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.faseNoImplementada p {
+  color: var(--carbon);
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .activitiesWrapper,
+  .activitiesWrapper.withForm {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .content {
+    padding: 16px;
+  }
+}

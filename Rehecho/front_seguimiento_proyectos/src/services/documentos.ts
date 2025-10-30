@@ -8,6 +8,7 @@ export interface Document {
   titulo: string;
   version: number;
   estado: string; // EstadoDocumento enum
+  justificacion?: string | null;
   fase: string;
   activo: boolean;
   created_at: string; 
@@ -18,19 +19,22 @@ export interface Document {
 interface SubirDocumentoResult {
   success: boolean;
   id?: number;
+  version?: number;
   error?: string;
 }
 
 /**
- * Subir un documento PDF al proyecto
+ * Subir un documento PDF al proyecto y actividad
  * @param archivo Archivo PDF a subir
  * @param proyectoId ID del proyecto
+ * @param actividadId ID de la actividad
  * @param titulo Título del documento
  * @returns Resultado de la subida
  */
 export const subirDocumento = async (
   archivo: File, 
-  proyectoId: number, 
+  proyectoId: number,
+  actividadId: number,
   titulo: string
 ): Promise<SubirDocumentoResult> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -59,33 +63,52 @@ export const subirDocumento = async (
 
   try {
     const formData = new FormData();
-    formData.append('documento', archivo);
+    formData.append('documento', archivo, archivo.name); // ✅ Agrega el nombre explícitamente
     formData.append('proyectoId', proyectoId.toString());
+    formData.append('actividadId', actividadId.toString());
     formData.append('titulo', titulo);
+
+    console.log('📤 Enviando a:', `${apiUrl}/documento/upload`);
 
     const response = await fetch(`${apiUrl}/documento/upload`, {
       method: 'POST',
       body: formData,
-      credentials: 'include', // Para cookies de autenticación
+      credentials: 'include',
+      // ✅ NO incluyas Content-Type, el navegador lo establece automáticamente
     });
 
+    console.log('📡 Response status:', response.status);
+
+    // ✅ Verifica si la respuesta es JSON antes de parsear
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error('❌ Respuesta no es JSON:', text);
+      return {
+        success: false,
+        error: 'Respuesta inválida del servidor'
+      };
+    }
+
     const data = await response.json();
+    console.log('📡 Response data:', data);
     
     if (data.success) {
-      console.log('PDF subido exitosamente:', data.id);
+      console.log('✅ PDF subido exitosamente:', data.id);
       return { 
-        success: true, 
+        success: true,
+        version: data.version, 
         id: data.id 
       };
     } else {
-      console.error('Error del servidor:', data.error);
+      console.error('❌ Error del servidor:', data.error);
       return { 
         success: false, 
         error: data.error || 'Error desconocido del servidor' 
       };
     }
   } catch (error) {
-    console.error('Error de conexión:', error);
+    console.error('💥 Error de conexión:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Error de conexión al servidor' 
@@ -367,146 +390,18 @@ export const obtenerDocumentosPorEstado = async (
   }
 };
 
+// src/services/documentos.ts
+
 /**
  * Cambiar el estado de un documento
  * @param id ID del documento
  * @param nuevoEstado Nuevo estado (pendiente, en_revision, revisado, aprobado, rechazado)
+ * @param justificacion Justificación obligatoria cuando el estado es 'rechazado'
  */
-// export const cambiarEstadoDocumento = async (
-//   id: number,
-//   nuevoEstado: string
-// ): Promise<{ success: boolean; error?: string }> => {
-//   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-//   if (!apiUrl) {
-//     return {
-//       success: false,
-//       error: 'NEXT_PUBLIC_API_URL no está configurada'
-//     };
-//   }
-
-//   const estadosValidos = ['pendiente', 'en_revision', 'revisado', 'aprobado', 'rechazado'];
-//   if (!estadosValidos.includes(nuevoEstado)) {
-//     return {
-//       success: false,
-//       error: `Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`
-//     };
-//   }
-
-//   try {
-//     const response = await fetch(`${apiUrl}/documento/cambiar-estado`, {
-//       method: 'PATCH',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       credentials: 'include', // Usa cookies JWT
-//       body: JSON.stringify({ id, nuevoEstado })
-//     });
-
-//     const data = await response.json();
-
-//     if (!response.ok) {
-//       return { success: false, error: data.error || 'Error al cambiar el estado' };
-//     }
-
-//     return { success: true };
-//   } catch (error) {
-//     console.error('Error cambiando estado del documento:', error);
-//     return {
-//       success: false,
-//       error: error instanceof Error ? error.message : 'Error de conexión'
-//     };
-//   }
-// };
-/**
- * Servicio para gestionar documentos
- */
-
-export async function cambiarEstadoDocumento(
-  documentoId: number,
-  nuevoEstado: 'pendiente' | 'en_revision' | 'revisado' | 'aprobado' | 'rechazado'
-) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!apiUrl) {
-    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
-  }
-
-  console.log(`📤 Cambiando estado del documento ${documentoId} a "${nuevoEstado}"`);
-
-  const response = await fetch(`${apiUrl}/documento/cambiar-estado`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify({ 
-      id: documentoId, 
-      nuevoEstado 
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Error al cambiar estado del documento');
-  }
-
-  const data = await response.json();
-  console.log('✅ Estado del documento actualizado:', data);
-
-  return data;
-}
-
-/**
- * Rechazar documento con motivo
- */
-// export async function rechazarDocumento(
-//   documentoId: number,
-//   motivo: string,
-//   proyectoId: number
-// ) {
-//   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-//   if (!apiUrl) {
-//     throw new Error('NEXT_PUBLIC_API_URL no está configurada');
-//   }
-
-//   console.log(`📤 Rechazando documento ${documentoId} con motivo`);
-
-//   const response = await fetch(`${apiUrl}/documento/rechazar`, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     credentials: 'include',
-//     body: JSON.stringify({ 
-//       documentoId, 
-//       motivo,
-//       proyectoId
-//     }),
-//   });
-
-//   if (!response.ok) {
-//     const error = await response.json();
-//     throw new Error(error.message || 'Error al rechazar documento');
-//   }
-
-//   const data = await response.json();
-//   console.log('✅ Documento rechazado:', data);
-
-//   return data;
-// }
-
-/**
- * Rechazar documento con motivo
- * @param documentoId ID del documento
- * @param motivo Motivo del rechazo
- * @param proyectoId ID del proyecto
- */
-export const rechazarDocumento = async (
-  documentoId: number,
-  motivo: string,
-  proyectoId: number
+export const cambiarEstadoDocumento = async (
+  id: number,
+  nuevoEstado: string,
+  justificacion?: string
 ): Promise<{ success: boolean; error?: string }> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -517,14 +412,39 @@ export const rechazarDocumento = async (
     };
   }
 
+  const estadosValidos = ['pendiente', 'en_revision', 'revisado', 'aprobado', 'rechazado'];
+  if (!estadosValidos.includes(nuevoEstado)) {
+    return {
+      success: false,
+      error: `Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`
+    };
+  }
+
+  // Validar que si es rechazo, debe tener justificación
+  if (nuevoEstado === 'rechazado' && !justificacion?.trim()) {
+    return {
+      success: false,
+      error: 'Se requiere una justificación para rechazar el documento'
+    };
+  }
+
   try {
-    const response = await fetch(`${apiUrl}/documento/rechazar`, {
-      method: 'POST',
+    const body: { id: number; nuevoEstado: string; justificacion?: string } = {
+      id,
+      nuevoEstado
+    };
+
+    if (nuevoEstado === 'rechazado' && justificacion) {
+      body.justificacion = justificacion;
+    }
+
+    const response = await fetch(`${apiUrl}/documento/cambiar-estado`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify({ documentoId, motivo, proyectoId })
+      body: JSON.stringify(body)
     });
 
     const data = await response.json();
@@ -542,3 +462,39 @@ export const rechazarDocumento = async (
     };
   }
 };
+
+/**
+ * Obtener todos los documentos de una actividad con sus estudiantes
+ * @param actividadId ID de la actividad
+ * @returns Lista de documentos con sus proyectos y estudiantes
+ */
+export const obtenerDocumentosPorActividad = async (actividadId: number) => {
+  if (!actividadId || isNaN(actividadId) || actividadId <= 0) {
+    throw new Error('El ID de la actividad debe ser un número positivo');
+  }
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/documento/get-activity-docs/${actividadId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return data.data; // Lista de documentos
+  } catch (error) {
+    console.error('Error obteniendo documentos por actividad:', error);
+    throw error;
+  }
+};
+

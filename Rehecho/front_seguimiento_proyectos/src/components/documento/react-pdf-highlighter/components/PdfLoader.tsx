@@ -60,35 +60,50 @@ export class PdfLoader extends Component<Props, State> {
   }
 
   load() {
-    const { ownerDocument = document } = this.documentRef.current || {};
-    const { url, cMapUrl, cMapPacked, workerSrc } = this.props;
-    const { pdfDocument: discardedDocument } = this.state;
-    this.setState({ pdfDocument: null, error: null });
+  const { ownerDocument = document } = this.documentRef.current || {};
+  const { url, cMapUrl, cMapPacked, workerSrc } = this.props;
+  const { pdfDocument: discardedDocument } = this.state;
+  this.setState({ pdfDocument: null, error: null });
 
-    if (typeof workerSrc === "string") {
-      GlobalWorkerOptions.workerSrc = workerSrc;
-    }
-
-    Promise.resolve()
-      .then(() => discardedDocument?.destroy())
-      .then(() => {
-        if (!url) {
-          return;
-        }
-
-        const document = {
-          ...this.props,
-          ownerDocument,
-          cMapUrl,
-          cMapPacked,
-        };
-
-        return getDocument(document).promise.then((pdfDocument) => {
-          this.setState({ pdfDocument });
-        });
-      })
-      .catch((e) => this.componentDidCatch(e));
+  if (typeof workerSrc === "string") {
+    GlobalWorkerOptions.workerSrc = workerSrc;
   }
+
+  Promise.resolve()
+    .then(() => discardedDocument?.destroy())
+    .then(() => {
+      if (!url) {
+        return;
+      }
+
+      // Validar si es un blob URL y verificar su existencia
+      if (url.startsWith('blob:')) {
+        return fetch(url, { method: 'HEAD' })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Blob URL not ready');
+            }
+          })
+          .catch(() => {
+            // Reintentar después de un breve delay
+            return new Promise(resolve => setTimeout(resolve, 100));
+          });
+      }
+    })
+    .then(() => {
+      const document = {
+        ...this.props,
+        ownerDocument,
+        cMapUrl,
+        cMapPacked,
+      };
+
+      return getDocument(document).promise.then((pdfDocument) => {
+        this.setState({ pdfDocument });
+      });
+    })
+    .catch((e) => this.componentDidCatch(e));
+}
 
   render() {
     const { children, beforeLoad } = this.props;
