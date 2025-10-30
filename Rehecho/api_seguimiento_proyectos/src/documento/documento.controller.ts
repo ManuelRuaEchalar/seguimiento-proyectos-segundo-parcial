@@ -197,141 +197,43 @@ async getActivityDocs(@Param('actividadId') actividadId: string) {
     }
   }
 
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('documento', {
-    storage: diskStorage({
-      destination: (req, file, callback) => {
-        const uploadPath = './public/uploads/documentos';
-
-        if (!fs.existsSync(uploadPath)) {
-          fs.mkdirSync(uploadPath, { recursive: true });
-          console.log(`✅ Carpeta creada: ${uploadPath}`);
-        }
-
-        callback(null, uploadPath);
-      },
-      filename: (req, file, callback) => {
-        const timestamp = Date.now();
-        const cleanTitle = (req.body.titulo || 'documento').replace(/[^a-z0-9]/gi, '_');
-        const filename = `${cleanTitle}_${timestamp}${extname(file.originalname)}`;
-        callback(null, filename);
+@Post('upload')
+@UseInterceptors(FileInterceptor('documento', {
+  storage: diskStorage({
+    destination: (req, file, callback) => {
+      const uploadPath = './public/uploads/documentos';
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+        console.log(`✅ Carpeta creada: ${uploadPath}`);
       }
-    }),
-    fileFilter: (req, file, callback) => {
-      if (file.mimetype !== 'application/pdf') {
-        return callback(new BadRequestException('Solo se permiten archivos PDF'), false);
-      }
-      callback(null, true);
+      callback(null, uploadPath);
     },
-    limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB máximo
+    filename: (req, file, callback) => {
+      const timestamp = Date.now();
+      const cleanTitle = (req.body.titulo || 'documento').replace(/[^a-z0-9]/gi, '_');
+      const filename = `${cleanTitle}_${timestamp}${extname(file.originalname)}`;
+      callback(null, filename);
     }
-  }))
-  async upload(
-    @UploadedFile() file: MulterFile,
-    @Body('proyectoId') proyectoId: string,
-    @Body('actividadId') actividadId: string,
-    @Body('titulo') titulo: string,
-    @Res() res: Response
-  ) {
-    try {
-      console.log('📁 Archivo recibido:', file?.originalname);
-      console.log('📁 Ruta donde se guardó:', file?.path);
-
-      if (!file) {
-        return res.status(400).json({
-          success: false,
-          error: 'No se ha subido ningún archivo'
-        });
-      }
-
-      if (!fs.existsSync(file.path)) {
-        console.error('❌ El archivo no se guardó físicamente:', file.path);
-        return res.status(500).json({
-          success: false,
-          error: 'Error al guardar el archivo en el servidor'
-        });
-      }
-
-      console.log('✅ Archivo guardado exitosamente en:', file.path);
-
-      if (!proyectoId || !actividadId || !titulo) {
-        return res.status(400).json({
-          success: false,
-          error: 'Faltan datos requeridos: proyectoId, actividadId o titulo'
-        });
-      }
-
-      const proyectoIdNum = parseInt(proyectoId);
-      const actividadIdNum = parseInt(actividadId);
-
-      if (isNaN(proyectoIdNum) || isNaN(actividadIdNum)) {
-        return res.status(400).json({
-          success: false,
-          error: 'proyectoId y actividadId deben ser números válidos'
-        });
-      }
-
-      // Verificar que el proyecto existe
-      const proyectoExiste = await this.documentoService.verificarProyecto(proyectoIdNum);
-      if (!proyectoExiste) {
-        return res.status(404).json({
-          success: false,
-          error: 'Proyecto no encontrado'
-        });
-      }
-
-      // Verificar que la actividad existe
-      const actividadExiste = await this.documentoService.verificarActividad(actividadIdNum);
-      if (!actividadExiste) {
-        return res.status(404).json({
-          success: false,
-          error: 'Actividad no encontrada'
-        });
-      }
-
-      const relativePath = `/uploads/documentos/${file.filename}`;
-
-      console.log('💾 Guardando en BD con ruta:', relativePath);
-
-      const nuevoDocumento = await this.documentoService.crearDocumento({
-        titulo,
-        version: 1,
-        file: relativePath,
-        proyecto_id: proyectoIdNum,
-        actividad_id: actividadIdNum,
-        estado: 'pendiente'
-      });
-
-      console.log('✅ Documento creado en BD:', nuevoDocumento.id);
-
-      return res.status(201).json({
-        success: true,
-        id: nuevoDocumento.id,
-        message: 'PDF subido correctamente',
-        fileName: file.filename,
-        filePath: relativePath,
-        physicalPath: file.path
-      });
-
-    } catch (error) {
-      console.error('❌ Error subiendo documento:', error);
-
-      if (file && file.path && fs.existsSync(file.path)) {
-        try {
-          fs.unlinkSync(file.path);
-          console.log('🗑️ Archivo eliminado tras error:', file.path);
-        } catch (unlinkError) {
-          console.error('❌ Error eliminando archivo tras fallo:', unlinkError);
-        }
-      }
-
-      return res.status(500).json({
-        success: false,
-        error: 'Error interno del servidor al procesar el PDF'
-      });
+  }),
+  fileFilter: (req, file, callback) => {
+    if (file.mimetype !== 'application/pdf') {
+      return callback(new BadRequestException('Solo se permiten archivos PDF'), false);
     }
+    callback(null, true);
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB
   }
+}))
+async upload(
+  @UploadedFile() file: MulterFile,
+  @Body('proyectoId') proyectoId: string,
+  @Body('actividadId') actividadId: string,
+  @Body('titulo') titulo: string,
+  @Res() res: Response
+) {
+  return this.documentoService.uploadDocumento(file, proyectoId, actividadId, titulo, res);
+}
 
   @Get(':proyectoId')
   async getDocumentsByProyecto(

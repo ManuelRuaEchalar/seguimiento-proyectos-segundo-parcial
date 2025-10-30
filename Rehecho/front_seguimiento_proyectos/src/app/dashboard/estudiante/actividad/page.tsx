@@ -36,7 +36,7 @@ export default function ActividadPage() {
 
   useEffect(() => {
     const actividadStr = localStorage.getItem('actividadActual');
-    const proyectoIdStr = localStorage.getItem('proyectoId');
+    const estudianteInfo = localStorage.getItem('estudianteInfo');
 
     if (!actividadStr) {
       console.warn('⚠️ No hay actividadActual en localStorage');
@@ -44,9 +44,14 @@ export default function ActividadPage() {
       return;
     }
 
-    if (proyectoIdStr) {
-      setProyectoId(parseInt(proyectoIdStr));
+    if (!estudianteInfo) {
+      console.warn('⚠️ No hay estudianteInfo en localStorage');
+      router.push('/dashboard/estudiante');
+      return;
     }
+
+    const estudianteData = JSON.parse(estudianteInfo);
+    setProyectoId(estudianteData.proyecto_id || null);
 
     try {
       const actividadData = JSON.parse(actividadStr);

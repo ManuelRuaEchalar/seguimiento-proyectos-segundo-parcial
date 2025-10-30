@@ -171,6 +171,128 @@ export class EstudianteService {
     return estudiante;
   }
 
+  async getConfiguracionProyecto(userId: number) {
+  // 1. Obtener el estudiante con su grupo
+  const estudiante = await this.prisma.estudiante.findUnique({
+    where: { id: userId },
+    include: {
+      grupo: true,
+      proyecto: true,
+    },
+  });
+
+  if (!estudiante) {
+    throw new NotFoundException('Estudiante no encontrado');
+  }
+
+  if (!estudiante.grupo_id) {
+    throw new NotFoundException('El estudiante no tiene un grupo asignado');
+  }
+
+  const grupoId = estudiante.grupo_id;
+  const proyectoEmisorId = estudiante.proyecto_id;
+
+  // 2. Obtener temas aprobados del grupo (documentos de fase "tema" aprobados)
+  const actividadesTema = await this.prisma.actividad.findMany({
+    where: {
+      grupo_id: grupoId,
+      fase: 'tema',
+    },
+    select: {
+      id: true,
+      documentos: {
+        where: {
+          estado: 'aprobado',
+          proyecto_id: proyectoEmisorId,
+        },
+        select: {
+          id: true,
+          titulo: true,
+        },
+      },
+    },
+  });
+
+  // Aplanar los documentos aprobados (temas)
+  const temas = actividadesTema.flatMap(actividad =>
+    actividad.documentos.map(doc => ({
+      id: doc.id,
+      titulo: doc.titulo,
+    }))
+  );
+
+  // 3. Obtener estudiantes del mismo grupo (excepto el que hace la petición)
+  const estudiantesGrupo = await this.prisma.estudiante.findMany({
+    where: {
+      grupo_id: grupoId,
+      id: { not: userId },
+    },
+    include: {
+      usuario: {
+        select: {
+          nombre: true,
+          apellido: true,
+        },
+      },
+      proyecto: {
+        select: {
+          id: true,
+          titulo: true,
+        },
+      },
+    },
+  });
+
+  // Formatear lista de estudiantes (id y nombre completo)
+  const estudiantes = estudiantesGrupo.map(est => ({
+    id: est.id,
+    nombre: `${est.usuario.nombre} ${est.usuario.apellido}`,
+  }));
+
+  // 4. Obtener proyectos únicos de los compañeros del grupo
+  const proyectosIds = new Set<number>();
+  const proyectosMap = new Map<number, { id: number; titulo: string; estudiantes: string[] }>();
+
+  for (const est of estudiantesGrupo) {
+    if (est.proyecto_id && !proyectosIds.has(est.proyecto_id)) {
+      proyectosIds.add(est.proyecto_id);
+
+      // Obtener todos los estudiantes de este proyecto
+      const estudiantesDelProyecto = await this.prisma.estudiante.findMany({
+        where: {
+          proyecto_id: est.proyecto_id,
+        },
+        include: {
+          usuario: {
+            select: {
+              nombre: true,
+              apellido: true,
+            },
+          },
+        },
+      });
+
+      proyectosMap.set(est.proyecto_id, {
+        id: est.proyecto.id,
+        titulo: est.proyecto.titulo || 'Proyecto sin título',
+        estudiantes: estudiantesDelProyecto.map(
+          e => `${e.usuario.nombre} ${e.usuario.apellido}`
+        ),
+      });
+    }
+  }
+
+  const proyectos = Array.from(proyectosMap.values());
+
+  return {
+    emisor_id: userId,
+    proyecto_emisor_id: proyectoEmisorId,
+    temas,
+    proyectos,
+    estudiantes,
+  };
+}
+
     async getInfoByUserId(userId: number) {
     const estudiante = await this.prisma.estudiante.findFirst({
       where: { id: userId },
@@ -191,6 +313,8 @@ export class EstudianteService {
             grado: true,
             total_actividades: true,
             total_estudiantes: true,
+            elementos: true,
+            elementos_hechos: true,
             fase: true,
             fecha_ultima_actividad: true,
             docente: {
@@ -213,6 +337,7 @@ export class EstudianteService {
                 descripcion: true,
                 elementos: true,
                 fecha_creacion: true,
+                fase: true,
                 estado: true,
               },
               orderBy: {
@@ -238,4 +363,32 @@ export class EstudianteService {
 
     return estudiante;
   }
+
+  async actualizarTituloProyecto(proyectoId: number, titulo: string) {
+  // Verificar que el proyecto existe
+  const proyectoExiste = await this.prisma.proyecto.findUnique({
+    where: { id: proyectoId },
+  });
+
+  if (!proyectoExiste) {
+    throw new NotFoundException('Proyecto no encontrado');
+  }
+
+  // Actualizar el título del proyecto
+  const proyectoActualizado = await this.prisma.proyecto.update({
+    where: { id: proyectoId },
+    data: { titulo: titulo.trim() },
+    select: {
+      id: true,
+      titulo: true,
+      fase_actual: true,
+      grado_actual: true,
+    },
+  });
+
+  return {
+    message: 'Título del proyecto actualizado correctamente',
+    proyecto: proyectoActualizado,
+  };
+}
 }

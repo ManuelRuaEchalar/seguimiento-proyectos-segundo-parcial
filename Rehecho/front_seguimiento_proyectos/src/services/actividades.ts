@@ -3,6 +3,7 @@ export async function crearActividad(actividadData: {
   elementos: any;
   descripcion?: string;
   grupo_id: number;
+  fase: 'tema' | 'perfil' | 'proyecto'; // 👈 Nuevo parámetro con tipos específicos
 }) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
@@ -30,6 +31,8 @@ export async function crearActividad(actividadData: {
       throw new Error('No tienes permiso para crear actividades.');
     } else if (response.status === 404) {
       throw new Error('El grupo especificado no existe.');
+    } else if (response.status === 400) {
+      throw new Error('Datos inválidos. Verifica la fase de la actividad.');
     }
 
     throw new Error('Error al crear la actividad');

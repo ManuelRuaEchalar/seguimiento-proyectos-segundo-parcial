@@ -49,6 +49,8 @@ export class DocenteService {
             id: true,
             nombre: true,
             grado: true,
+            elementos: true,
+            elementos_hechos: true,
             total_actividades: true,
             total_estudiantes: true,
             fase: true,

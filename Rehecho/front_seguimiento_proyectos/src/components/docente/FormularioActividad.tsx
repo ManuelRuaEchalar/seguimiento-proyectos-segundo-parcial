@@ -1,50 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { crearActividad } from '@/services/actividades';
 import styles from './styles/FormularioActividad.module.css';
 
 interface FormularioActividadProps {
   grupoId: number;
+  elementosGrupo: string[];
+  fase: 'tema' | 'perfil' | 'proyecto';
   onActividadCreada: (actividad: any) => void;
 }
 
 interface Elemento {
   id: string;
   texto: string;
-  tipo: 'requerido' | 'opcional' | 'personalizado';
 }
 
-const ELEMENTOS_INICIALES: Elemento[] = [
-  { id: '1', texto: 'Título del proyecto', tipo: 'requerido' },
-  { id: '2', texto: 'Resumen', tipo: 'requerido' },
-  { id: '3', texto: 'Tabla de contenido', tipo: 'requerido' },
-  { id: '4', texto: 'Introducción', tipo: 'requerido' },
-  { id: '5', texto: 'Antecedentes', tipo: 'requerido' },
-  { id: '6', texto: 'Bibliografía', tipo: 'requerido' },
-];
-
-const OPCIONES_INICIALES: Elemento[] = [
-  { id: '7', texto: 'Problema', tipo: 'opcional' },
-  { id: '8', texto: 'Objetivo general', tipo: 'opcional' },
-  { id: '9', texto: 'Objetivos específicos', tipo: 'opcional' },
-  { id: '10', texto: 'Justificación', tipo: 'opcional' },
-  { id: '11', texto: 'Delimitación del proyecto', tipo: 'opcional' },
-  { id: '12', texto: 'Marco teórico', tipo: 'opcional' },
-  { id: '13', texto: 'Metodología', tipo: 'opcional' },
-  { id: '14', texto: 'Desarrollo del proyecto', tipo: 'opcional' },
-  { id: '15', texto: 'Conclusiones', tipo: 'opcional' },
-];
-
-export default function FormularioActividad({ grupoId, onActividadCreada }: FormularioActividadProps) {
+export default function FormularioActividad({ grupoId, elementosGrupo,fase, onActividadCreada }: FormularioActividadProps) {
   const [nombreActividad, setNombreActividad] = useState('');
-  const [elementosTablero, setElementosTablero] = useState<Elemento[]>(ELEMENTOS_INICIALES);
-  const [opciones, setOpciones] = useState<Elemento[]>(OPCIONES_INICIALES);
-  const [nuevaEtiqueta, setNuevaEtiqueta] = useState('');
+  const [elementosTablero, setElementosTablero] = useState<Elemento[]>([]);
+  const [opciones, setOpciones] = useState<Elemento[]>([]);
   const [notas, setNotas] = useState('');
   const [creando, setCreando] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Inicializar elementos desde los elementos del grupo
+  useEffect(() => {
+    if (elementosGrupo && elementosGrupo.length > 0) {
+      const elementos = elementosGrupo.map((texto, index) => ({
+        id: `elemento-${index}`,
+        texto: texto
+      }));
+
+      // Primeros 3 elementos (o menos si hay menos de 3) van al tablero
+      const elementosIniciales = elementos.slice(0, Math.min(3, elementos.length));
+      // El resto va a opciones
+      const opcionesIniciales = elementos.slice(Math.min(3, elementos.length));
+
+      setElementosTablero(elementosIniciales);
+      setOpciones(opcionesIniciales);
+    }
+  }, [elementosGrupo]);
 
   const manejarInicioArrastre = (e: React.DragEvent, elemento: Elemento, origen: 'tablero' | 'opciones') => {
     e.dataTransfer.effectAllowed = 'move';
@@ -146,18 +143,6 @@ export default function FormularioActividad({ grupoId, onActividadCreada }: Form
     setElementosTablero([]);
   };
 
-  const agregarEtiquetaPersonalizada = () => {
-    if (nuevaEtiqueta.trim()) {
-      const nuevoElemento: Elemento = {
-        id: `personalizado-${Date.now()}`,
-        texto: nuevaEtiqueta.trim(),
-        tipo: 'personalizado'
-      };
-      setElementosTablero([...elementosTablero, nuevoElemento]);
-      setNuevaEtiqueta('');
-    }
-  };
-
   const manejarCrearActividad = async () => {
     if (!nombreActividad.trim()) {
       alert('Debe ingresar un nombre para la actividad');
@@ -174,6 +159,7 @@ export default function FormularioActividad({ grupoId, onActividadCreada }: Form
       const actividadData = {
         nombre: nombreActividad.trim(),
         elementos: elementosTablero.map(el => el.texto),
+        fase:fase,
         descripcion: notas,
         grupo_id: grupoId,
       };
@@ -181,12 +167,21 @@ export default function FormularioActividad({ grupoId, onActividadCreada }: Form
       const nuevaActividad = await crearActividad(actividadData);
       onActividadCreada(nuevaActividad.actividad);
       
-      // Resetear formulario
+      // Resetear formulario a estado inicial
       setNombreActividad('');
-      setElementosTablero(ELEMENTOS_INICIALES);
-      setOpciones(OPCIONES_INICIALES);
       setNotas('');
-      setNuevaEtiqueta('');
+      
+      // Reinicializar elementos
+      if (elementosGrupo && elementosGrupo.length > 0) {
+        const elementos = elementosGrupo.map((texto, index) => ({
+          id: `elemento-${index}`,
+          texto: texto
+        }));
+        const elementosIniciales = elementos.slice(0, Math.min(3, elementos.length));
+        const opcionesIniciales = elementos.slice(Math.min(3, elementos.length));
+        setElementosTablero(elementosIniciales);
+        setOpciones(opcionesIniciales);
+      }
     } catch (error) {
       console.error('Error creando actividad:', error);
       alert('Error al crear la actividad');
@@ -269,20 +264,6 @@ export default function FormularioActividad({ grupoId, onActividadCreada }: Form
                 {opcion.texto}
               </div>
             ))}
-          </div>
-
-          <div className={styles.customTag}>
-            <input
-              type="text"
-              className={styles.customTagInput}
-              placeholder="Nueva etiqueta personalizada"
-              value={nuevaEtiqueta}
-              onChange={(e) => setNuevaEtiqueta(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && agregarEtiquetaPersonalizada()}
-            />
-            <button className={styles.addTagBtn} onClick={agregarEtiquetaPersonalizada}>
-              +
-            </button>
           </div>
         </div>
       </div>

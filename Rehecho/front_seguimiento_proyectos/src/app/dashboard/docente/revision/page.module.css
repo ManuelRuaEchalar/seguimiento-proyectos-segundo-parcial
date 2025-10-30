@@ -7,6 +7,16 @@
   background-color: #f9fafb;
 }
 
+/* Contenedor para visualizador final simple */
+.pdfContainerFinal {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Contenedor para visualizadores duales (con observaciones) */
 .pdfContainer {
   display: flex;
   height: 100%;
@@ -19,7 +29,7 @@
 }
 
 .pdfContainer.dual {
-  flex-direction: column; /* Cambio principal: apilar verticalmente */
+  flex-direction: column; /* Apilar verticalmente */
 }
 
 .pdfViewerWrapper {

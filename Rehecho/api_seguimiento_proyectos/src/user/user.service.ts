@@ -46,47 +46,87 @@ export class UserService {
     });
   }
 
-  async joinGroup(userId: number, groupId: number) {
-    const user = await this.prisma.usuario.findUnique({
-      where: { id: userId },
-    });
+async joinGroup(userId: number, groupId: number) {
+  const user = await this.prisma.usuario.findUnique({
+    where: { id: userId },
+  });
 
-    if (!user || user.rol !== 'estudiante') {
-      throw new ForbiddenException(
-        'Solo los estudiantes pueden unirse a un grupo',
-      );
-    }
+  if (!user || user.rol !== 'estudiante') {
+    throw new ForbiddenException('Solo los estudiantes pueden unirse a un grupo');
+  }
 
-    const group = await this.prisma.grupo.findUnique({
-      where: { id: groupId },
-    });
+  const group = await this.prisma.grupo.findUnique({
+    where: { id: groupId },
+  });
 
-    if (!group) {
-      throw new BadRequestException('Grupo no encontrado');
-    }
+  if (!group) {
+    throw new BadRequestException('Grupo no encontrado');
+  }
 
-    // Verificar si el estudiante ya está en el grupo (opcional, dependiendo de tu lógica)
-    const existingMembership = await this.prisma.grupo.findFirst({
-      where: {
-        id: groupId,
-        estudiantes: { some: { usuario: { id: userId } } },
-      },
-    });
+  // Verificar si el estudiante ya está en el grupo
+  const existingMembership = await this.prisma.grupo.findFirst({
+    where: {
+      id: groupId,
+      estudiantes: { some: { usuario: { id: userId } } },
+    },
+  });
 
-    if (existingMembership) {
-      throw new BadRequestException('Ya estás en este grupo');
-    }
+  if (existingMembership) {
+    throw new BadRequestException('Ya estás en este grupo');
+  }
 
-    return this.prisma.grupo.update({
+  // 🧠 Buscar al estudiante vinculado al usuario
+  const estudiante = await this.prisma.estudiante.findUnique({
+    where: { id: userId },
+  });
+
+  if (!estudiante) {
+    throw new BadRequestException('No se encontró el registro del estudiante');
+  }
+
+  // 🧩 Iniciamos una transacción para mantener coherencia
+  return this.prisma.$transaction(async (tx) => {
+    // 1️⃣ Actualizar grupo: conectar estudiante y aumentar contador
+    const updatedGroup = await tx.grupo.update({
       where: { id: groupId },
       data: {
         estudiantes: {
           connect: { id: userId },
+        },
+        total_estudiantes: {
+          increment: 1,
         },
       },
       include: {
         estudiantes: true,
       },
     });
-  }
+
+    // 2️⃣ Si el grupo es de grado1 → crear un proyecto y asignarlo al estudiante
+    if (group.grado === 'grado1') {
+      const nuevoProyecto = await tx.proyecto.create({
+        data: {
+          titulo: null, // sin título
+          fase_actual: 'tema',
+          grado_actual: 'grado1',
+          estudiantes: {
+            connect: { id: userId },
+          },
+        },
+      });
+
+      // 3️⃣ Actualizar el estudiante para vincular el nuevo proyecto
+      await tx.estudiante.update({
+        where: { id: userId },
+        data: {
+          proyecto_id: nuevoProyecto.id,
+        },
+      });
+    }
+
+    return updatedGroup;
+  });
+}
+
+
 }

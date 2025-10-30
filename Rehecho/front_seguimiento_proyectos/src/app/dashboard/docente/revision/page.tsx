@@ -10,6 +10,7 @@ import { fetchObservaciones } from '@/services/observaciones';
 import { fetchCorrecciones } from '@/services/correcciones';
 import styles from './page.module.css';
 import { VisualizadorPDF } from '@/components/documento/VisualizadorPDF';
+import { VisualizadorPDFFinal } from '@/components/documento/VisualizadorPDFFinal';
 import type { IHighlight } from '@/components/documento/react-pdf-highlighter';
 
 interface Usuario {
@@ -69,6 +70,11 @@ export default function ActividadPage() {
   
   // Estado para observaciones del proyecto
   const [observacionesProyectoState, setObservacionesProyectoState] = useState<any[]>([]);
+
+  // Determinar si es revisión final
+  const esFinal = useMemo(() => {
+    return actividad?.fase === 'tema' || actividad?.es_final === true;
+  }, [actividad]);
 
   useEffect(() => {
     // Recuperar documento actual del localStorage
@@ -277,22 +283,21 @@ export default function ActividadPage() {
       ?.observaciones || [];
   }, [observacionesYCorrecciones, documento]);
 
-const correccionesLocales = useMemo(() => {
-  if (!observacionesYCorrecciones || !documento) return [];
+  const correccionesLocales = useMemo(() => {
+    if (!observacionesYCorrecciones || !documento) return [];
 
-  const correcciones = observacionesYCorrecciones.documentos
-    ?.find((doc: any) => doc.id === documento.id)
-    ?.correcciones || [];
+    const correcciones = observacionesYCorrecciones.documentos
+      ?.find((doc: any) => doc.id === documento.id)
+      ?.correcciones || [];
 
-  // Filtrar y mapear
-  return correcciones
-    .filter((c: any) => c.estado !== 'rechazado') // ❌ excluir rechazadas
-    .map((c: any) => ({
-      ...c,
-      observacion_id: String(c.observacion_id),
-    }));
-}, [observacionesYCorrecciones, documento]);
-
+    // Filtrar y mapear
+    return correcciones
+      .filter((c: any) => c.estado !== 'rechazado') // ❌ excluir rechazadas
+      .map((c: any) => ({
+        ...c,
+        observacion_id: String(c.observacion_id),
+      }));
+  }, [observacionesYCorrecciones, documento]);
 
   const observacionesExternas = useMemo(() => {
     if (!documento) return [];
@@ -340,10 +345,21 @@ const correccionesLocales = useMemo(() => {
     codigoDoc: documento.id,
   };
 
+  let role: 'docente_final' | 'docente' | 'estudiante' | 'estudiante_correccion';
+  if (esFinal) {
+    role = 'docente_final';
+  } else {
+    role = 'docente';
+  }
+
   return (
     <div>
       <NavbarRevision
-        role="docente"
+        role={role}
+        documento_id={documento.id}
+        proyecto_id={documento.proyecto.id}
+        fase={actividad.fase}
+        es_final={actividad.es_final}
         version={documento.version}
         titulo={documento.titulo}
         nombreEstudiante={nombreCompleto}
@@ -352,39 +368,50 @@ const correccionesLocales = useMemo(() => {
       />
       
       <div className={styles.documentoBody}>
-        <div className={`${styles.pdfContainer} ${secondBlob ? styles.dual : styles.single}`}>
-          <div className={styles.pdfViewerWrapper}>
-            <VisualizadorPDF
+        {esFinal ? (
+          // Visualizador final simple para revisión de tema o final
+          <div className={styles.pdfContainerFinal}>
+            <VisualizadorPDFFinal
               blob={documentoBlob.blob}
-              observaciones={observacionesLocales}
-              observacionesOtrasVersiones={observacionesExternas}
-              correcciones={correccionesLocales}
-              infoProyecto={infoProyecto}
-              selectedObservation={selectedObservation}
               contentType={documentoBlob.contentType}
-              onObservationClick={handleObservationClick}
-              onActualizarEstadoObservacion={actualizarEstadoObservacion}
-              role={'docente'}
             />
           </div>
-
-          {secondBlob && secondInfoProyecto && (
+        ) : (
+          // Visualizador dual para revisión con observaciones y correcciones
+          <div className={`${styles.pdfContainer} ${secondBlob ? styles.dual : styles.single}`}>
             <div className={styles.pdfViewerWrapper}>
               <VisualizadorPDF
-                blob={secondBlob}
-                observaciones={secondObservaciones ?? []}
-                correcciones={secondCorrecciones ?? []}
-                infoProyecto={secondInfoProyecto}
+                blob={documentoBlob.blob}
+                observaciones={observacionesLocales}
+                observacionesOtrasVersiones={observacionesExternas}
+                correcciones={correccionesLocales}
+                infoProyecto={infoProyecto}
                 selectedObservation={selectedObservation}
-                contentType={secondContentType || 'application/pdf'}
-                onApprovalComplete={handleApprovalComplete}
-                onRejectionWithNewObservation={handleRejectionWithNewObservation}
+                contentType={documentoBlob.contentType}
+                onObservationClick={handleObservationClick}
                 onActualizarEstadoObservacion={actualizarEstadoObservacion}
                 role={'docente'}
               />
             </div>
-          )}
-        </div>
+
+            {secondBlob && secondInfoProyecto && (
+              <div className={styles.pdfViewerWrapper}>
+                <VisualizadorPDF
+                  blob={secondBlob}
+                  observaciones={secondObservaciones ?? []}
+                  correcciones={secondCorrecciones ?? []}
+                  infoProyecto={secondInfoProyecto}
+                  selectedObservation={selectedObservation}
+                  contentType={secondContentType || 'application/pdf'}
+                  onApprovalComplete={handleApprovalComplete}
+                  onRejectionWithNewObservation={handleRejectionWithNewObservation}
+                  onActualizarEstadoObservacion={actualizarEstadoObservacion}
+                  role={'docente'}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

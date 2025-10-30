@@ -437,6 +437,19 @@
   background-color: #1e3a2e;
 }
 
+.activityMeta.number {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.activityDescription {
+  color: var(--blanco);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .modalContent {

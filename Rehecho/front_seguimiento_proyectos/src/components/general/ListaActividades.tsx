@@ -6,6 +6,7 @@ type ActividadRole = 'docente' | 'estudiante';
 interface ListaActividadesProps {
   rol: ActividadRole;
   actividades: any[];
+  fase?: string;
   estudianteId?: number;
   proyectoId?: number;
   onActividadActualizada: () => void;
@@ -17,6 +18,7 @@ export default function ListaActividades({
   actividades,
   estudianteId,
   proyectoId,
+  fase,
   onActividadActualizada,
   onVerEntregas,
 }: ListaActividadesProps) {
@@ -53,9 +55,9 @@ export default function ListaActividades({
                 rol={rol}
                 estudianteId={estudianteId}
                 proyectoId={proyectoId}
+                fase={fase}
                 key={actividad.id}
                 actividad={actividad}
-                numero={index + 1}
                 onActividadActualizada={onActividadActualizada}
                 onVerEntregas={onVerEntregas}
               />
@@ -73,8 +75,8 @@ export default function ListaActividades({
               <Actividad
                 rol={rol}
                 key={actividad.id}
+                fase={fase}
                 actividad={actividad}
-                numero={actividadesAnteriores.length - index}
                 onActividadActualizada={onActividadActualizada}
                 onVerEntregas={onVerEntregas}
               />

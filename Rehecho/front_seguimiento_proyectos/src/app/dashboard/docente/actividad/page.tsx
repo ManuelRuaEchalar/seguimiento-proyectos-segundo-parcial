@@ -111,6 +111,7 @@ export default function ActividadPage() {
 const actividadInfo = {
   nombre: actividad.nombre || 'Sin título',
   estado: actividad.estado || 'activo',
+  fase: actividad.fase,
   fecha: actividad.fecha_creacion || new Date().toISOString(),
   tags: actividad.elementos || [], // Los elementos son como "tags" (Conclusiones, Bibliografía, etc.)
 };
@@ -128,7 +129,7 @@ const actividadInfo = {
         {loading ? (
           <div className={styles.loading}>Cargando entregas...</div>
         ) : (
-          <ListaEntregas documentos={documentos} onRevisar={handleEntregaClick} />
+          <ListaEntregas documentos={documentos}  fase={actividadInfo.fase} onRevisar={handleEntregaClick} />
         )}
       </main>
     </div>

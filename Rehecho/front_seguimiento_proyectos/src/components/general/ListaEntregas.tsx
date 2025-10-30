@@ -29,10 +29,11 @@ interface Documento {
 
 interface ListaEntregasProps {
   documentos: Documento[];
+  fase?: string;
   onRevisar: (entregaId: number) => void;
 }
 
-export default function ListaEntregas({ documentos, onRevisar }: ListaEntregasProps) {
+export default function ListaEntregas({ documentos, fase, onRevisar }: ListaEntregasProps) {
   if (!documentos || documentos.length === 0) {
     return (
       <div className={styles.entregasContainer}>
@@ -54,6 +55,8 @@ export default function ListaEntregas({ documentos, onRevisar }: ListaEntregasPr
           titulo={doc.titulo}
           version={doc.version}
           estado={doc.estado}
+          fase={fase}
+          justificacion={doc.justificacion || undefined}
           fechaEntrega={doc.created_at}
           estudiantes={doc.proyecto.estudiantes}
           file={doc.file}

@@ -33,30 +33,38 @@ model Grupo {
 
   total_actividades     Int        @default(0)
   total_estudiantes     Int        @default(0)
-  fase                  String     @default("Inicial")
+  fase                  String     @default("tema")
+  elementos             Json?
+  elementos_hechos      Json?
   fecha_ultima_actividad DateTime?
 }
 
 
 model Estudiante {
-  id            Int        @id
-  usuario       Usuario    @relation(fields: [id], references: [id])
-  cu            String
-  carrera       String
-  grupo_id      Int?
-  grupo         Grupo?     @relation(fields: [grupo_id], references: [id])
-  proyecto_id   Int?       
-  proyecto      Proyecto?  @relation("ProyectoEstudiantes", fields: [proyecto_id], references: [id])
+  id              Int            @id
+  usuario         Usuario        @relation(fields: [id], references: [id])
+  cu              String
+  carrera         String
+  grupo_id        Int?
+  grupo           Grupo?         @relation(fields: [grupo_id], references: [id])
+  proyecto_id     Int?
+  proyecto        Proyecto?      @relation("ProyectoEstudiantes", fields: [proyecto_id], references: [id])
+
+  solicitudes_enviadas  Solicitud[] @relation("SolicitudesEnviadas")
+  solicitudes_recibidas Solicitud[] @relation("SolicitudesRecibidas")
 }
+
 
 model Proyecto {
   id               Int             @id @default(autoincrement())
-  titulo           String
+  titulo           String?
   fase_actual      FaseProyecto
   grado_actual     Grado
   estudiantes      Estudiante[]    @relation("ProyectoEstudiantes")
   documentos       Documento[]     @relation("ProyectoDocumentos")
   observaciones    Observacion[]   @relation("ProyectoObservaciones")
+  finales          Final[]         
+  solicitudes      Solicitud[]     // ← Agregar esta línea
 }
 
 model Documento {
@@ -91,12 +99,9 @@ model Observacion {
   bounding_y2    Float
   bounding_page  Int
   rects          Json
-
-  // 🔁 Este campo se llena cuando la observación surge de una corrección rechazada
   correccion_id  Int?   @unique
   correccion     Correccion? @relation("CorreccionToObservacion", fields: [correccion_id], references: [id])
 
-  // 🔁 Una observación puede tener una corrección (normal flujo estudiante → docente)
   respuesta      Correccion? @relation("ObservacionToCorreccion")
 
   documento_id   Int
@@ -120,11 +125,9 @@ model Correccion {
   bounding_page   Int
   rects           Json     
 
-  // 🔁 Corrección responde a una observación (normal flujo)
   observacion_id  Int   @unique
   observacion     Observacion @relation("ObservacionToCorreccion", fields: [observacion_id], references: [id])
 
-  // 🔁 Corrección puede haber sido rechazada → genera nueva observación
   observacion_rechazo Observacion? @relation("CorreccionToObservacion")
 
   documento_id    Int
@@ -140,20 +143,84 @@ model Docente {
 }
 
 model Actividad {
-  id             Int       @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   nombre         String
-  elementos      Json      // lista de elementos requeridos (JSON)
+  elementos      Json
   descripcion    String?
-  fecha_creacion DateTime  @default(now())
-  estado         EstadoActividad @default(activo)
+  fecha_creacion DateTime         @default(now())
+  estado         EstadoActividad  @default(activo)
+  fase           FaseProyecto
+  es_final       Boolean          @default(false) // <- nuevo atributo obligatorio
 
   // Relación con Grupo (N:1)
   grupo_id       Int
-  grupo          Grupo     @relation(fields: [grupo_id], references: [id])
+  grupo          Grupo            @relation(fields: [grupo_id], references: [id])
 
   // Relación con Documento (1:N)
   documentos     Documento[]
 }
+
+model Solicitud {
+  id           Int              @id @default(autoincrement())
+  tipo         TipoSolicitud
+  proyecto_id  Int
+  proyecto     Proyecto         @relation(fields: [proyecto_id], references: [id])
+
+  emisor_id    Int
+  emisor       Estudiante       @relation("SolicitudesEnviadas", fields: [emisor_id], references: [id])
+
+  receptor_id  Int
+  receptor     Estudiante       @relation("SolicitudesRecibidas", fields: [receptor_id], references: [id])
+
+  aprobacion_receptor       EstadoSolicitud  @default(pendiente)
+  aprobacion_docente EstadoSolicitud @default(pendiente)
+  fecha_envio  DateTime         @default(now())
+}
+
+enum TipoSolicitud {
+  unirse
+  invitar
+}
+
+enum EstadoSolicitud {
+  pendiente
+  aceptado
+  rechazado
+}
+
+
+
+model Final {
+  id          Int          @id @default(autoincrement())
+  titulo      String
+  carrera     String
+  año         Int
+  estado      EstadoFinal  @default(pendiente)
+  archivo     String
+  fase        FaseFinal
+  proyecto_id Int
+  proyecto    Proyecto     @relation(fields: [proyecto_id], references: [id])
+  tags        Tag[]        @relation("FinalTags")
+}
+
+model Tag {
+  id      Int      @id @default(autoincrement())
+  nombre  String   @unique
+  finales Final[]  @relation("FinalTags")
+}
+
+enum EstadoFinal {
+  aprobado
+  rechazado
+  pendiente
+}
+
+enum FaseFinal {
+  perfil
+  proyecto
+  tesis
+}
+
 
 enum EstadoActividad {
   activo

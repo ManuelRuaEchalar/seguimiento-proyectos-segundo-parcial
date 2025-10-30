@@ -6,14 +6,17 @@ import { fetchEstudianteInfo } from '@/services/estudiantes';
 import Navbar from '@/components/general/Navbar';
 import ControlGrupo from '@/components/general/ControlGrupo';
 import ListaActividades from '@/components/general/ListaActividades';
+import Actividad from '@/components/general/Actividad';
+import TrabajoFinal from '@/components/general/TrabajoFinal';
 import styles from './page.module.css';
+import ConfiguracionProyecto from '@/components/estudiante/ConfiguracionProyecto';
 
 type Fase = 'tema' | 'perfil' | 'proyecto';
 
 export default function ProyectoPage() {
   const router = useRouter();
   const [estudianteInfo, setEstudianteInfo] = useState<any>(null);
-  const [faseActual, setFaseActual] = useState<Fase>('perfil');
+  const [faseActual, setFaseActual] = useState<Fase>('tema');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,6 +40,12 @@ export default function ProyectoPage() {
     loadEstudianteInfo();
   }, []);
 
+  useEffect(() => {
+    if (estudianteInfo?.grupo?.fase) {
+      setFaseActual(estudianteInfo.grupo.fase);
+    }
+  }, [estudianteInfo]);
+
   const handleActividadClick = (actividadId: number) => {
     if (!estudianteInfo?.grupo?.actividades) return;
 
@@ -55,6 +64,11 @@ export default function ProyectoPage() {
 
   const handleActividadActualizada = () => {
     // Recargar la información del estudiante
+    loadEstudianteInfo();
+  };
+
+  const handleFinalSubido = () => {
+    // Recargar la información del estudiante después de subir el final
     loadEstudianteInfo();
   };
 
@@ -95,6 +109,19 @@ export default function ProyectoPage() {
   }
 
   const actividades = estudianteInfo.grupo?.actividades || [];
+  const grupo = estudianteInfo.grupo;
+  const proyecto = estudianteInfo.proyecto;
+
+  // Filtrar actividades por fase
+  const actividadesPerfil = actividades.filter((act: any) => act.fase === 'perfil');
+  const actividadesProyecto = actividades.filter((act: any) => act.fase === 'proyecto');
+  const actividadTema = actividades.find((act: any) => act.fase === 'tema');
+  console.log('actividadTema', actividadTema);  
+
+  // Determinar si mostrar el componente de trabajo final
+  const mostrarTrabajoFinal = grupo && 
+    (!grupo.elementos || grupo.elementos.length === 0) && 
+    (grupo.elementos_hechos && grupo.elementos_hechos.length > 0);
 
   return (
     <div className={styles.container}>
@@ -110,20 +137,40 @@ export default function ProyectoPage() {
 
       <div className={styles.content}>
         <ControlGrupo
-          nombreGrupo={estudianteInfo.grupo?.nombre || 'Sin grupo'}
-          grado={estudianteInfo.grupo?.grado || 'grado1'}
+          nombreGrupo={grupo?.nombre || 'Sin grupo'}
+          grado={grupo?.grado || 'grado1'}
           faseActual={faseActual}
           onFaseChange={setFaseActual}
         />
 
         {faseActual === 'perfil' && (
           <div className={styles.actividadesContainer}>
-            {actividades.length > 0 ? (
+            {mostrarTrabajoFinal && grupo.elementos_hechos && proyecto && (
+              <TrabajoFinal
+                elementos={grupo.elementos_hechos}
+                grado={grupo.grado}
+                fase={grupo.fase}
+                rol="estudiante"
+                proyectoId={estudianteInfo.proyecto.id}
+                carrera={estudianteInfo.carrera}
+                año={new Date().getFullYear()}
+                onFinalSubido={handleFinalSubido}
+              />
+            )}
+
+            
+              <ConfiguracionProyecto
+                emisor_id={estudianteInfo.id}
+                proyecto_emisor_id={estudianteInfo.proyecto.id}
+              />
+
+            {actividadesPerfil.length > 0 ? (
               <ListaActividades
                 rol="estudiante"
+                fase="perfil"
                 estudianteId={estudianteInfo.usuario.id}
-                proyectoId={estudianteInfo.proyecto.id}
-                actividades={actividades}
+                proyectoId={proyecto?.id}
+                actividades={actividadesPerfil}
                 onActividadActualizada={handleActividadActualizada}
                 onVerEntregas={handleActividadClick}
               />
@@ -136,16 +183,41 @@ export default function ProyectoPage() {
         )}
 
         {faseActual === 'tema' && (
-          <div className={styles.faseNoImplementada}>
-            <h3>Fase Tema</h3>
-            <p>Esta fase aún no está implementada</p>
+          <div className={styles.temaContainer}>
+            {actividadTema ? (
+              <Actividad
+                actividad={actividadTema}
+                proyectoId={estudianteInfo.proyecto.id}
+                rol="estudiante"
+                fase="tema"
+                onActividadActualizada={handleActividadActualizada}
+                onVerEntregas={handleActividadClick}
+              />
+            ) : (
+              <div className={styles.noActividad}>
+                <p>No hay actividad de tema creada aún</p>
+              </div>
+            )}
           </div>
         )}
 
         {faseActual === 'proyecto' && (
-          <div className={styles.faseNoImplementada}>
-            <h3>Fase Proyecto</h3>
-            <p>Esta fase aún no está implementada</p>
+          <div className={styles.proyectoContainer}>
+            {actividadesProyecto.length > 0 ? (
+              <ListaActividades
+                rol="estudiante"
+                fase="proyecto"
+                estudianteId={estudianteInfo.usuario.id}
+                proyectoId={proyecto?.id}
+                actividades={actividadesProyecto}
+                onActividadActualizada={handleActividadActualizada}
+                onVerEntregas={handleActividadClick}
+              />
+            ) : (
+              <div className={styles.noActividades}>
+                No hay actividades disponibles
+              </div>
+            )}
           </div>
         )}
       </div>

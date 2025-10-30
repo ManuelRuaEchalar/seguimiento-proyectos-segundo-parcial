@@ -100,23 +100,50 @@ export class AdminService {
     return this.prisma.usuario.delete({ where: { id } });
   }
 
-  async createGroup(createGroupDto: CreateGroupDto) {
-    if (createGroupDto.docente_id) {
-      const docente = await this.prisma.docente.findUnique({
-        where: { id: +createGroupDto.docente_id },
-      });
-      if (!docente) throw new BadRequestException('Docente no encontrado');
-    }
-    return this.prisma.grupo.create({
+async createGroup(createGroupDto: CreateGroupDto) {
+  // Validar docente si se envía el ID
+  if (createGroupDto.docente_id) {
+    const docente = await this.prisma.docente.findUnique({
+      where: { id: +createGroupDto.docente_id },
+    });
+    if (!docente) throw new BadRequestException('Docente no encontrado');
+  }
+
+  // Determinar fase según el grado
+  let fase: 'tema' | 'proyecto' = 'tema';
+  if (createGroupDto.grado === 'grado2') {
+    fase = 'proyecto';
+  }
+
+  // Crear el grupo
+  const nuevoGrupo = await this.prisma.grupo.create({
+    data: {
+      nombre: createGroupDto.nombre,
+      grado: createGroupDto.grado,
+      docente_id: createGroupDto.docente_id
+        ? +createGroupDto.docente_id
+        : null,
+      fase, // fase dinámica
+    },
+  });
+
+  // 👇 Crear actividad inicial automáticamente si es grado1 (fase tema)
+  if (createGroupDto.grado === 'grado1' && fase === 'tema') {
+    await this.prisma.actividad.create({
       data: {
-        nombre: createGroupDto.nombre,
-        grado: createGroupDto.grado,
-        docente_id: createGroupDto.docente_id
-          ? +createGroupDto.docente_id
-          : null,
+        nombre: 'Propuesta de tema',
+        descripcion:
+          'En este apartado el estudiante puede subir sus propuestas de temas',
+        fase: 'tema',
+        grupo_id: nuevoGrupo.id,
+        elementos: [], // puedes poner [] o elementos requeridos por defecto
       },
     });
   }
+
+  return nuevoGrupo;
+}
+
 
   async getUsers() {
     return this.prisma.usuario.findMany({

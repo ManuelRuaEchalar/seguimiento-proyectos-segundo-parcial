@@ -138,3 +138,43 @@ export async function fetchTeacherObservations(
   return data;
 }
 
+export async function actualizarElementosGrupo(
+  grupoId: number,
+  elementos: any
+) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+
+  const endpoint = `${apiUrl}/grupos/${grupoId}/elementos`;
+  console.log('📡 Actualizando elementos del grupo en:', endpoint);
+
+  const response = await fetch(endpoint, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ elementos }),
+  });
+
+  if (!response.ok) {
+    console.error('❌ Error en la respuesta del servidor:', response.status, response.statusText);
+    const errorData = await response.text();
+    console.error('🧩 Detalle del error:', errorData);
+
+    if (response.status === 401) {
+      throw new Error('Sesión no autenticada. Por favor, inicia sesión nuevamente.');
+    } else if (response.status === 403) {
+      throw new Error('No tienes permiso para actualizar elementos del grupo.');
+    } else if (response.status === 404) {
+      throw new Error('El grupo especificado no existe.');
+    }
+
+    throw new Error('Error al actualizar elementos del grupo');
+  }
+
+  const data = await response.json();
+  console.log('✅ Elementos del grupo actualizados:', data);
+  return data;
+}
+

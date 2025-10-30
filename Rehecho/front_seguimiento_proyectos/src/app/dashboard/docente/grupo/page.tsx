@@ -3,17 +3,25 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/general/Navbar';
+import ControlGrupo from '@/components/general/ControlGrupo';
 import GroupInfo from '@/components/docente/GroupInfo';
 import FormularioActividad from '@/components/docente/FormularioActividad';
+import FormularioFormatoDocumento from '@/components/docente/FormularioFormatoDocumento';
 import ListaActividades from '@/components/general/ListaActividades';
+import Actividad from '@/components/general/Actividad';
+import TrabajoFinal from '@/components/general/TrabajoFinal';
 import { obtenerActividadesPorGrupo } from '@/services/actividades';
 import styles from './page.module.css';
+
+type Fase = 'tema' | 'perfil' | 'proyecto';
 
 interface Grupo {
   id: number;
   nombre: string;
   grado: string;
-  fase: string;
+  fase: Fase;
+  elementos?: string[] | null;
+  elementos_hechos?: string[] | null;
 }
 
 interface DocenteInfo {
@@ -28,6 +36,7 @@ interface Actividad {
   fecha: string;
   elementos: string[];
   descripcion?: string;
+  fase: Fase;
 }
 
 export default function GrupoPage() {
@@ -36,15 +45,21 @@ export default function GrupoPage() {
   const [grupo, setGrupo] = useState<Grupo | null>(null);
   const [actividades, setActividades] = useState<Actividad[]>([]);
   const [mostrarFormulario, setMostrarFormulario] = useState(true);
+  const [faseActual, setFaseActual] = useState<Fase>('tema');
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     cargarDatos();
   }, []);
 
+  useEffect(() => {
+    if (grupo) {
+      setFaseActual(grupo.fase);
+    }
+  }, [grupo]);
+
   const cargarDatos = async () => {
     try {
-      // Recuperar la información del grupo desde localStorage
       const grupoGuardado = localStorage.getItem('grupoActual');
       const docenteGuardado = localStorage.getItem('docenteActual');
 
@@ -52,7 +67,6 @@ export default function GrupoPage() {
         const grupoData = JSON.parse(grupoGuardado);
         setGrupo(grupoData);
 
-        // Cargar actividades del grupo desde la API
         const actividadesData = await obtenerActividadesPorGrupo(grupoData.id);
         console.log('Actividades cargadas:', actividadesData);
         setActividades(actividadesData.actividades);
@@ -86,20 +100,36 @@ export default function GrupoPage() {
   };
 
   const handleActividadClick = (actividadId: number) => {
-    // Encontrar la actividad completa
     const actividadSeleccionada = actividades.find(actividad => actividad.id === actividadId);
 
     if (actividadSeleccionada) {
-      // Guardar en localStorage
       localStorage.setItem('actividadActual', JSON.stringify(actividadSeleccionada));
     }
 
     router.push('/dashboard/docente/actividad');
   };
 
+  const handleElementosGuardados = () => {
+    // Recargar los datos del grupo desde el servidor
+    cargarDatos();
+  };
+
+  // Filtrar actividades por fase
+  const actividadesPerfil = actividades.filter(act => act.fase === 'perfil');
+  const actividadesProyecto = actividades.filter(act => act.fase === 'proyecto');
+  const actividadTema = actividades.find(act => act.fase === 'tema');
+
   if (cargando) {
     return <div className={styles.cargando}>Cargando...</div>;
   }
+
+  // Determinar si mostrar formulario de formato de documento
+  const mostrarFormatoDocumento = grupo && (!grupo.elementos || grupo.elementos.length === 0) && (!grupo.elementos_hechos || grupo.elementos_hechos.length === 0);
+  
+  // Determinar si mostrar el componente de trabajo final
+  const mostrarTrabajoFinal = grupo && 
+    (!grupo.elementos || grupo.elementos.length === 0) && 
+    (grupo.elementos_hechos && grupo.elementos_hechos.length > 0);
 
   return (
     <>
@@ -112,32 +142,97 @@ export default function GrupoPage() {
       )}
       <div className={styles.container}>
         <div className={styles.content}>
-          {grupo && <GroupInfo grupo={grupo} />}
+          <ControlGrupo
+            nombreGrupo={grupo?.nombre || 'Sin grupo'}
+            grado={grupo?.grado || 'grado1'}
+            faseActual={faseActual}
+            onFaseChange={setFaseActual}
+          />
 
-          <div className={styles.newActivityToggle}>
-            <button className={styles.newActivityBtn} onClick={toggleFormulario}>
-              {mostrarFormulario ? 'Cerrar Nueva Actividad' : 'Nueva Actividad'}
-            </button>
-            <button className={styles.newActivityPlusBtn} onClick={toggleFormulario}>
-              {mostrarFormulario ? '−' : '+'}
-            </button>
-          </div>
+          {faseActual === 'perfil' && (
+            <>
+              {mostrarFormatoDocumento ? (
+                // Mostrar formulario de formato de documento si no hay elementos
+                <FormularioFormatoDocumento
+                  grupoId={grupo!.id}
+                  onElementosGuardados={handleElementosGuardados}
+                />
+              ) : (
+                // Mostrar interfaz normal o trabajo final
+                <>
+                  {!mostrarTrabajoFinal && (
+                    <div className={styles.newActivityToggle}>
+                      <button className={styles.newActivityBtn} onClick={toggleFormulario}>
+                        {mostrarFormulario ? 'Cerrar Nueva Actividad' : 'Nueva Actividad'}
+                      </button>
+                      <button className={styles.newActivityPlusBtn} onClick={toggleFormulario}>
+                        {mostrarFormulario ? '−' : '+'}
+                      </button>
+                    </div>
+                  )}
 
-          <div className={styles.activitiesWrapper}>
-            {mostrarFormulario && grupo && (
-              <FormularioActividad
-                grupoId={grupo.id}
-                onActividadCreada={handleActividadCreada}
+                  <div className={`${styles.activitiesWrapper} ${!mostrarTrabajoFinal && mostrarFormulario ? styles.withForm : ''}`}>
+                    {!mostrarTrabajoFinal && mostrarFormulario && grupo && grupo.elementos && (
+                      <FormularioActividad
+                        grupoId={grupo.id}
+                        fase={grupo.fase}
+                        elementosGrupo={grupo.elementos}
+                        onActividadCreada={handleActividadCreada}
+                      />
+                    )}
+
+                    {mostrarTrabajoFinal && grupo.elementos_hechos && (
+                      <TrabajoFinal
+                        elementos={grupo.elementos_hechos}
+                        grado={grupo.grado}
+                        fase={grupo.fase}
+                        rol="docente"
+                        onFinalSubido={cargarDatos}
+                      />
+                    )}
+
+                    <ListaActividades
+                      rol="docente"
+                      fase="perfil"
+                      actividades={actividadesPerfil}
+                      onActividadActualizada={cargarDatos}
+                      onVerEntregas={handleActividadClick}
+                    />
+                  </div>
+                </>
+              )}
+            </>
+          )}
+
+          {faseActual === 'tema' && (
+            <div className={styles.temaContainer}>
+              {actividadTema ? (
+                <Actividad
+                  actividad={actividadTema}
+                  rol="docente"
+                  fase="tema"
+                  onActividadActualizada={cargarDatos}
+                  onVerEntregas={handleActividadClick}
+                />
+              ) : (
+                <div className={styles.noActividad}>
+                  <p>No hay actividad de tema creada aún</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {faseActual === 'proyecto' && (
+            <div className={styles.proyectoContainer}>
+              <ListaActividades
+                rol="docente"
+                fase="proyecto"
+                actividades={actividadesProyecto}
+                onActividadActualizada={cargarDatos}
+                onVerEntregas={handleActividadClick}
               />
-            )}
-
-            <ListaActividades
-              rol="docente"
-              actividades={actividades}
-              onActividadActualizada={cargarDatos}
-              onVerEntregas={handleActividadClick}
-            />
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </>

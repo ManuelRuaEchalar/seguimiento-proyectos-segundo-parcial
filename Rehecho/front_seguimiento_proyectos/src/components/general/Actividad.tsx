@@ -17,8 +17,8 @@ interface ActividadProps {
   };
   estudianteId?: number;
   proyectoId?: number;
-  numero: number;
   rol: ActividadRole;
+  fase?: string;
   onActividadActualizada: () => void;
   onVerEntregas: (actividadId: number) => void;
 }
@@ -27,8 +27,8 @@ export default function Actividad({
   actividad,
   estudianteId,
   proyectoId,
-  numero, 
   rol,
+  fase,
   onActividadActualizada,
   onVerEntregas 
 }: ActividadProps) {
@@ -96,50 +96,50 @@ export default function Actividad({
   };
 
   const manejarSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  if (!archivo || !titulo.trim() || !proyectoId) {
-    setError('Por favor completa todos los campos');
-    return;
-  }
-
-  // 🔍 DEBUG MEJORADO
-  console.log('📄 Información del archivo:', {
-    nombre: archivo.name,
-    tipo: archivo.type,
-    tamaño: archivo.size,
-    ultimaModificacion: archivo.lastModified
-  });
-  console.log('📦 Datos a enviar:', {
-    proyectoId,
-    actividadId: actividad.id,
-    titulo
-  });
-
-  setSubiendo(true);
-  setError(null);
-
-  try {
-    const resultado = await subirDocumento(archivo, proyectoId, actividad.id, titulo);
-    console.log('✅ Resultado de la subida:', resultado);
+    e.preventDefault();
     
-    if (resultado.success) {
-      cerrarModal();
-      setConfirmacionAbierta(true);
-      // Guardar en localStorage
-      localStorage.setItem('documentoActual', JSON.stringify(resultado));
-      //redirigir a la página de revisión de entregas /documento
-      router.push('/dashboard/estudiante/correccion');
-    } else {
-      setError(resultado.error || 'Error al subir el documento');
+    if (!archivo || !titulo.trim() || !proyectoId) {
+      setError('Por favor completa todos los campos');
+      return;
     }
-  } catch (err) {
-    setError('Error inesperado al subir el documento');
-    console.error(err);
-  } finally {
-    setSubiendo(false);
-  }
-};
+
+    // 🔍 DEBUG MEJORADO
+    console.log('📄 Información del archivo:', {
+      nombre: archivo.name,
+      tipo: archivo.type,
+      tamaño: archivo.size,
+      ultimaModificacion: archivo.lastModified
+    });
+    console.log('📦 Datos a enviar:', {
+      proyectoId,
+      actividadId: actividad.id,
+      titulo
+    });
+
+    setSubiendo(true);
+    setError(null);
+
+    try {
+      const resultado = await subirDocumento(archivo, proyectoId, actividad.id, titulo);
+      console.log('✅ Resultado de la subida:', resultado);
+      
+      if (resultado.success) {
+        cerrarModal();
+        setConfirmacionAbierta(true);
+        // Guardar en localStorage
+        localStorage.setItem('documentoActual', JSON.stringify(resultado));
+        //redirigir a la página de revisión de entregas /documento
+        router.push('/dashboard/estudiante/correccion');
+      } else {
+        setError(resultado.error || 'Error al subir el documento');
+      }
+    } catch (err) {
+      setError('Error inesperado al subir el documento');
+      console.error(err);
+    } finally {
+      setSubiendo(false);
+    }
+  };
 
   const estaActiva = actividad.estado === 'activo';
 
@@ -176,13 +176,17 @@ export default function Actividad({
         </div>
         <div className={styles.activityRight}>
           <p className={`${styles.activityMeta} ${styles.number}`}>Se trabaja:</p>
-          <div className={styles.activityTags}>
-            {actividad.elementos.map((elemento, index) => (
-              <span key={index} className={styles.tag}>
-                {elemento}
-              </span>
-            ))}
-          </div>
+          {fase === 'tema' ? (
+            <p className={styles.activityDescription}>{actividad.descripcion}</p>
+          ) : (
+            <div className={styles.activityTags}>
+              {actividad.elementos.map((elemento, index) => (
+                <span key={index} className={styles.tag}>
+                  {elemento}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
