@@ -1,16 +1,16 @@
-       @import "tailwindcss";
-       :root {
-            --azul-oscuro: #272D3A;
-            --blanco: #fff;
-            --casi-negro: #171717;
-            --plata: #BDB3AB;
-            --casi-blanco: #F6F9FF;
-            --azul: #1E396C;
-            --celeste: #9BC7E8;
-            --carbon: #1F2937;
-            --bosque: #2D4A3E;
-            --rechazado: #7c3a3a;
-             --foreground: #171717;
+@import "tailwindcss";
+:root {
+  --azul-oscuro: #272d3a;
+  --blanco: #fff;
+  --casi-negro: #171717;
+  --plata: #bdb3ab;
+  --casi-blanco: #f6f9ff;
+  --azul: #1e396c;
+  --celeste: #9bc7e8;
+  --carbon: #1f2937;
+  --bosque: #2d4a3e;
+  --rechazado: #7c3a3a;
+  --foreground: #171717;
   --columbia-blue: #ccdae6ff;
   --silver: #bdb3abff;
   --delft-blue: #1a3260ff;
@@ -18,7 +18,19 @@
   --ghost-white: #f3f6fbff;
   --gunmetal: #272d3aff;
 
-        }
+  /* Paleta personalizada (variables solicitadas) */
+  --color-primary: #63708b; /* azul grisáceo */
+  --color-bg: #f4f4f2; /* fondo claro */
+  --color-muted: #d9d9d9; /* gris claro */
+  --color-dark: #272d3a; /* texto / header oscuro */
+  --color-accent: #f3d884; /* amarillo */
+  --color-success: #7cca81; /* verde */
+
+  /* Mantener algunas variables legacy para compatibilidad */
+  --foreground: var(--color-dark);
+  --background: var(--color-bg);
+  --white: #ffffff;
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -34,10 +46,8 @@
   }
 }
 
-
-
-        body {
-            background-color: var(--casi-blanco);
-            color: var(--casi-negro);
-            min-height: 100vh;
-        }
+body {
+  background-color: var(--casi-blanco);
+  color: var(--casi-negro);
+  min-height: 100vh;
+}
