@@ -29,11 +29,10 @@ export default function Header({
         {actions.map((a, idx) => {
           const cls = a.variant === "primary" ? styles.primary : a.variant === "danger" ? styles.danger : styles.ghost;
           if (a.href) {
+            // New Link usage: pass className and onClick directly to Link
             return (
-              <Link href={a.href} key={idx} legacyBehavior>
-                <a className={cls} onClick={a.onClick}>
-                  {a.label}
-                </a>
+              <Link href={a.href} key={idx} className={cls} onClick={a.onClick}>
+                {a.label}
               </Link>
             );
           }

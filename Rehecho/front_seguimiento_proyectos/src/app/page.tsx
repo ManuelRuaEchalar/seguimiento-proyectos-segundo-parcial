@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Header from "../components/Header";
 import ListadoDeProyecto from "../components/repositorio/ListadoDeProyecto";
+import SearchBarClient from "../components/SearchBarClient";
 import styles from "../styles/landingpage.module.css";
 
 export default function Home() {
@@ -27,7 +28,7 @@ export default function Home() {
                 <path d="M21 21l-4.35-4.35" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <circle cx="11" cy="11" r="6" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <input aria-label="Buscar proyectos" placeholder="Buscar por título, autor, asesor....." style={{border:'none', outline:'none', width:'100%'}} />
+              <SearchBarClient />
             </div>
           </div>
 
