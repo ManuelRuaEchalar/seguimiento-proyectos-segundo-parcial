@@ -65,10 +65,9 @@
   margin: 0;
 }
 .meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+  /* Hacemos que las badges ocupen todo el espacio de la fila */
+  display: block;
+  margin-top: 8px;
 }
 .advisor {
   font-size: 12px;
@@ -77,6 +76,10 @@
 .badges {
   display: flex;
   gap: 6px;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 .year {
   background: var(--color-dark);

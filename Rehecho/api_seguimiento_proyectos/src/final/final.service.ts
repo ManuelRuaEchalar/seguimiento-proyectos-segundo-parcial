@@ -5,43 +5,42 @@ import { PrismaService } from '../prisma/prisma.service';
 export class FinalService {
   constructor(private prisma: PrismaService) {}
 
-async crearFinal(data: {
-  titulo: string;
-  carrera: string;
-  año: number;
-  estado?: string;
-  archivo: string;
-  fase: string;
-  proyecto_id: number;
-  tags?: number[];
-}) {
-  const { tags, proyecto_id, ...finalData } = data;
+  async crearFinal(data: {
+    titulo: string;
+    carrera: string;
+    año: number;
+    estado?: string;
+    archivo: string;
+    fase: string;
+    proyecto_id: number;
+    tags?: number[];
+  }) {
+    const { tags, proyecto_id, ...finalData } = data;
 
-  // Crear el final con las relaciones de tags y la relación con proyecto
-  const createData: any = {
-    ...finalData,
-    // 🏷️ Conectar tags existentes usando su ID
-    tags: tags && tags.length > 0
-      ? {
-          connect: tags.map(tagId => ({ id: tagId }))
-        }
-      : undefined,
-    // 🔗 Conectar el proyecto por su id en lugar de usar proyecto_id en el objeto raíz
-    proyecto: proyecto_id
-      ? { connect: { id: proyecto_id } }
-      : undefined,
-  };
+    // Crear el final con las relaciones de tags y la relación con proyecto
+    const createData: any = {
+      ...finalData,
+      // 🏷️ Conectar tags existentes usando su ID
+      tags:
+        tags && tags.length > 0
+          ? {
+              connect: tags.map((tagId) => ({ id: tagId })),
+            }
+          : undefined,
+      // 🔗 Conectar el proyecto por su id en lugar de usar proyecto_id en el objeto raíz
+      proyecto: proyecto_id ? { connect: { id: proyecto_id } } : undefined,
+    };
 
-  const nuevoFinal = await this.prisma.final.create({
-    data: createData,
-    include: {
-      tags: true, // Incluir los tags en la respuesta
-      proyecto: true,
-    },
-  });
+    const nuevoFinal = await this.prisma.final.create({
+      data: createData,
+      include: {
+        tags: true, // Incluir los tags en la respuesta
+        proyecto: true,
+      },
+    });
 
-  return nuevoFinal;
-}
+    return nuevoFinal;
+  }
 
   async borrarFinal(id: number) {
     return this.prisma.final.delete({ where: { id } });
@@ -58,28 +57,48 @@ async crearFinal(data: {
     });
   }
 
-async buscarFinales(filtros: any) {
-  const { tag, carrera, año, titulo } = filtros;
+  async buscarFinales(filtros: any) {
+    const { tag, carrera, año, titulo } = filtros;
 
-  return this.prisma.final.findMany({
-    where: {
-      AND: [
-        carrera ? { carrera: { contains: String(carrera), mode: 'insensitive' } } : {},
-        año ? { año: parseInt(String(año)) } : {},
-        titulo ? { titulo: { contains: String(titulo), mode: 'insensitive' } } : {},
-        tag
-          ? {
-              tags: {
-                some: { 
-                  nombre: { contains: String(tag) } // Remove mode here
-                },
-              },
-            }
-          : {},
-      ].filter(condition => Object.keys(condition).length > 0), // Filter out empty objects
-      estado: 'aprobado',
-    },
-    include: { tags: true, proyecto: true },
-  });
-}
+    // Build a base where clause that avoids database-specific 'mode' options
+    const whereBase: any = { estado: 'aprobado' };
+    if (carrera) {
+      // simple contains (case-sensitivity depends on DB collation)
+      whereBase.carrera = { contains: String(carrera) };
+    }
+    if (año) {
+      whereBase.año = parseInt(String(año));
+    }
+
+    // Fetch candidates from DB (tags and proyecto included) then apply robust JS filtering
+    const candidates = await this.prisma.final.findMany({
+      where: whereBase,
+      include: { tags: true, proyecto: true },
+    });
+
+    // If no titulo filter provided, optionally filter by tag if given and return
+    let results = candidates;
+
+    if (tag) {
+      const tagLower = String(tag).toLowerCase();
+      results = results.filter((f) =>
+        (f.tags || []).some((t) =>
+          String((t as any).nombre || '')
+            .toLowerCase()
+            .includes(tagLower),
+        ),
+      );
+    }
+
+    if (titulo) {
+      const q = String(titulo).toLowerCase();
+      results = results.filter((f) => {
+        const t1 = String(f.titulo || '').toLowerCase();
+        const t2 = String((f.proyecto as any)?.titulo || '').toLowerCase();
+        return t1.includes(q) || t2.includes(q);
+      });
+    }
+
+    return results;
+  }
 }
