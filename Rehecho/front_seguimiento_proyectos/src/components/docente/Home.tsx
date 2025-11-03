@@ -43,6 +43,7 @@ export default function Home({ docente, grupos, onBack }: HomeProps) {
         role="docente" 
         docenteInfo={docenteInfo}
         onBack={onBack}
+        atras={false} 
       />
       <div className={styles.container}>
         <h1 className={styles.welcomeTitle}>

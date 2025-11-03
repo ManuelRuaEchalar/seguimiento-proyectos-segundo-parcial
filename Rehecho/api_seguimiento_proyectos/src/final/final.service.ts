@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as fs from 'fs';
+import path from 'path';
 
 @Injectable()
 export class FinalService {
@@ -12,31 +14,49 @@ async crearFinal(data: {
   estado?: string;
   archivo: string;
   fase: string;
+  actividad_id: number;
   proyecto_id: number;
   tags?: number[];
 }) {
-  const { tags, proyecto_id, ...finalData } = data;
+  const { tags, proyecto_id, actividad_id, ...finalData } = data;
 
-  // Crear el final con las relaciones de tags y la relación con proyecto
+  // 📊 Contar finales existentes con el mismo proyecto_id y actividad_id
+  const finalesExistentes = await this.prisma.final.count({
+    where: {
+      proyecto_id: proyecto_id,
+      actividad_id: actividad_id,
+    },
+  });
+
+  // 🔢 Calcular la nueva versión (cantidad existente + 1)
+  const nuevaVersion = finalesExistentes + 1;
+
+  // Crear el final con las relaciones de tags, proyecto y actividad
   const createData: any = {
     ...finalData,
+    version: nuevaVersion, // ✨ Asignar la versión calculada
     // 🏷️ Conectar tags existentes usando su ID
     tags: tags && tags.length > 0
       ? {
           connect: tags.map(tagId => ({ id: tagId }))
         }
       : undefined,
-    // 🔗 Conectar el proyecto por su id en lugar de usar proyecto_id en el objeto raíz
+    // 🔗 Conectar el proyecto por su id
     proyecto: proyecto_id
       ? { connect: { id: proyecto_id } }
+      : undefined,
+    // 🔗 Conectar la actividad por su id
+    actividad: actividad_id
+      ? { connect: { id: actividad_id } }
       : undefined,
   };
 
   const nuevoFinal = await this.prisma.final.create({
     data: createData,
     include: {
-      tags: true, // Incluir los tags en la respuesta
+      tags: true,
       proyecto: true,
+      actividad: true,
     },
   });
 
@@ -82,4 +102,62 @@ async buscarFinales(filtros: any) {
     include: { tags: true, proyecto: true },
   });
 }
+
+async getDoc(id: number) {
+    // Validar que id sea un número válido
+    if (!id || isNaN(id) || id <= 0) {
+      throw new BadRequestException(`El ID del documento final debe ser un número positivo pero es ${id}`);
+    }
+
+    const documentoFinal = await this.prisma.final.findUnique({
+      where: { id },
+      select: {
+        archivo: true,
+      }
+    });
+
+    if (!documentoFinal) {
+      throw new NotFoundException(`Documento final con ID ${id} no encontrado`);
+    }
+
+    const relativePath = documentoFinal.archivo;
+    const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
+    const absolutePath = path.join(process.cwd(), 'public', cleanPath);
+
+    console.log('🔍 Ruta en BD (Final):', relativePath);
+    console.log('🔍 Ruta absoluta construida:', absolutePath);
+
+    if (!fs.existsSync(absolutePath)) {
+      console.error('❌ Archivo final no encontrado físicamente:', absolutePath);
+
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'finales');
+      console.log('📂 Contenido de uploads/finales:');
+      try {
+        const files = fs.readdirSync(uploadsDir);
+        files.forEach(file => console.log(`   - ${file}`));
+      } catch (err) {
+        console.log('   📂 Carpeta no existe o está vacía');
+      }
+
+      throw new NotFoundException('El archivo final no existe en el servidor');
+    }
+
+    console.log('✅ Archivo final encontrado:', absolutePath);
+
+    return {
+      filePath: absolutePath,
+      mimeType: this.getMimeType(relativePath),
+    };
+  }
+
+  private getMimeType(filename: string): string {
+    const ext = path.extname(filename).toLowerCase();
+    const mimeTypes: { [key: string]: string } = {
+      '.pdf': 'application/pdf',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.txt': 'text/plain',
+    };
+    return mimeTypes[ext] || 'application/octet-stream';
+  }
 }

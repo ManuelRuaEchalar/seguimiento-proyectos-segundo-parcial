@@ -1,0 +1,140 @@
+.gruposSection {
+  width: 100%;
+  max-width: 600px;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+}
+
+.sectionTitle {
+  color: var(--azul-oscuro);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.descripcion {
+  color: var(--carbon);
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.gruposList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grupoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--fondo);
+}
+
+.grupoItem:last-child {
+  border-bottom: none;
+}
+
+.grupoInfo {
+  flex: 1;
+}
+
+.grupoHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.grupoNombre {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  margin: 0;
+}
+
+.grupoDetalle {
+  font-size: 13px;
+  color: var(--carbon);
+  margin: 0;
+}
+
+.unirseBtn {
+  background-color: var(--celeste);
+  color: black;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.unirseBtn:hover:not(:disabled) {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+}
+
+.unirseBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading,
+.error,
+.noGrupos {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--carbon);
+}
+
+.error {
+  color: var(--rojo);
+}
+
+.error p {
+  margin-bottom: 1rem;
+}
+
+.retryBtn {
+  background-color: var(--azul);
+  color: var(--blanco);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.retryBtn:hover {
+  background-color: var(--azul-oscuro);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gruposSection {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .grupoItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 0;
+  }
+
+  .unirseBtn {
+    width: 100%;
+    padding: 8px;
+  }
+}

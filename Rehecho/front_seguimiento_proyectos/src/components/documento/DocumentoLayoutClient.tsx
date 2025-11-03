@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { VisualizadorPDF } from './VisualizadorPDF';
 import { fetchDoc } from '@/services/proyecto';
-import { cambiarEstadoDocumento, rechazarDocumento } from '@/services/documentos';
+import { cambiarEstadoDocumento } from '@/services/documentos';
 import { changeProyectoFase } from '@/services/proyecto';
 import { useRouter } from 'next/navigation';
 import styles from './style/DocumentoLayoutClient.module.css';
@@ -95,11 +95,6 @@ export default function DocumentoLayoutClient({
     setIsProcessing(true);
     try {
       // Rechazar documento con motivo
-      await rechazarDocumento(
-        infoProyecto.codigoDoc, 
-        rejectionReason,
-        infoProyecto.codigoProyecto
-      );
       
       alert('✅ Documento rechazado. El estudiante podrá ver el motivo y subir una nueva versión.');
       router.push('/dashboard/docente');
@@ -280,7 +275,7 @@ export default function DocumentoLayoutClient({
               infoProyecto={infoProyecto}
               selectedObservation={null}
               contentType={contentType}
-              modoSoloLectura={true} // 🔒 MODO SOLO LECTURA ACTIVADO
+              role={'docente'}
             />
           </div>
         </div>

@@ -10,10 +10,15 @@ interface Tema {
   titulo: string;
 }
 
+interface EstudianteProyecto {
+  id: number;
+  nombre: string;
+}
+
 interface Proyecto {
   id: number;
   titulo: string;
-  estudiantes: string[];
+  estudiantes: EstudianteProyecto[];
 }
 
 interface Estudiante {
@@ -39,6 +44,7 @@ export default function ConfiguracionProyecto({
   emisor_id,
   proyecto_emisor_id,
 }: ConfiguracionProyectoProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [configData, setConfigData] = useState<ConfigData | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [dataError, setDataError] = useState('');
@@ -64,6 +70,8 @@ export default function ConfiguracionProyecto({
           estudiantes: data.estudiantes,
         });
         setDataError('');
+
+        console.log('✅ Configuración cargada:', data);
       } catch (err) {
         console.error('Error al cargar configuración:', err);
         setDataError(err instanceof Error ? err.message : 'Error al cargar los datos');
@@ -114,44 +122,62 @@ export default function ConfiguracionProyecto({
     setMensaje('');
 
     try {
-      if (modo === 'individual') {
-        // Guardar el título del tema en el proyecto del estudiante
-        if (temaSeleccionado) {
-          await actualizarTituloProyecto(proyecto_emisor_id, temaSeleccionado.titulo);
-        }
-        setMensaje(`Proyecto individual configurado: "${temaSeleccionado?.titulo}"`);
-      } else if (equipoAccion === 'unirse' && proyectoSeleccionado) {
-        // Enviar solicitud de unirse
-        await crearSolicitud({
-          tipo: 'unirse',
-          proyecto_id: proyectoSeleccionado.id,
-          emisor_id: emisor_id,
-          receptor_id: proyectoSeleccionado.id, // Ajustar según la lógica de tu API
-        });
-        setMensaje(`Solicitud enviada para unirte a: "${proyectoSeleccionado.titulo}"`);
-      } else if (equipoAccion === 'invitar' && temaSeleccionado) {
-        // Guardar el título del tema en el proyecto del estudiante
-        await actualizarTituloProyecto(proyecto_emisor_id, temaSeleccionado.titulo);
-        
-        // Enviar solicitudes de invitación a cada estudiante seleccionado
-        for (const estudiante of estudiantesSeleccionados) {
-          await crearSolicitud({
-            tipo: 'invitar',
-            proyecto_id: proyecto_emisor_id,
-            emisor_id: emisor_id,
-            receptor_id: estudiante.id,
-          });
-        }
-        setMensaje(
-          `Invitaciones enviadas a: ${estudiantesSeleccionados.map(e => e.nombre).join(', ')} - Tema: "${temaSeleccionado.titulo}"`
-        );
-      }
-    } catch (err) {
-      console.error('Error al confirmar:', err);
-      setError(err instanceof Error ? err.message : 'Error al procesar la solicitud');
-    } finally {
-      setIsLoading(false);
+  if (modo === 'individual') {
+    // Guardar el título del tema en el proyecto del estudiante
+    if (temaSeleccionado) {
+      await actualizarTituloProyecto(proyecto_emisor_id, temaSeleccionado.titulo);
     }
+    setMensaje(`Proyecto individual configurado: "${temaSeleccionado?.titulo}"`);
+    
+    // Refrescar la página después de configurar
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+    
+  } else if (equipoAccion === 'unirse' && proyectoSeleccionado) {
+    // Enviar solicitud de unirse
+    await crearSolicitud({
+      tipo: 'unirse',
+      proyecto_id: proyectoSeleccionado.id,
+      emisor_id: emisor_id,
+      receptor_id: proyectoSeleccionado.estudiantes[0].id,
+    });
+    setMensaje(`Solicitud enviada para unirte a: "${proyectoSeleccionado.titulo}"`);
+    
+    // Refrescar la página después de enviar solicitud
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+    
+  } else if (equipoAccion === 'invitar' && temaSeleccionado) {
+    // Guardar el título del tema en el proyecto del estudiante
+    await actualizarTituloProyecto(proyecto_emisor_id, temaSeleccionado.titulo);
+    
+    // Enviar solicitudes de invitación a cada estudiante seleccionado
+    for (const estudiante of estudiantesSeleccionados) {
+      await crearSolicitud({
+        tipo: 'invitar',
+        proyecto_id: proyecto_emisor_id,
+        emisor_id: emisor_id,
+        receptor_id: estudiante.id,
+      });
+    }
+    setMensaje(
+      `Invitaciones enviadas a: ${estudiantesSeleccionados.map(e => e.nombre).join(', ')} - Tema: "${temaSeleccionado.titulo}"`
+    );
+    
+    // Refrescar la página después de enviar invitaciones
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  }
+} catch (err) {
+  console.error('Error al confirmar:', err);
+  setError(err instanceof Error ? err.message : 'Error al procesar la solicitud');
+  // ❌ NO refrescar aquí porque hubo un error
+} finally {
+  setIsLoading(false);
+}
   };
 
   // Mostrar estado de carga inicial
@@ -178,6 +204,20 @@ export default function ConfiguracionProyecto({
   }
 
   const { temas, proyectos, estudiantes } = configData;
+
+  // Si no está expandido, mostrar solo el botón
+  if (!isExpanded) {
+    return (
+      <div className={styles.configForm} style={{ textAlign: 'center' }}>
+        <button
+          className={`${styles.btn} ${styles.btnPrimary}`}
+          onClick={() => setIsExpanded(true)}
+        >
+          Configurar Proyecto
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.configForm}>
@@ -260,7 +300,9 @@ export default function ConfiguracionProyecto({
                     onClick={() => setProyectoSeleccionado(proyecto)}
                   >
                     <div className={styles.projectItemTitle}>{proyecto.titulo}</div>
-                    <div className={styles.studentCount}>{proyecto.estudiantes.join(', ')}</div>
+                    <div className={styles.studentCount}>
+                      {proyecto.estudiantes.map(e => e.nombre).join(', ')}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -304,9 +346,8 @@ export default function ConfiguracionProyecto({
                   {estudiantes.map(estudiante => (
                     <div
                       key={estudiante.id}
-                      className={`${styles.studentItem} ${
-                        estudiantesSeleccionados.find(e => e.id === estudiante.id) ? styles.selected : ''
-                      }`}
+                      className={`${styles.studentItem} ${estudiantesSeleccionados.find(e => e.id === estudiante.id) ? styles.selected : ''
+                        }`}
                       onClick={() => handleEstudianteToggle(estudiante)}
                     >
                       {estudiante.nombre}

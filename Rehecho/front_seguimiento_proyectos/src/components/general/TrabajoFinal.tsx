@@ -1,20 +1,33 @@
 import { useState, useEffect } from 'react';
 import { subirFinal } from '@/services/finales';
 import { obtenerTags } from '@/services/tags';
+import { editarActividad } from '@/services/actividades';
 import { useRouter } from 'next/navigation';
 import styles from './styles/TrabajoFinal.module.css';
 
 type TrabajoFinalRole = 'docente' | 'estudiante';
 
-interface TrabajoFinalProps {
+interface Actividad {
+  id: number;
+  nombre: string;
   elementos: string[];
-  grado: string;
+  descripcion?: string;
+  fecha_creacion: string;
+  estado: string;
+  grupo_id: number;
   fase: string;
+  es_final: boolean;
+}
+
+interface TrabajoFinalProps {
+  actividad: Actividad;
+  grado: string;
   rol: TrabajoFinalRole;
   proyectoId?: number;
   carrera?: string;
   año?: number;
   onFinalSubido?: () => void;
+  onActividadActualizada?: () => void;
 }
 
 interface Tag {
@@ -22,15 +35,15 @@ interface Tag {
   nombre: string;
 }
 
-export default function TrabajoFinal({ 
-  elementos,
+export default function TrabajoFinal({
+  actividad,
   grado,
-  fase,
   rol,
   proyectoId,
   carrera,
   año,
-  onFinalSubido
+  onFinalSubido,
+  onActividadActualizada
 }: TrabajoFinalProps) {
   const router = useRouter();
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -42,6 +55,9 @@ export default function TrabajoFinal({
   const [tagsSeleccionados, setTagsSeleccionados] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [cargandoTags, setCargandoTags] = useState(false);
+  const [cambiandoEstado, setCambiandoEstado] = useState(false);
+
+  const esCerrado = actividad.estado === 'cerrado';
 
   useEffect(() => {
     if (modalAbierto && rol === 'estudiante') {
@@ -62,7 +78,28 @@ export default function TrabajoFinal({
     }
   };
 
+  const toggleEstadoActividad = async () => {
+    setCambiandoEstado(true);
+    try {
+      const nuevoEstado = esCerrado ? 'activo' : 'cerrado';
+      await editarActividad(actividad.id, { estado: nuevoEstado });
+
+      if (onActividadActualizada) {
+        onActividadActualizada();
+      }
+    } catch (err: any) {
+      console.error('Error al cambiar estado:', err);
+      setError(err.message || 'Error al cambiar el estado de la actividad');
+    } finally {
+      setCambiandoEstado(false);
+    }
+  };
+
   const abrirModal = () => {
+    if (esCerrado && rol === 'estudiante') {
+      setError('Las entregas están cerradas para este trabajo final');
+      return;
+    }
     setModalAbierto(true);
     setTitulo('');
     setArchivo(null);
@@ -104,119 +141,133 @@ export default function TrabajoFinal({
   };
 
   const toggleTag = (tagId: number) => {
-    setTagsSeleccionados(prev => 
-      prev.includes(tagId) 
+    setTagsSeleccionados(prev =>
+      prev.includes(tagId)
         ? prev.filter(id => id !== tagId)
         : [...prev, tagId]
     );
   };
 
-const manejarSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  if (!archivo || !titulo.trim() || !proyectoId || !carrera || !año) {
-    setError('Por favor completa todos los campos');
-    return;
-  }
+  const manejarSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (tagsSeleccionados.length === 0) {
-    setError('Por favor selecciona al menos una categoría');
-    return;
-  }
-
-  // 🔍 LOGS DETALLADOS ANTES DE ENVIAR
-  console.log('=== DATOS ANTES DE ENVIAR ===');
-  console.log('📄 Archivo:', {
-    nombre: archivo.name,
-    tipo: archivo.type,
-    tamaño: archivo.size
-  });
-  console.log('📦 Props recibidas:', {
-    proyectoId,
-    carrera,
-    año,
-    fase,
-    grado
-  });
-  console.log('📝 Datos del formulario:', {
-    titulo,
-    tagsSeleccionados
-  });
-
-  setSubiendo(true);
-  setError(null);
-
-  try {
-    const formData = new FormData();
-    formData.append('archivo', archivo);
-    formData.append('titulo', titulo.trim());
-    formData.append('carrera', carrera);
-    formData.append('anio', año.toString()); // 👈 CAMBIAR DE 'año' A 'anio'
-    formData.append('fase', fase);
-    formData.append('proyecto_id', proyectoId.toString());
-    
-    // 🏷️ Enviar tags como JSON string
-    formData.append('tags', JSON.stringify(tagsSeleccionados));
-    
-    // 🔍 LOG DEL FORMDATA
-    console.log('=== CONTENIDO DEL FORMDATA ===');
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
+    if (!archivo || !titulo.trim() || !proyectoId || !carrera || !año) {
+      setError('Por favor completa todos los campos');
+      return;
     }
 
-    const resultado = await subirFinal(formData);
-    console.log('✅ Resultado de la subida:', resultado);
-    
-    if (resultado.success) {
-      cerrarModal();
-      setConfirmacionAbierta(true);
-      // Guardar en localStorage
-      localStorage.setItem('finalActual', JSON.stringify(resultado));
-    } else {
-      setError(resultado.error || 'Error al subir el documento final');
+    if (tagsSeleccionados.length === 0) {
+      setError('Por favor selecciona al menos una categoría');
+      return;
     }
-  } catch (err: any) {
-    setError(err.message || 'Error inesperado al subir el documento final');
-    console.error('❌ Error en manejarSubmit:', err);
-  } finally {
-    setSubiendo(false);
-  }
-};
+
+    console.log('=== DATOS ANTES DE ENVIAR ===');
+    console.log('📄 Archivo:', {
+      nombre: archivo.name,
+      tipo: archivo.type,
+      tamaño: archivo.size
+    });
+    console.log('📦 Props recibidas:', {
+      proyectoId,
+      carrera,
+      año,
+      fase: actividad.fase,
+      grado
+    });
+    console.log('📝 Datos del formulario:', {
+      titulo,
+      tagsSeleccionados
+    });
+
+    setSubiendo(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('archivo', archivo);
+      formData.append('titulo', titulo.trim());
+      formData.append('carrera', carrera);
+      formData.append('anio', año.toString());
+      formData.append('fase', actividad.fase);
+      formData.append('actividad_id', actividad.id.toString());
+      formData.append('grado', grado);
+      formData.append('proyecto_id', proyectoId.toString());
+      formData.append('tags', JSON.stringify(tagsSeleccionados));
+
+      console.log('=== CONTENIDO DEL FORMDATA ===');
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
+      const resultado = await subirFinal(formData);
+      console.log('✅ Resultado de la subida:', resultado);
+
+      if (resultado.success) {
+        cerrarModal();
+        setConfirmacionAbierta(true);
+        localStorage.setItem('finalActual', JSON.stringify(resultado));
+      } else {
+        setError(resultado.error || 'Error al subir el documento final');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Error inesperado al subir el documento final');
+      console.error('❌ Error en manejarSubmit:', err);
+    } finally {
+      setSubiendo(false);
+    }
+  };
 
   const verEntregas = () => {
-    // Implementar navegación a ver entregas de finales
-    router.push('/dashboard/docente/finales');
+    localStorage.setItem('actividadActual', JSON.stringify(actividad));
+    const ruta = rol === 'docente' 
+      ? '/dashboard/docente/actividad' 
+      : '/dashboard/estudiante/actividad';
+    router.push(ruta);
   };
 
   return (
     <>
-      <div className={styles.finalCard}>
+      <div className={`${styles.finalCard} ${esCerrado ? styles.cerrado : ''}`}>
         <div className={styles.finalLeft}>
           <div className={styles.finalHeaderRow}>
-            <div className={styles.finalTitle}>Trabajo Final de {fase}</div>
+            <div className={styles.finalTitle}>{actividad.nombre}</div>
           </div>
           <p className={styles.finalNote}>
-            Ya se han trabajado todos los apartados definidos al inicio del curso de {grado} para la fase de {fase}. 
+            {actividad.descripcion || `Ya se han trabajado todos los apartados definidos al inicio del curso de ${grado} para la fase de ${actividad.fase}. 
             Es momento de subir el documento final, que contiene todos los apartados trabajados durante el curso, 
-            incluir carátula con datos de autor: título, nombre completo, carrera, asesor, año.
+            incluir carátula con datos de autor: título, nombre completo, carrera, asesor, año.`}
           </p>
           <div className={styles.finalButtons}>
+            <button className={styles.viewBtn} onClick={verEntregas}>
+              Ver entregas
+            </button>
             {rol === 'docente' && (
-              <button className={styles.viewBtn} onClick={verEntregas}>
-                Ver entregas
+              <button
+                className={styles.toggleEstadoBtn}
+                onClick={toggleEstadoActividad}
+                disabled={cambiandoEstado}
+              >
+                {cambiandoEstado ? 'Cambiando...' : (esCerrado ? 'Habilitar entregas' : 'Cerrar entregas')}
               </button>
             )}
             {rol === 'estudiante' && (
-              <button className={styles.uploadFinalBtn} onClick={abrirModal}>
-                Subir trabajo final
+              <button
+                className={styles.uploadFinalBtn}
+                onClick={abrirModal}
+                disabled={esCerrado}
+              >
+                {esCerrado ? 'Entregas cerradas' : 'Subir trabajo final'}
               </button>
             )}
           </div>
+          {esCerrado && rol === 'estudiante' && (
+            <p className={styles.estadoAviso}>Las entregas están cerradas para este trabajo final</p>
+          )}
         </div>
         <div className={styles.finalRight}>
           <p className={styles.finalMeta}>Apartados incluidos:</p>
           <div className={styles.finalTags}>
-            {elementos.map((elemento, index) => (
+            {actividad.elementos.map((elemento, index) => (
               <span key={index} className={styles.tag}>
                 {elemento}
               </span>
@@ -244,7 +295,7 @@ const manejarSubmit = async (e: React.FormEvent) => {
                   placeholder="Ej: Sistema de gestión de proyectos escolares"
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="finalFile">Archivo PDF</label>
                 <div className={styles.fileInputWrapper}>
@@ -267,7 +318,10 @@ const manejarSubmit = async (e: React.FormEvent) => {
                 ) : (
                   <div className={styles.tagsContainer}>
                     {tags.map((tag) => (
-                      <label key={tag.id} className={styles.tagCheckbox}>
+                      <label
+                        key={tag.id}
+                        className={`${styles.tagCheckbox} ${tagsSeleccionados.includes(tag.id) ? styles.selected : ''}`}
+                      >
                         <input
                           type="checkbox"
                           checked={tagsSeleccionados.includes(tag.id)}
@@ -283,15 +337,15 @@ const manejarSubmit = async (e: React.FormEvent) => {
               {error && (
                 <div className={styles.errorMessage}>{error}</div>
               )}
-              
+
               <div className={styles.modalFooter}>
                 <button type="button" className={styles.cancelBtn} onClick={cerrarModal}>
                   Cancelar
                 </button>
-                <button 
-                  type="button" 
-                  className={styles.submitBtn} 
-                  onClick={manejarSubmit} 
+                <button
+                  type="button"
+                  className={styles.submitBtn}
+                  onClick={manejarSubmit}
                   disabled={subiendo || cargandoTags}
                 >
                   {subiendo ? 'Subiendo...' : 'Entregar trabajo final'}

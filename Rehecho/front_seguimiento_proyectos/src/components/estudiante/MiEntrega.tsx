@@ -30,12 +30,15 @@ export default function MiEntrega({ documento, onRevisar, fase }: MiEntregaProps
     return date.toLocaleDateString('es-ES', opciones);
   };
 
+
   const obtenerEstiloEstado = (estado: string) => {
     switch (estado.toLowerCase()) {
       case 'aprobado':
         return styles.aprobado;
       case 'rechazado':
         return styles.rechazado;
+      case 'revisado':
+        return styles.revisado;
       case 'pendiente':
       default:
         return styles.pendiente;
@@ -48,6 +51,8 @@ export default function MiEntrega({ documento, onRevisar, fase }: MiEntregaProps
         return 'Aprobado';
       case 'rechazado':
         return 'Rechazado';
+      case 'revisado':
+        return 'Revisado';
       case 'pendiente':
       default:
         return 'Pendiente';

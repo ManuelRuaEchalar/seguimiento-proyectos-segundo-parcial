@@ -3,6 +3,7 @@ export async function crearActividad(actividadData: {
   elementos: any;
   descripcion?: string;
   grupo_id: number;
+  es_final: boolean;
   fase: 'tema' | 'perfil' | 'proyecto'; // 👈 Nuevo parámetro con tipos específicos
 }) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;

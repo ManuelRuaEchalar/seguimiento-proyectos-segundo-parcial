@@ -181,3 +181,34 @@ export async function eliminarFinal(id: number) {
   console.log('✅ Final eliminado:', data);
   return data;
 }
+
+export async function fetchFinal(id: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+  }
+
+  const response = await fetch(`${apiUrl}/final/get-doc`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ id }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al cargar el documento final: ${response.status}`);
+  }
+
+  // ✅ USAR ARRAYBUFFER PARA GARANTIZAR DESCARGA COMPLETA
+  const arrayBuffer = await response.arrayBuffer();
+  const contentType = response.headers.get('Content-Type') || 'application/pdf';
+  
+  // Crear Blob desde ArrayBuffer (más confiable)
+  const blob = new Blob([arrayBuffer], { type: contentType });
+  
+  console.log('✅ Documento final descargado:', blob.size, 'bytes, tipo:', contentType);
+
+  return { blob, contentType };
+}

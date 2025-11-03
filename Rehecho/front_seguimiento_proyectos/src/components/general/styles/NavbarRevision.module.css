@@ -503,3 +503,73 @@
     transform: none;
   }
 }
+
+/* Estilos adicionales para documentos finales */
+
+.finalBadge {
+  display: inline-block;
+  background-color: #fbbf24;
+  color: #78350f;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.warningText {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 0.375rem;
+  color: #78350f;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.warningText strong {
+  font-weight: 600;
+}
+
+.infoText {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background-color: #dbeafe;
+  border: 1px solid #60a5fa;
+  border-radius: 0.375rem;
+  color: #1e40af;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Ajuste del modal para textos adicionales */
+.modalBody p + p {
+  margin-top: 0.75rem;
+}
+
+/* Botón Terminar Corrección */
+.finishButton {
+  background: #2D4A3E;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.finishButton:hover:not(:disabled) {
+  background: #3a5c4a;
+  transform: translateY(-1px);
+}
+
+.finishButtonDisabled {
+  background: #6b7280 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}

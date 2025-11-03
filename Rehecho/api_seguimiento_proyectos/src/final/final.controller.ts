@@ -13,7 +13,8 @@ import {
   UploadedFile,
   UseInterceptors,
   Res,
-  BadRequestException
+  BadRequestException,
+  NotFoundException
 } from '@nestjs/common';
 import { FinalService } from './final.service';
 import { JwtGuard } from '../auth/guard/jwt.guard';
@@ -22,7 +23,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { File as MulterFile } from 'multer';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
-import { extname } from 'path';
+import path, { extname } from 'path';
 
 @Controller('final')
 export class FinalController {
@@ -78,6 +79,7 @@ async upload(
   @Body('carrera') carrera: string,
   @Body('anio') anio: string, // 👈 CAMBIAR DE 'año' A 'anio'
   @Body('fase') fase: string,
+  @Body('actividad_id') actividad_id: string,
   @Body('proyecto_id') proyecto_id: string,
   @Body('tags') tags: string,
   @Res() res: Response,
@@ -134,6 +136,7 @@ async upload(
       año: parseInt(anio), // 👈 CAMBIAR - parseamos 'anio' pero lo guardamos como 'año' en la BD
       archivo: relativePath,
       fase,
+      actividad_id: parseInt(actividad_id),
       proyecto_id: proyectoIdNum,
       tags: tagsArray,
     });
@@ -195,5 +198,54 @@ async upload(
   async buscarFinales(@Req() req: Request) {
     const { tag, carrera, año, titulo } = req.query;
     return this.finalService.buscarFinales({ tag, carrera, año, titulo });
+  }
+
+  @Post('get-doc')
+  async getDoc(@Body('id') id: number, @Res() res: Response) {
+    try {
+      const { filePath, mimeType } = await this.finalService.getDoc(id);
+
+      console.log('📄 Enviando archivo final:', filePath);
+      console.log('📄 Tipo MIME:', mimeType);
+
+      if (!fs.existsSync(filePath)) {
+        console.error('❌ Archivo final no encontrado:', filePath);
+        return res.status(404).json({
+          success: false,
+          error: 'Archivo no encontrado en el servidor'
+        });
+      }
+
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
+
+      if (path.isAbsolute(filePath)) {
+        return res.sendFile(filePath);
+      } else {
+        return res.sendFile(filePath, { root: process.cwd() });
+      }
+
+    } catch (error) {
+      console.error('❌ Error en getDoc (Final):', error);
+
+      if (error instanceof NotFoundException) {
+        return res.status(404).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      if (error instanceof BadRequestException) {
+        return res.status(400).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
+        success: false,
+        error: 'Error interno del servidor'
+      });
+    }
   }
 }

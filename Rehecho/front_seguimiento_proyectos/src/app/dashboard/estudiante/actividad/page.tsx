@@ -16,6 +16,7 @@ interface Actividad {
   estado: string;
   fase?: string;
   elementos?: string[];
+  es_final?: boolean;
 }
 
 interface Documento {
@@ -34,6 +35,7 @@ export default function ActividadPage() {
   const [loading, setLoading] = useState(true);
   const [vistaActual, setVistaActual] = useState<'entregas' | 'observaciones'>('entregas');
   const [proyectoId, setProyectoId] = useState<number | null>(null);
+  const [esFinal, setEsFinal] = useState(false);
 
   useEffect(() => {
     const actividadStr = localStorage.getItem('actividadActual');
@@ -70,7 +72,15 @@ export default function ActividadPage() {
         try {
           const response = await fetchStudentDocuments(actividadData.id);
           console.log('📄 Documentos obtenidos:', response);
-          setDocumentos(response.documentos || []);
+          
+          // Si la respuesta indica que es final, usar finales; si no, usar documentos
+          if (response.es_final && response.finales) {
+            setDocumentos(response.finales);
+            setEsFinal(true);
+          } else {
+            setDocumentos(response.documentos || []);
+            setEsFinal(false);
+          }
         } catch (error) {
           console.error('❌ Error al obtener documentos:', error);
         } finally {
@@ -99,13 +109,18 @@ export default function ActividadPage() {
     
     try {
       const response = await fetchStudentDocuments(actividad.id);
-      setDocumentos(response.documentos || []);
+      
+      if (response.es_final && response.finales) {
+        setDocumentos(response.finales);
+      } else {
+        setDocumentos(response.documentos || []);
+      }
     } catch (error) {
       console.error('❌ Error al actualizar documentos:', error);
     }
   };
 
-    const handleEntregaClick = (documentoId: number) => {
+  const handleEntregaClick = (documentoId: number) => {
     // Encontrar el documento completo
     const documentoSeleccionado = documentos.find(doc => doc.id === documentoId);
 
@@ -139,23 +154,25 @@ export default function ActividadPage() {
 
       <div className={styles.mainContent}>
         {/* Toggle Switch */}
-        <div className={styles.toggleContainer}>
-          <button
-            className={`${styles.toggleOption} ${vistaActual === 'entregas' ? styles.active : ''}`}
-            onClick={() => setVistaActual('entregas')}
-          >
-            Mis entregas
-          </button>
-          <button
-            className={`${styles.toggleOption} ${vistaActual === 'observaciones' ? styles.active : ''}`}
-            onClick={() => setVistaActual('observaciones')}
-          >
-            Historial observaciones
-          </button>
-        </div>
+        {actividad.fase !== 'tema' && (
+          <div className={styles.toggleContainer}>
+            <button
+              className={`${styles.toggleOption} ${vistaActual === 'entregas' ? styles.active : ''}`}
+              onClick={() => setVistaActual('entregas')}
+            >
+              Mis entregas
+            </button>
+            <button
+              className={`${styles.toggleOption} ${vistaActual === 'observaciones' ? styles.active : ''}`}
+              onClick={() => setVistaActual('observaciones')}
+            >
+              Historial observaciones
+            </button>
+          </div>
+        )}
 
         {/* Content Layout */}
-        {vistaActual === 'entregas' && (
+        {(vistaActual === 'entregas' || actividad.fase === 'tema') && (
           <div className={styles.contentLayout}>
             {/* Lista de Entregas */}
             <div className={styles.entregasContainer}>
@@ -167,13 +184,15 @@ export default function ActividadPage() {
               )}
             </div>
 
-            {/* Formulario de Nueva Entrega */}
-            <FormularioEntrega
-              actividadId={actividad.id}
-              proyectoId={proyectoId}
-              fase={actividad.fase}
-              onEntregaExitosa={handleActualizarEntregas}
-            />
+            {/* Formulario de Nueva Entrega - No mostrar para trabajos finales */}
+            {!esFinal && (
+              <FormularioEntrega
+                actividadId={actividad.id}
+                proyectoId={proyectoId}
+                fase={actividad.fase}
+                onEntregaExitosa={handleActualizarEntregas}
+              />
+            )}
           </div>
         )}
 

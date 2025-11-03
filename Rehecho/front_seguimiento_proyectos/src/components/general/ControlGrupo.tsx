@@ -10,6 +10,7 @@ interface ControlGrupoProps {
   grado: string;
   faseActual: Fase;
   onFaseChange: (fase: Fase) => void;
+  rol?: 'docente' | 'estudiante';
 }
 
 export default function ControlGrupo({
@@ -17,6 +18,7 @@ export default function ControlGrupo({
   grado,
   faseActual,
   onFaseChange,
+  rol = 'estudiante',
 }: ControlGrupoProps) {
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -25,6 +27,28 @@ export default function ControlGrupo({
     perfil: 'Perfil',
     proyecto: 'Proyecto',
   };
+
+  // Determinar qué fases están disponibles según el rol y grado
+  const getFasesDisponibles = (): Fase[] => {
+    // Estudiantes siempre ven todas las fases
+    if (rol === 'estudiante') {
+      return ['tema', 'perfil', 'proyecto'];
+    }
+
+    // Docentes: lógica según el grado
+    if (grado === 'grado1') {
+      // Grado 1: solo tema y perfil
+      return ['tema', 'perfil'];
+    } else if (grado === 'grado2') {
+      // Grado 2: solo proyecto
+      return ['proyecto'];
+    }
+
+    // Fallback: todas las fases
+    return ['tema', 'perfil', 'proyecto'];
+  };
+
+  const fasesDisponibles = getFasesDisponibles();
 
   const handleFaseClick = (fase: Fase) => {
     onFaseChange(fase);
@@ -50,24 +74,30 @@ export default function ControlGrupo({
               {faseLabels[faseActual]}
             </button>
             <div className={`${styles.phaseDropdown} ${showDropdown ? styles.show : ''}`}>
-              <div
-                className={`${styles.phaseOption} ${faseActual === 'perfil' ? styles.active : ''}`}
-                onClick={() => handleFaseClick('perfil')}
-              >
-                Perfil
-              </div>
-              <div
-                className={`${styles.phaseOption} ${faseActual === 'tema' ? styles.active : ''}`}
-                onClick={() => handleFaseClick('tema')}
-              >
-                Tema
-              </div>
-              <div
-                className={`${styles.phaseOption} ${faseActual === 'proyecto' ? styles.active : ''}`}
-                onClick={() => handleFaseClick('proyecto')}
-              >
-                Proyecto
-              </div>
+              {fasesDisponibles.includes('tema') && (
+                <div
+                  className={`${styles.phaseOption} ${faseActual === 'tema' ? styles.active : ''}`}
+                  onClick={() => handleFaseClick('tema')}
+                >
+                  Tema
+                </div>
+              )}
+              {fasesDisponibles.includes('perfil') && (
+                <div
+                  className={`${styles.phaseOption} ${faseActual === 'perfil' ? styles.active : ''}`}
+                  onClick={() => handleFaseClick('perfil')}
+                >
+                  Perfil
+                </div>
+              )}
+              {fasesDisponibles.includes('proyecto') && (
+                <div
+                  className={`${styles.phaseOption} ${faseActual === 'proyecto' ? styles.active : ''}`}
+                  onClick={() => handleFaseClick('proyecto')}
+                >
+                  Proyecto
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,15 +1,31 @@
 .container {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
   background-color: var(--casi-blanco);
 }
 
 .content {
-  padding: 24px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  width: 100%;
+  padding: 2rem 1.5rem;
+}
+
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.mainContent {
+  min-width: 0;
+}
+
+.sidebar {
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
 }
 
 .cargando {
@@ -63,7 +79,6 @@
   margin-bottom: 24px;
 }
 
-/* Cuando hay formulario de actividad visible, usar layout horizontal */
 .activitiesWrapper.withForm {
   flex-direction: row;
   gap: 24px;
@@ -88,14 +103,45 @@
   font-size: 1rem;
 }
 
+.temaContainer {
+  margin-top: 1rem;
+}
+
+.noActividad {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  color: var(--carbon);
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(30, 57, 108, 0.1);
+}
+
+@media (max-width: 1024px) {
+  .contentWrapper {
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .contentWrapper {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .sidebar {
+    position: static;
+    max-height: none;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
   .activitiesWrapper,
   .activitiesWrapper.withForm {
     flex-direction: column;
     gap: 0;
-  }
-  
-  .content {
-    padding: 16px;
   }
 }

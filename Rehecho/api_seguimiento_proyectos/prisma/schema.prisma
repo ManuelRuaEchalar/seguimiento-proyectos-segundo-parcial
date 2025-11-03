@@ -23,20 +23,28 @@ model Usuario {
 }
 
 model Grupo {
-  id                    Int        @id @default(autoincrement())
-  nombre                String
-  grado                 Grado
-  estudiantes           Estudiante[]
-  docente_id            Int?
-  docente               Docente?   @relation(fields: [docente_id], references: [id])
-  actividades           Actividad[]
+  id                     Int        @id @default(autoincrement())
+  nombre                 String
+  grado                  Grado
+  estudiantes            Estudiante[]
+  estudiantes_grado2    Estudiante[] @relation("GrupoDos") // relación secundaria
+  docente_id             Int?
+  docente                Docente?   @relation(fields: [docente_id], references: [id])
+  actividades            Actividad[]
 
-  total_actividades     Int        @default(0)
-  total_estudiantes     Int        @default(0)
-  fase                  String     @default("tema")
-  elementos             Json?
-  elementos_hechos      Json?
+  total_actividades      Int        @default(0)
+  total_estudiantes      Int        @default(0)
+  fase                   String     @default("tema")
+  elementos              Json?
+  elementos_hechos       Json?
   fecha_ultima_actividad DateTime?
+
+  fecha_inicio_tema      DateTime?
+  fecha_fin_tema         DateTime?
+  fecha_inicio_perfil    DateTime?
+  fecha_fin_perfil       DateTime?
+  fecha_inicio_proyecto  DateTime?
+  fecha_fin_proyecto     DateTime?
 }
 
 
@@ -47,6 +55,8 @@ model Estudiante {
   carrera         String
   grupo_id        Int?
   grupo           Grupo?         @relation(fields: [grupo_id], references: [id])
+  grupo_dos_id    Int?        // grupo de grado 2
+  grupo_dos       Grupo?      @relation("GrupoDos", fields: [grupo_dos_id], references: [id])
   proyecto_id     Int?
   proyecto        Proyecto?      @relation("ProyectoEstudiantes", fields: [proyecto_id], references: [id])
 
@@ -150,14 +160,15 @@ model Actividad {
   fecha_creacion DateTime         @default(now())
   estado         EstadoActividad  @default(activo)
   fase           FaseProyecto
-  es_final       Boolean          @default(false) // <- nuevo atributo obligatorio
+  es_final       Boolean          @default(false)
 
-  // Relación con Grupo (N:1)
   grupo_id       Int
   grupo          Grupo            @relation(fields: [grupo_id], references: [id])
 
-  // Relación con Documento (1:N)
   documentos     Documento[]
+
+  // Nueva relación con Final (1:N)
+  finales        Final[]
 }
 
 model Solicitud {
@@ -171,6 +182,7 @@ model Solicitud {
 
   receptor_id  Int
   receptor     Estudiante       @relation("SolicitudesRecibidas", fields: [receptor_id], references: [id])
+  titulo       String
 
   aprobacion_receptor       EstadoSolicitud  @default(pendiente)
   aprobacion_docente EstadoSolicitud @default(pendiente)
@@ -188,19 +200,22 @@ enum EstadoSolicitud {
   rechazado
 }
 
-
-
 model Final {
-  id          Int          @id @default(autoincrement())
-  titulo      String
-  carrera     String
-  año         Int
-  estado      EstadoFinal  @default(pendiente)
-  archivo     String
-  fase        FaseFinal
-  proyecto_id Int
-  proyecto    Proyecto     @relation(fields: [proyecto_id], references: [id])
-  tags        Tag[]        @relation("FinalTags")
+  id            Int          @id @default(autoincrement())
+  titulo        String
+  carrera       String
+  año           Int
+  estado        EstadoFinal  @default(pendiente)
+  archivo       String
+  fase          FaseFinal
+  version       Int
+  proyecto_id   Int
+  proyecto      Proyecto     @relation(fields: [proyecto_id], references: [id])
+  tags          Tag[]        @relation("FinalTags")
+
+  // Nueva relación con Actividad (N:1)
+  actividad_id  Int
+  actividad     Actividad    @relation(fields: [actividad_id], references: [id])
 }
 
 model Tag {

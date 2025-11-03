@@ -380,3 +380,19 @@
     opacity: 0.7;
   }
 }
+
+/* Modo selección activo */
+.modoSeleccionActivo {
+  border: 2px solid #1E396C;
+  border-radius: 8px;
+}
+
+.modoSeleccionBadge {
+  background: #1E396C;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 12px;
+  font-weight: 600;
+}

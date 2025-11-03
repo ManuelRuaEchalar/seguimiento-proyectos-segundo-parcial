@@ -4,7 +4,7 @@
 }
 
 .content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
 }
@@ -21,6 +21,31 @@
 
 .error {
   color: var(--rojo);
+}
+
+/* Layout de dos columnas */
+.layoutContainer {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.mainContent {
+  min-width: 0; /* Permite que el contenido se contraiga si es necesario */
+}
+
+.sidebar {
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+}
+
+/* Contenedor para la fase tema (sin sidebar) */
+.temaContainer {
+  margin-top: 1rem;
 }
 
 .actividadesContainer {
@@ -54,4 +79,43 @@
 .faseNoImplementada p {
   color: var(--carbon);
   font-size: 1rem;
+}
+
+.faseNoDisponible {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  color: var(--carbon);
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(30, 57, 108, 0.1);
+}
+
+.faseNoDisponible p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .layoutContainer {
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .layoutContainer {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .sidebar {
+    position: static;
+    max-height: none;
+  }
+
+  .content {
+    padding: 1rem;
+  }
 }

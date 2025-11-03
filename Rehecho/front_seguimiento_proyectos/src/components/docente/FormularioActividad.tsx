@@ -161,6 +161,7 @@ export default function FormularioActividad({ grupoId, elementosGrupo,fase, onAc
         elementos: elementosTablero.map(el => el.texto),
         fase:fase,
         descripcion: notas,
+        es_final: false,
         grupo_id: grupoId,
       };
 
@@ -173,10 +174,19 @@ export default function FormularioActividad({ grupoId, elementosGrupo,fase, onAc
       
       // Reinicializar elementos
       if (elementosGrupo && elementosGrupo.length > 0) {
-        const elementos = elementosGrupo.map((texto, index) => ({
-          id: `elemento-${index}`,
+        // Obtener los textos de los elementos usados en el tablero
+        const textosUsados = elementosTablero.map(el => el.texto);
+        
+        // Filtrar elementosGrupo para quitar los elementos usados
+        const elementosRestantes = elementosGrupo.filter(texto => !textosUsados.includes(texto));
+        
+        // Mapear los elementos restantes con nuevos IDs
+        const elementos = elementosRestantes.map((texto, index) => ({
+          id: `elemento-restante-${Date.now()}-${index}`,
           texto: texto
         }));
+        
+        // Repartir los elementos restantes
         const elementosIniciales = elementos.slice(0, Math.min(3, elementos.length));
         const opcionesIniciales = elementos.slice(Math.min(3, elementos.length));
         setElementosTablero(elementosIniciales);

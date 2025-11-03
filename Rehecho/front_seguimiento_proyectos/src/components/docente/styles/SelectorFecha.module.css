@@ -1,0 +1,99 @@
+.dateSelector {
+    flex: 1;
+    min-width: 300px;
+    max-width: 480px;
+    margin: 1rem auto;
+}
+
+.dateCard {
+    background-color: var(--blanco, #ffffff);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 2px 6px rgba(30, 57, 108, 0.1);
+    width: 100%;
+    border: 1px solid var(--celeste, #E3F2FD);
+}
+
+.dateTitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: var(--azul, #1E396C);
+    text-align: center;
+}
+
+.dateInputs {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.dateInputGroup {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.dateInputGroup label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 3px;
+    color: var(--carbon, #2C3E50);
+    white-space: nowrap;
+}
+
+.dateInput {
+    padding: 5px 6px;
+    border: 1px solid var(--celeste, #E3F2FD);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--carbon, #2C3E50);
+    background-color: var(--casi-blanco, #F8F9FA);
+    transition: border-color 0.2s ease;
+    min-width: 0;
+    width: 100%;
+}
+
+.dateInput:focus {
+    outline: none;
+    border-color: var(--azul, #1E396C);
+}
+
+.dateInput:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dateButton {
+    background-color: transparent;
+    color: var(--azul-oscuro, #1E396C);
+    border: 1px solid var(--azul-oscuro, #1E396C);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    height: fit-content;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.dateButton:hover:not(:disabled) {
+    background-color: var(--azul-oscuro, #1E396C);
+    color: var(--blanco, #ffffff);
+}
+
+.dateButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.error {
+    color: #d32f2f;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    text-align: center;
+}

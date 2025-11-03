@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import styles from './styles/NavbarRevision.module.css';
 import { cambiarEstadoDocumento } from '@/services/documentos';
+import { actualizarFinal } from '@/services/finales';
+import { useRouter } from 'next/navigation';
 import { changeProyectoFase } from '@/services/proyecto';
 
 interface NavbarRevisionProps {
@@ -14,7 +16,12 @@ interface NavbarRevisionProps {
   documento_id: number;
   proyecto_id: number;
   fase: string;
+  fase_proyecto: string;
   es_final: boolean;
+  es_documento_final?: boolean;
+  // Nuevas props para corrección
+  onFinalizarCorreccion?: () => void;
+  hayObservacionesPendientes?: boolean;
 }
 
 const NavbarRevision: React.FC<NavbarRevisionProps> = ({
@@ -27,8 +34,14 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
   documento_id,
   proyecto_id,
   fase,
+  fase_proyecto,
   es_final,
+  es_documento_final = false,
+  // Nuevas props
+  onFinalizarCorreccion,
+  hayObservacionesPendientes = false,
 }) => {
+  const router = useRouter();
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [rejectionNote, setRejectionNote] = useState('');
@@ -37,7 +50,11 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
 
   const handleGoBack = () => {
     console.log('Botón Atrás presionado');
-    window.history.back();
+    if (role === 'estudiante' || role === 'estudiante_correccion') {
+      router.push('/dashboard/estudiante/actividad');
+    } else {
+      router.push('/dashboard/docente/actividad');
+    }
   };
 
   const handleApproveClick = () => {
@@ -56,30 +73,54 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
     setErrorMessage('');
 
     try {
-      // Cambiar estado del documento a "aprobado"
-      const resultDoc = await cambiarEstadoDocumento(documento_id, 'aprobado');
-      
-      if (!resultDoc.success) {
-        setErrorMessage(resultDoc.error || 'Error al aprobar el documento');
-        setIsProcessing(false);
-        return;
-      }
+      if (es_documento_final) {
+        // ✅ Flujo para documentos FINALES
+        console.log('📄 Aprobando documento FINAL con ID:', documento_id);
+        
+        // 1. Actualizar estado del documento final a "aprobado"
+        const resultFinal = await actualizarFinal(documento_id, {
+          estado: 'aprobado'
+        });
+        
+        console.log('✅ Documento final aprobado:', resultFinal);
 
-      // Verificar si se debe cambiar la fase del proyecto
-      const debeCambiarFase = fase === 'tema' || es_final === true;
-      
-      if (debeCambiarFase) {
+        // 2. Cambiar fase del proyecto (siempre para documentos finales)
+        console.log('🔄 Cambiando fase del proyecto con ID:', proyecto_id);
         const resultProyecto = await changeProyectoFase(proyecto_id);
-        console.log('Fase del proyecto cambiada:', resultProyecto);
-      }
+        console.log('✅ Fase del proyecto cambiada:', resultProyecto);
 
-      // Cerrar modal y recargar o redirigir
-      setShowApprovalModal(false);
-      alert('Documento aprobado exitosamente');
-      window.location.reload(); // O redirigir a otra página
+        // Cerrar modal y redirigir
+        setShowApprovalModal(false);
+        window.location.href = '/dashboard/docente/actividad';
+        
+      } else {
+        // ✅ Flujo para documentos NORMALES (sin cambios)
+        console.log('📄 Aprobando documento NORMAL con ID:', documento_id);
+        
+        // 1. Cambiar estado del documento a "aprobado"
+        const resultDoc = await cambiarEstadoDocumento(documento_id, 'aprobado');
+        
+        if (!resultDoc.success) {
+          setErrorMessage(resultDoc.error || 'Error al aprobar el documento');
+          setIsProcessing(false);
+          return;
+        }
+
+        // 2. Verificar si se debe cambiar la fase del proyecto
+        const debeCambiarFase = (fase_proyecto === 'tema' || es_final === true);
+        
+        if (debeCambiarFase) {
+          const resultProyecto = await changeProyectoFase(proyecto_id);
+          console.log('✅ Fase del proyecto cambiada:', resultProyecto);
+        }
+
+        // Cerrar modal y recargar o redirigir
+        setShowApprovalModal(false);
+        window.location.reload();
+      }
       
     } catch (error) {
-      console.error('Error al aprobar documento:', error);
+      console.error('❌ Error al aprobar documento:', error);
       setErrorMessage(error instanceof Error ? error.message : 'Error al aprobar documento');
     } finally {
       setIsProcessing(false);
@@ -96,26 +137,45 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
     setErrorMessage('');
 
     try {
-      // Cambiar estado del documento a "rechazado" con justificación
-      const result = await cambiarEstadoDocumento(
-        documento_id, 
-        'rechazado', 
-        rejectionNote.trim()
-      );
-      
-      if (!result.success) {
-        setErrorMessage(result.error || 'Error al rechazar el documento');
-        setIsProcessing(false);
-        return;
-      }
+      if (es_documento_final) {
+        // ✅ Flujo para documentos FINALES
+        console.log('📄 Rechazando documento FINAL con ID:', documento_id);
+        
+        // Actualizar estado del documento final a "rechazado"
+        const resultFinal = await actualizarFinal(documento_id, {
+          estado: 'rechazado'
+        });
+        
+        console.log('✅ Documento final rechazado:', resultFinal);
 
-      // Cerrar modal y recargar o redirigir
-      setShowRejectionModal(false);
-      alert('Documento rechazado exitosamente');
-      window.location.reload(); // O redirigir a otra página
+        // Cerrar modal y redirigir
+        setShowRejectionModal(false);
+        window.location.href = '/dashboard/docente/actividad';
+        
+      } else {
+        // ✅ Flujo para documentos NORMALES (sin cambios)
+        console.log('📄 Rechazando documento NORMAL con ID:', documento_id);
+        
+        // Cambiar estado del documento a "rechazado" con justificación
+        const result = await cambiarEstadoDocumento(
+          documento_id, 
+          'rechazado', 
+          rejectionNote.trim()
+        );
+        
+        if (!result.success) {
+          setErrorMessage(result.error || 'Error al rechazar el documento');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Cerrar modal y recargar o redirigir
+        setShowRejectionModal(false);
+        window.location.reload();
+      }
       
     } catch (error) {
-      console.error('Error al rechazar documento:', error);
+      console.error('❌ Error al rechazar documento:', error);
       setErrorMessage(error instanceof Error ? error.message : 'Error al rechazar documento');
     } finally {
       setIsProcessing(false);
@@ -131,6 +191,9 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
 
   const handleFinishCorrection = () => {
     console.log('Botón Terminar Corrección presionado');
+    if (onFinalizarCorreccion) {
+      onFinalizarCorreccion();
+    }
   };
 
   return (
@@ -150,6 +213,9 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
           <div className={styles.activityTitle}>
             <span className={styles.documentVersion}>Versión {version}</span>
             {titulo}
+            {es_documento_final && (
+              <span className={styles.finalBadge}>FINAL</span>
+            )}
           </div>
           <div className={styles.activityMeta}>
             <span className={styles.activityDate}>
@@ -183,10 +249,11 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
           )}
           {role === 'estudiante_correccion' && (
             <button
-              className={styles.finishButton}
+              className={`${styles.finishButton} ${hayObservacionesPendientes ? styles.finishButtonDisabled : ''}`}
               onClick={handleFinishCorrection}
+              disabled={hayObservacionesPendientes}
             >
-              Terminar Corrección
+              {hayObservacionesPendientes ? 'Observaciones Pendientes' : 'Terminar Corrección'}
             </button>
           )}
         </div>
@@ -200,7 +267,14 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
               <h3>Confirmar Aprobación</h3>
             </div>
             <div className={styles.modalBody}>
-              <p>¿Está seguro de que desea aprobar este documento?</p>
+              <p>
+                ¿Está seguro de que desea aprobar este {es_documento_final ? 'documento final' : 'documento'}?
+              </p>
+              {es_documento_final && (
+                <p className={styles.warningText}>
+                  <strong>Nota:</strong> Al aprobar este documento final, el proyecto avanzará automáticamente a la siguiente fase.
+                </p>
+              )}
               {errorMessage && (
                 <div className={styles.errorMessage}>{errorMessage}</div>
               )}
@@ -242,6 +316,11 @@ const NavbarRevision: React.FC<NavbarRevisionProps> = ({
                 rows={5}
                 disabled={isProcessing}
               />
+              {es_documento_final && (
+                <p className={styles.infoText}>
+                  El estudiante será notificado del rechazo de su documento final.
+                </p>
+              )}
               {errorMessage && (
                 <div className={styles.errorMessage}>{errorMessage}</div>
               )}

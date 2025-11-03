@@ -26,13 +26,25 @@ interface VisualizadorPDFProps {
   observaciones: Observacion[] | null;
   correcciones: any[] | null;
   infoProyecto: infoProyecto;
+  modoSeleccion?: boolean;
+  observacionSeleccionada?: any;
+  onSeleccionCompletada?: () => void;
+  observacionesPendientes?: any[];
+  observacionesCorregidas?: any[];
+  onIniciarModoSeleccion?: (observacion: any) => void;
 }
 
 export function VisualizadorPDFCorrecciones({ 
   blob, 
   observaciones, 
   correcciones, 
-  infoProyecto 
+  infoProyecto,
+  modoSeleccion = false,
+  observacionSeleccionada = null,
+  onSeleccionCompletada,
+  observacionesPendientes = [],
+  observacionesCorregidas = [],
+  onIniciarModoSeleccion
 }: VisualizadorPDFProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +52,7 @@ export function VisualizadorPDFCorrecciones({
   
   // Custom hooks
   const { currentPage, totalPages, setTotalPages } = usePageTracking();
+  console.log(`cantidad de observaciones pendientes: ${observacionesPendientes.length}`);
   
   const {
     highlights,
@@ -75,6 +88,66 @@ export function VisualizadorPDFCorrecciones({
       setUrl(null);
     }
   }, [blob]);
+
+  // Función para manejar la selección de texto en modo corrección
+  const handleSelectionFinished = (
+    position: any,
+    content: any,
+    hideTipAndSelection: () => void,
+    transformSelection: () => void
+  ) => {
+    if (modoSeleccion && observacionSeleccionada) {
+      // Crear corrección automáticamente sin TipCor
+      const nuevaCorreccion = {
+        content,
+        position,
+        comment: {
+          text: `Corrección para observación #${observacionSeleccionada.id}`,
+          emoji: "",
+        },
+        estado: "pendiente",
+        documento_id: infoProyecto.codigoDoc,
+        proyecto_id: infoProyecto.codigoProyecto,
+        observacionId: observacionSeleccionada.id,
+        isCorreccion: true
+      };
+
+      console.log('➕ Creando corrección automática:', nuevaCorreccion);
+      
+      addHighlight(nuevaCorreccion);
+      hideTipAndSelection();
+      
+      // Notificar que la selección se completó
+      if (onSeleccionCompletada) {
+        onSeleccionCompletada();
+      }
+      
+      return null;
+    } else {
+      // Comportamiento normal para otros roles
+      return (
+        <TipCor
+          onOpen={transformSelection}
+          onConfirm={(comment: { text: string; observacionId: string }) => {
+            addHighlight({ 
+              content, 
+              position, 
+              comment: {
+                text: comment.text,
+                emoji: "",
+              },
+              estado: "pendiente", 
+              documento_id: infoProyecto.codigoDoc, 
+              proyecto_id: infoProyecto.codigoProyecto,
+              observacionId: comment.observacionId
+            });
+            hideTipAndSelection();
+          }}
+          observaciones={observaciones}
+        />
+      );
+    }
+  };
 
   // Manejo de errores de extensiones
   useEffect(() => {
@@ -113,7 +186,7 @@ export function VisualizadorPDFCorrecciones({
 
   return (
     <div className={styles.pdfViewerContainer}>
-      <div className={`${styles.pdfViewerContent} ${isSidebarCollapsed ? styles.sidebarHidden : ''}`} style={{ position: 'relative' }}>
+      <div className={`${styles.pdfViewerContent} ${isSidebarCollapsed ? styles.sidebarHidden : ''} ${modoSeleccion ? styles.modoSeleccionActivo : ''}`} style={{ position: 'relative' }}>
         <div className={styles.pageIndicator}>
           Página {currentPage} {totalPages > 0 && `de ${totalPages}`}
         </div>
@@ -149,38 +222,13 @@ export function VisualizadorPDFCorrecciones({
             return (
               <PdfHighlighter
                 pdfDocument={pdfDocument}
-                enableAreaSelection={(event) => event.altKey}
+                enableAreaSelection={(event) => !modoSeleccion && event.altKey} // Deshabilitar ALT en modo selección
                 onScrollChange={() => {}}
                 scrollRef={(scrollToFunction) => {
                   console.log("scrollRef asignado:", !!scrollToFunction);
                   scrollToHighlightRef.current = scrollToFunction;
                 }}
-                onSelectionFinished={(
-                  position,
-                  content,
-                  hideTipAndSelection,
-                  transformSelection
-                ) => (
-                  <TipCor
-                    onOpen={transformSelection}
-                    onConfirm={(comment: { text: string; observacionId: string }) => {
-                      addHighlight({ 
-                        content, 
-                        position, 
-                        comment: {
-                          text: comment.text,
-                          emoji: "",
-                        },
-                        estado: "pendiente", 
-                        documento_id: infoProyecto.codigoDoc, 
-                        proyecto_id: infoProyecto.codigoProyecto,
-                        observacionId: comment.observacionId
-                      });
-                      hideTipAndSelection();
-                    }}
-                    observaciones={observaciones}
-                  />
-                )}
+                onSelectionFinished={handleSelectionFinished}
                 highlightTransform={(
                   highlight,
                   index,
@@ -201,6 +249,7 @@ export function VisualizadorPDFCorrecciones({
                       documento_id={highlight.documento_id || 2}
                       proyecto_id={highlight.proyecto_id || 1}
                       isCorreccion={isCorreccion}
+                      observacionId={highlight.observacionId}
                     />
                   );
 
@@ -224,10 +273,15 @@ export function VisualizadorPDFCorrecciones({
 
       <Sidebar
         resetHighlights={resetHighlights}
-        onHighlightClick={handleHighlightClick} 
+        onHighlightClick={handleHighlightClick}
         highlights={highlights}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleSidebar}
+        role="correccion"
+        observacionesPendientes={observacionesPendientes}
+        onIniciarModoSeleccion={onIniciarModoSeleccion}
+        observacionSeleccionada={observacionSeleccionada}
+        modoSeleccion={modoSeleccion}
       />
     </div>
   );

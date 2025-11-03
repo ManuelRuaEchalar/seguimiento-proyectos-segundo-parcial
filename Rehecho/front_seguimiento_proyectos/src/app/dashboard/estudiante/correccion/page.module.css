@@ -1,7 +1,7 @@
 /* page.module.css - Estilos para ActividadPage */
 
 .documentoBody {
-  height: calc(100vh - 60px); /* Ajustar según altura del navbar */
+  height: calc(100vh - 60px);
   width: 100%;
   overflow: hidden;
   background-color: #f9fafb;
@@ -79,7 +79,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #e5e7eb;
-  border-top-color: #1e396c;
+  border-top-color: var(--azul-oscuro);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -117,10 +117,10 @@
 
 .errorButton {
   padding: 0.75rem 1.5rem;
-  background-color: #1e396c;
+  background-color: var(--azul-oscuro);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 2px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -128,7 +128,242 @@
 }
 
 .errorButton:hover {
-  background-color: #272d3a;
+  background-color: var(--gunmetal);
+}
+
+/* Banner de modo selección */
+.bannerModoSeleccion {
+  background: var(--blanco);
+  border: 1px solid var(--plata);
+  padding: 12px 20px;
+  border-radius: 2px;
+  margin: 0 20px 20px 20px;
+}
+
+.bannerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bannerText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bannerText strong {
+  font-weight: 600;
+  color: var(--azul-oscuro);
+}
+
+.bannerText span {
+  font-size: 14px;
+  color: var(--carbon);
+}
+
+.bannerText .highlight {
+  background: var(--celeste);
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.bannerCancelButton {
+  background: transparent;
+  color: var(--azul-oscuro);
+  border: 1px solid var(--azul-oscuro);
+  padding: 8px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.bannerCancelButton:hover {
+  background: var(--azul-oscuro);
+  color: var(--blanco);
+}
+
+/* Estilos del Modal de Instrucciones */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(39, 45, 58, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modalContainer {
+  background-color: var(--blanco);
+  border-radius: 4px;
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(39, 45, 58, 0.15);
+  border: 1px solid var(--plata);
+}
+
+.modalHeader {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--plata);
+  background-color: var(--casi-blanco);
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+  letter-spacing: -0.01em;
+}
+
+.modalContent {
+  padding: 28px;
+  overflow-y: auto;
+  flex: 1;
+  background-color: var(--blanco);
+}
+
+.modalSection {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 24px;
+  align-items: flex-start;
+}
+
+.stepNumber {
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.stepContent {
+  flex: 1;
+}
+
+.stepTitle {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--azul-oscuro);
+}
+
+.stepText {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--carbon);
+}
+
+.highlightText {
+  background-color: var(--celeste);
+  padding: 2px 5px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.modalNote {
+  padding: 14px 16px;
+  background-color: var(--casi-blanco);
+  border: 1px solid var(--columbia-blue);
+  border-radius: 2px;
+  margin-top: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--carbon);
+}
+
+.modalFooter {
+  padding: 18px 28px;
+  border-top: 1px solid var(--plata);
+  display: flex;
+  justify-content: flex-end;
+  background-color: var(--casi-blanco);
+}
+
+.modalButton {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+  border: none;
+  padding: 10px 28px;
+  border-radius: 2px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  letter-spacing: 0.01em;
+}
+
+.modalButton:hover {
+  background-color: var(--gunmetal);
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+  .modalContainer {
+    max-width: 95%;
+    margin: 10px;
+  }
+
+  .modalHeader {
+    padding: 20px 24px;
+  }
+
+  .modalTitle {
+    font-size: 18px;
+  }
+
+  .modalContent {
+    padding: 24px;
+  }
+
+  .modalSection {
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .stepNumber {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+  }
+
+  .stepTitle {
+    font-size: 15px;
+  }
+
+  .stepText {
+    font-size: 14px;
+  }
+
+  .modalFooter {
+    padding: 16px 24px;
+  }
+
+  .modalButton {
+    width: 100%;
+  }
 }
 
 /* Accesibilidad */

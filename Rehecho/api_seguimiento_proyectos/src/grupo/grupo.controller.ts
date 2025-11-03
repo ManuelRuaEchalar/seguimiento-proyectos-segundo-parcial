@@ -24,6 +24,18 @@ export class GrupoController {
     return this.grupoService.findAll();
   }
 
+@Patch('asignar-fechas')
+@UseGuards(JwtGuard)
+asignarFechasGrupo(@Body() body: any) {
+  return this.grupoService.asignarFechasGrupo(body);
+}
+
+  @Get('grupo-final')
+  @UseGuards(JwtGuard)
+  obtenerGruposFinal() {
+    return this.grupoService.obtenerGruposFinal();
+  }
+
   @Post()
   @UseGuards(JwtGuard)
   create(@Body() createGrupoDto: any) {
@@ -53,4 +65,24 @@ export class GrupoController {
 
     return this.grupoService.actualizarElementos(id, body.elementos);
   }
+
+  @Post(':id/unirse-grado2')
+@UseGuards(JwtGuard)
+async unirseAGrupoGrado2(
+  @Req() req: Request,
+  @Param('id', ParseIntPipe) grupoId: number,
+) {
+  const user = req.user as { id: number; email: string; rol: string };
+
+  // Verificar rol
+  if (user.rol !== 'estudiante') {
+    throw new HttpException(
+      'Solo los estudiantes pueden unirse a un segundo grupo',
+      HttpStatus.FORBIDDEN,
+    );
+  }
+
+  return this.grupoService.unirseAGrupoGrado2(user.id, grupoId);
+}
+
 }

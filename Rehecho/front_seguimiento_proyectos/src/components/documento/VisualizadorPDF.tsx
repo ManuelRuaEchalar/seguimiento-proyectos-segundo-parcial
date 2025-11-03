@@ -31,6 +31,7 @@ interface VisualizadorPDFProps {
   correcciones: any[] | null;
   infoProyecto: infoProyecto;
   selectedObservation?: any;
+  doc_actual_id?: number;
   contentType?: string;
   role: 'docente' | 'estudiante';
   onObservationClick?: (observacion: any) => void;
@@ -47,6 +48,7 @@ export function VisualizadorPDF({
   correcciones,
   infoProyecto,
   selectedObservation,
+  doc_actual_id,
   role,
   onObservationClick,
   onRejectionWithNewObservation,
@@ -92,6 +94,7 @@ export function VisualizadorPDF({
     selectedObservation,
     highlights,
     infoProyecto,
+    doc_actual_id,
     onApprovalComplete,
     onRejectionWithNewObservation,
     onActualizarEstadoObservacion,
