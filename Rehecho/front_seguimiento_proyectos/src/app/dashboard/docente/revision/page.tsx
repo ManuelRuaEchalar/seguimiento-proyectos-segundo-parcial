@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import NavbarRevision from '@/components/general/NavbarRevision';
 import { fetchDoc, fetchProjectObservaciones, changeProyectoFase } from '@/services/proyecto';
+import { fetchFinal } from '@/services/finales';
 import { fetchTeacherObservations } from '@/services/docentes';
 import { fetchObservaciones } from '@/services/observaciones';
 import { fetchCorrecciones } from '@/services/correcciones';
@@ -29,6 +30,7 @@ interface Estudiante {
 interface Proyecto {
   id: number;
   titulo: string;
+  fase: string;
   estudiantes: Estudiante[];
 }
 
@@ -41,6 +43,7 @@ interface Documento {
   created_at: string;
   file: string;
   proyecto: Proyecto;
+  tags?: any[]; // Propiedad opcional que indica si es un documento final
 }
 
 interface infoProyecto {
@@ -48,7 +51,7 @@ interface infoProyecto {
   codigoDoc: number;
 }
 
-export default function ActividadPage() {
+export default function RevisionDocentePage() {
   const router = useRouter();
   const [documento, setDocumento] = useState<Documento | null>(null);
   const [actividad, setActividad] = useState<any>(null);
@@ -71,10 +74,15 @@ export default function ActividadPage() {
   // Estado para observaciones del proyecto
   const [observacionesProyectoState, setObservacionesProyectoState] = useState<any[]>([]);
 
+  // Determinar si es un documento final (tiene tags)
+  const esDocumentoFinal = useMemo(() => {
+    return documento?.tags !== undefined;
+  }, [documento]);
+
   // Determinar si es revisión final
   const esFinal = useMemo(() => {
-    return actividad?.fase === 'tema' || actividad?.es_final === true;
-  }, [actividad]);
+    return actividad?.fase === 'tema' || actividad?.es_final === true || esDocumentoFinal;
+  }, [actividad, esDocumentoFinal]);
 
   useEffect(() => {
     // Recuperar documento actual del localStorage
@@ -93,6 +101,7 @@ export default function ActividadPage() {
     }
 
     const documentoData = JSON.parse(documentoStr);
+    console.log('📄 documento guardado en localStorage:', documentoData);
     const actividadData = JSON.parse(actividadStr);
 
     if (!documentoData?.id) {
@@ -115,18 +124,35 @@ export default function ActividadPage() {
       try {
         const estudiante = documentoData.proyecto.estudiantes[0];
         
-        const [docData, obsData, obsProyecto] = await Promise.all([
-          fetchDoc(documentoData.id),
-          fetchTeacherObservations(estudiante.id, actividadData.id),
-          fetchProjectObservaciones(documentoData.proyecto.id, documentoData.id)
-        ]);
+        // Determinar si es documento final por la presencia de tags
+        const esDocFinal = documentoData.tags !== undefined;
+        
+        let docData;
+        if (esDocFinal) {
+          console.log('📄 Obteniendo documento FINAL con ID:', documentoData.id);
+          docData = await fetchFinal(documentoData.id);
+        } else {
+          console.log('📄 Obteniendo documento NORMAL con ID:', documentoData.id);
+          docData = await fetchDoc(documentoData.id);
+        }
 
         setDocumentoBlob(docData);
-        setObservacionesYCorrecciones(obsData);
-        setObservacionesProyectoState(obsProyecto);
 
-        console.log("OBSERVACIONES Y CORRECCIONES DE LA API: ", obsData);
-        console.log("OBSERVACIONES DEL PROYECTO: ", obsProyecto);
+        // Solo obtener observaciones y correcciones si NO es documento final
+        if (!esDocFinal) {
+          const [obsData, obsProyecto] = await Promise.all([
+            fetchTeacherObservations(estudiante.id, actividadData.id),
+            fetchProjectObservaciones(documentoData.proyecto.id, documentoData.id)
+          ]);
+
+          setObservacionesYCorrecciones(obsData);
+          setObservacionesProyectoState(obsProyecto);
+
+          console.log("OBSERVACIONES Y CORRECCIONES DE LA API: ", obsData);
+          console.log("OBSERVACIONES DEL PROYECTO: ", obsProyecto);
+        } else {
+          console.log("📋 Documento final - sin observaciones ni correcciones");
+        }
       } catch (error) {
         console.error('❌ Error al obtener el documento o las observaciones:', error);
       }
@@ -276,15 +302,15 @@ export default function ActividadPage() {
 
   // Memoizar observaciones locales y externas
   const observacionesLocales = useMemo(() => {
-    if (!observacionesYCorrecciones || !documento) return [];
+    if (!observacionesYCorrecciones || !documento || esDocumentoFinal) return [];
     
     return observacionesYCorrecciones.documentos
       ?.find((doc: any) => doc.id === documento.id)
       ?.observaciones || [];
-  }, [observacionesYCorrecciones, documento]);
+  }, [observacionesYCorrecciones, documento, esDocumentoFinal]);
 
   const correccionesLocales = useMemo(() => {
-    if (!observacionesYCorrecciones || !documento) return [];
+    if (!observacionesYCorrecciones || !documento || esDocumentoFinal) return [];
 
     const correcciones = observacionesYCorrecciones.documentos
       ?.find((doc: any) => doc.id === documento.id)
@@ -297,13 +323,27 @@ export default function ActividadPage() {
         ...c,
         observacion_id: String(c.observacion_id),
       }));
-  }, [observacionesYCorrecciones, documento]);
+  }, [observacionesYCorrecciones, documento, esDocumentoFinal]);
 
   const observacionesExternas = useMemo(() => {
-    if (!documento) return [];
+    if (!documento || esDocumentoFinal || !observacionesYCorrecciones) return [];
+    
+    // Obtener los IDs de todos los documentos de la actividad actual
+    const documentosActividadIds = observacionesYCorrecciones.documentos?.map((doc: any) => doc.id) || [];
+    
+    console.log('📄 IDs de documentos en la actividad actual:', documentosActividadIds);
     
     const result = (observacionesProyectoState || [])
-      .filter(obs => obs.documento_id !== documento.id)
+      .filter(obs => {
+        // Debe ser del mismo proyecto
+        const esDelMismoProyecto = obs.proyecto_id === documento.proyecto.id;
+        // Debe pertenecer a un documento de la actividad actual
+        const esDeActividadActual = documentosActividadIds.includes(obs.documento_id);
+        // No debe ser del documento actual
+        const noEsDocumentoActual = obs.documento_id !== documento.id;
+        
+        return esDelMismoProyecto && esDeActividadActual && noEsDocumentoActual;
+      })
       .map(obs => ({
         ...obs,
         comment: { text: obs.commentText || obs.comment?.text || '' },
@@ -320,7 +360,7 @@ export default function ActividadPage() {
     });
 
     return result;
-  }, [observacionesProyectoState, documento]);
+  }, [observacionesProyectoState, documento, esDocumentoFinal, observacionesYCorrecciones]);
 
   // Calcular estadísticas de correcciones
   const estadisticasCorrecciones = useMemo(() => {
@@ -352,6 +392,9 @@ export default function ActividadPage() {
     role = 'docente';
   }
 
+  console.log(`total observaciones locales: ${observacionesLocales.length}`);
+  console.log(`total observaciones externas: ${observacionesExternas.length}`);
+
   return (
     <div>
       <NavbarRevision
@@ -360,8 +403,10 @@ export default function ActividadPage() {
         proyecto_id={documento.proyecto.id}
         fase={actividad.fase}
         es_final={actividad.es_final}
+        es_documento_final={esDocumentoFinal}
         version={documento.version}
         titulo={documento.titulo}
+        fase_proyecto={documento.proyecto.fase}
         nombreEstudiante={nombreCompleto}
         codigoUniversitario={estudiante.cu}
         carrera={estudiante.carrera}
@@ -400,6 +445,7 @@ export default function ActividadPage() {
                   blob={secondBlob}
                   observaciones={secondObservaciones ?? []}
                   correcciones={secondCorrecciones ?? []}
+                  doc_actual_id={infoProyecto.codigoDoc}
                   infoProyecto={secondInfoProyecto}
                   selectedObservation={selectedObservation}
                   contentType={secondContentType || 'application/pdf'}

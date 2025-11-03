@@ -13,7 +13,13 @@ interface Props {
   onReject?: (commentText?: string) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
-  role?: 'docente' | 'estudiante';
+  role?: 'docente' | 'estudiante' | 'correccion';
+  // Nuevas props para modo corrección
+  observacionesPendientes?: any[];
+  observacionesCorregidas?: any[];
+  onIniciarModoSeleccion?: (observacion: any) => void;
+  observacionSeleccionada?: any;
+  modoSeleccion?: boolean;
 }
 
 const updateHash = (highlight: IHighlight) => {
@@ -32,6 +38,12 @@ export function Sidebar({
   isCollapsed = false,
   onToggleCollapse,
   role = 'docente',
+  // Nuevas props
+  observacionesPendientes = [],
+  observacionesCorregidas = [],
+  onIniciarModoSeleccion,
+  observacionSeleccionada,
+  modoSeleccion = false,
 }: Props) {
   const [rejectionComment, setRejectionComment] = useState('');
   const [showRejectionForm, setShowRejectionForm] = useState(false);
@@ -67,15 +79,180 @@ export function Sidebar({
     if (estadoLower === 'pendiente') return styles.estadoPendiente;
     if (estadoLower === 'rechazado') return styles.estadoRechazado;
     if (estadoLower === 'aprobado') return styles.estadoAprobado;
+    if (estadoLower === 'corregida') return styles.estadoAprobado;
     return styles.estadoPendiente;
   };
+
+  // 🔹 VISTA ESPECIAL PARA MODO CORRECCIÓN
+  if (role === 'correccion') {
+    return (
+      <div className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarTitle}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+            Correcciones
+          </h2>
+          {onToggleCollapse && (
+            <button onClick={onToggleCollapse} className={styles.toggleBtn} aria-label="Cerrar sidebar">
+              →
+            </button>
+          )}
+        </div>
+
+        <div className={styles.sidebarContent}>
+          {/* Banner de modo selección */}
+          {modoSeleccion && observacionSeleccionada && (
+            <div className={styles.modoSeleccionBanner}>
+              <div className={styles.modoSeleccionHeader}>
+                <strong>Observación seleccionada</strong>
+              </div>
+              <div className={styles.modoSeleccionText}>
+                Selecciona en el documento el texto corregido para:
+              </div>
+              <div className={styles.observacionSeleccionadaPreview}>
+                "{observacionSeleccionada.content_text?.slice(0, 100)}..."
+              </div>
+              <button 
+                className={styles.cancelarSeleccionBtn}
+                onClick={() => onIniciarModoSeleccion?.(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+
+          {/* Observaciones Pendientes */}
+          {observacionesPendientes.length > 0 && (
+            <div className={styles.observacionesSection}>
+              <h3 className={styles.sectionHeader}>
+                Observaciones Pendientes
+                <span className={styles.badge}>{observacionesPendientes.length}</span>
+              </h3>
+              <div className={styles.observacionesLista}>
+                {observacionesPendientes.map((observacion, index) => (
+                  <div
+                    key={observacion.id || index}
+                    className={`${styles.observacion} ${observacionSeleccionada?.id === observacion.id ? styles.observacionSeleccionada : ''}`}
+                    onClick={() => onIniciarModoSeleccion?.(observacion)}
+                  >
+                    <div className={styles.observacionHeader}>
+                      <span className={styles.observacionDoc}>Observación #{observacion.id}</span>
+                      <span className={styles.observacionPagina}>
+                        Pág. {observacion.position?.pageNumber || observacion.bounding_page || 'N/A'}
+                      </span>
+                    </div>
+                    {observacion.content_text && (
+                      <div className={styles.observacionTexto}>
+                        "{observacion.content_text.slice(0, 120).trim()}{observacion.content_text.length > 120 ? '...' : ''}"
+                      </div>
+                    )}
+                    {observacion.comment_text && (
+                      <div className={styles.observacionComentario}>
+                        <b>{observacion.comment_text}</b>
+                      </div>
+                    )}
+                    <div className={styles.observacionActions}>
+                      <span className={`${styles.observacionEstado} ${getEstadoClass(observacion.estado)}`}>
+                        {observacion.estado || 'Pendiente'}
+                      </span>
+                      <button 
+                        className={styles.corregirBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onIniciarModoSeleccion?.(observacion);
+                        }}
+                      >
+                        Corregir
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Observaciones Corregidas */}
+          {observacionesCorregidas.length > 0 && (
+            <div className={styles.observacionesSection}>
+              <h3 className={styles.sectionHeader}>
+                Observaciones Corregidas
+                <span className={styles.badge}>{observacionesCorregidas.length}</span>
+              </h3>
+              <div className={styles.observacionesLista}>
+                {observacionesCorregidas.map((observacion, index) => {
+                  const correccion = highlights.find(h => 
+                    h.observacionId === observacion.id && h.isCorreccion
+                  );
+                  
+                  return (
+                    <div
+                      key={observacion.id || index}
+                      className={`${styles.observacion} ${styles.observacionCorregida}`}
+                    >
+                      <div className={styles.observacionHeader}>
+                        <span className={styles.observacionDoc}>Observación #{observacion.id}</span>
+                        <span className={styles.observacionPagina}>
+                          Pág. {observacion.position?.pageNumber || observacion.bounding_page || 'N/A'}
+                        </span>
+                      </div>
+                      {observacion.content_text && (
+                        <div className={styles.observacionTexto}>
+                          "{observacion.content_text.slice(0, 80).trim()}{observacion.content_text.length > 80 ? '...' : ''}"
+                        </div>
+                      )}
+                      
+                      {correccion && (
+                        <div className={styles.correccionPreview}>
+                          <div className={styles.correccionHeader}>
+                            <span className={styles.correccionBadge}>✓ Corregido</span>
+                            <span className={styles.correccionPagina}>
+                              Pág. {correccion.position.pageNumber}
+                            </span>
+                          </div>
+                          {correccion.content.text && (
+                            <div className={styles.correccionTexto}>
+                              "{correccion.content.text.slice(0, 100).trim()}{correccion.content.text.length > 100 ? '...' : ''}"
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      <span className={`${styles.observacionEstado} ${getEstadoClass(observacion.estado)}`}>
+                        {observacion.estado || 'Corregida'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Estado vacío */}
+          {observacionesPendientes.length === 0 && observacionesCorregidas.length === 0 && (
+            <div className={styles.emptyState}>
+              <p>No hay observaciones pendientes</p>
+              <p className={styles.emptyStateSubtext}>
+                Todas las observaciones han sido atendidas
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // Separar observaciones y correcciones de los highlights
   const observacionesHighlights = highlights.filter(h => !h.isCorreccion);
   const correccionesHighlights = highlights.filter(h => h.isCorreccion);
 
   // Filtrar solo observaciones pendientes
-  const observacionesPendientes = observacionesOtrasVersiones.filter(
+  const observacionesPendientesOtrasVersiones = observacionesOtrasVersiones.filter(
     obs => obs.estado?.toLowerCase() === 'pendiente'
   );
 
@@ -222,13 +399,13 @@ export function Sidebar({
         )}
 
         {/* Observaciones pendientes del proyecto */}
-        {observacionesPendientes.length > 0 && (
+        {observacionesPendientesOtrasVersiones.length > 0 && (
           <div className={styles.observacionesSection}>
             <h3 className={styles.sectionHeader}>
               Observaciones a revisar
             </h3>
             <div className={styles.observacionesLista}>
-              {observacionesPendientes.map((observacion, index) => (
+              {observacionesPendientesOtrasVersiones.map((observacion, index) => (
                 <div
                   key={index}
                   className={`${styles.observacion} ${styles.externa}`}
@@ -260,7 +437,7 @@ export function Sidebar({
         )}
 
         {/* Estado vacío */}
-        {observacionesHighlights.length === 0 && correccionesHighlights.length === 0 && observacionesPendientes.length === 0 && (
+        {observacionesHighlights.length === 0 && correccionesHighlights.length === 0 && observacionesPendientesOtrasVersiones.length === 0 && (
           <div className={styles.emptyState}>
             {role === 'estudiante' ? (
               <>

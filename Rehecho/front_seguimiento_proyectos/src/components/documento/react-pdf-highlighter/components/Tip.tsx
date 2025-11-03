@@ -41,7 +41,7 @@ export class Tip extends Component<Props, State> {
               this.setState({ compact: false });
             }}
           >
-            Add highlight
+            Nueva observación
           </div>
         ) : (
           <form
@@ -53,7 +53,7 @@ export class Tip extends Component<Props, State> {
           >
             <div>
               <textarea
-                placeholder="Your comment"
+                placeholder="Nota al texto seleccionado"
                 // biome-ignore lint/a11y/noAutofocus: This is an example app
                 autoFocus
                 value={text}
@@ -68,7 +68,7 @@ export class Tip extends Component<Props, State> {
               />
             </div>
             <div>
-              <input type="submit" value="Save" />
+              <input type="submit" value="Guardar observación" />
             </div>
           </form>
         )}

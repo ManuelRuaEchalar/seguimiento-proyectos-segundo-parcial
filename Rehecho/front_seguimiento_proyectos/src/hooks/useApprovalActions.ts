@@ -3,10 +3,12 @@ import { useCallback, useMemo } from 'react';
 import type { IHighlight } from '@/components/documento/react-pdf-highlighter';
 
 import { cambiarEstado } from '@/services/observaciones';
+import { cambiarEstadoDocumento } from '@/services/documentos';
 
 interface UseApprovalActionsProps {
   selectedObservation?: any;
   highlights: IHighlight[];
+  doc_actual_id?: number;
   infoProyecto: {
     codigoProyecto: number;
     codigoDoc: number;
@@ -20,6 +22,7 @@ interface UseApprovalActionsProps {
 export const useApprovalActions = ({
   selectedObservation,
   highlights,
+  doc_actual_id,
   infoProyecto,
   onApprovalComplete,
   onRejectionWithNewObservation,
@@ -50,12 +53,19 @@ export const useApprovalActions = ({
       if (onActualizarEstadoObservacion) {
         onActualizarEstadoObservacion(Number(showApprovalForm.id), 'aprobado');
       }
+      console.log(`cambiando estado de doc: ${infoProyecto.codigoDoc}`);
+      const resultado = await cambiarEstadoDocumento(doc_actual_id||0, 'revisado');
+      if (resultado.success) {
+        console.log("✅ Estado del documento cambiado a 'revisado'");
+      } else {
+        console.error("❌ Error al cambiar estado del documento:", resultado.error);
+      }
       
       onApprovalComplete?.();
     } catch (error) {
       console.error('Error al aprobar:', error);
     }
-  }, [showApprovalForm?.id, onApprovalComplete, onActualizarEstadoObservacion, setHighlights]);
+  }, [showApprovalForm?.id, infoProyecto.codigoDoc, onApprovalComplete, onActualizarEstadoObservacion, setHighlights]);
 
   const handleReject = useCallback(async (commentText?: string) => {
     if (!showApprovalForm?.id) return;
@@ -87,6 +97,13 @@ export const useApprovalActions = ({
         );
       }
       
+      const resultado = await cambiarEstadoDocumento(doc_actual_id||0, 'revisado');
+      if (resultado.success) {
+        console.log("✅ Estado del documento cambiado a 'revisado'");
+      } else {
+        console.error("❌ Error al cambiar estado del documento:", resultado.error);
+      }
+      
       // 4. Si hay comentario y la API devolvió una nueva observación
       if (commentText && response) {
         const rejectedHighlight = highlights.find(
@@ -110,6 +127,7 @@ export const useApprovalActions = ({
   }, [
     showApprovalForm?.id, 
     highlights,
+    infoProyecto.codigoDoc,
     onApprovalComplete, 
     onRejectionWithNewObservation, 
     onActualizarEstadoObservacion, 

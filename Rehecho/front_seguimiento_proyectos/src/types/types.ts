@@ -16,6 +16,12 @@ export interface Grupo {
   total_estudiantes: number;
   fase: string;
   fecha_ultima_actividad: string | null;
+  fecha_inicio_tema?: string | null;
+  fecha_fin_tema?: string | null;
+  fecha_inicio_perfil?: string | null;
+  fecha_fin_perfil?: string | null;
+  fecha_inicio_proyecto?: string | null;
+  fecha_fin_proyecto?: string | null;
 }
 
 export interface DocenteData {

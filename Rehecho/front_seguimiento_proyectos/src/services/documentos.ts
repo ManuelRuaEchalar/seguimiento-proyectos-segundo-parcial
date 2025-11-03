@@ -486,6 +486,7 @@ export const obtenerDocumentosPorActividad = async (actividadId: number) => {
     });
 
     const data = await response.json();
+    console.log('documentos o finales: ', data);
 
     if (!response.ok) {
       throw new Error(data.error || `Error ${response.status}: ${response.statusText}`);

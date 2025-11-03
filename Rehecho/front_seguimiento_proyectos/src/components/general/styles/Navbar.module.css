@@ -24,25 +24,107 @@
     gap: 24px;
 }
 
-/* Botón atrás */
+/* Estilos específicos para navbar de docente y estudiante */
+.navbarWrapper .navbar {
+    padding: 12px 24px 3px 24px;
+    align-items: flex-end;
+    min-height: 100px;
+}
+
+/* Botón atrás - Posicionamiento fijo en esquina */
 .backButton {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: var(--blanco);
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  z-index: 1000;
+  display: flex;
+}
+
+.backButton:hover {
+  background-color: var(--blanco);
+}
+
+.backButton:hover .backIcon {
+  filter: brightness(0) saturate(100%) invert(17%) sepia(14%) saturate(1189%) hue-rotate(178deg) brightness(93%) contrast(90%);
+}
+
+.backIcon {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) saturate(100%) invert(100%);
+}
+
+/* Botones con icono (Perfil, Repositorio, Cronograma) */
+.iconButton {
     background-color: transparent;
-    border: 1px solid var(--blanco);
+    font-weight: 400;
     color: var(--blanco);
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.backButton:hover {
+.iconButton:hover {
     background-color: var(--blanco);
     color: var(--azul-oscuro);
 }
 
+.iconButton:hover .buttonIcon {
+    filter: brightness(0) saturate(100%) invert(17%) sepia(14%) saturate(1189%) hue-rotate(178deg) brightness(93%) contrast(90%);
+}
+
+.iconButton:active {
+    transform: translateY(1px);
+}
+
+.buttonIcon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) saturate(100%) invert(100%);
+}
+
+/* Botón logout */
+.logoutButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin-top: 0;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoutButton:hover {
+    transform: scale(1.1);
+}
+
+.logoutIcon {
+    width: 32px;
+    height: 32px;
+    filter: brightness(0) saturate(100%) invert(42%) sepia(85%) saturate(1624%) hue-rotate(333deg) brightness(96%) contrast(87%);
+}
+
 /* Información del docente */
 .teacherInfo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.teacherContent {
     text-align: right;
 }
 
@@ -59,6 +141,13 @@
 
 /* Información del estudiante */
 .studentInfo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.studentContent {
     text-align: right;
 }
 
@@ -74,18 +163,78 @@
     margin-bottom: 2px;
 }
 
+/* Contenedor específico para actividades */
+.navbarCenterActividad {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 100px;
+}
+
+/* Encabezado de actividad */
+.activityHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Título de actividad */
+.activityTitle {
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Estado de actividad */
+.activityStatus {
+  display: inline-block;
+  border-radius: 0.3rem;
+  padding: 0.15rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* Tags de actividad */
+.activityTags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Estado activo */
+.activityStatus.activo {
+  border: var(--casi-blanco) 1px solid;
+}
+
+/* Estado cerrado */
+.activityStatus.cerrado {
+  border: #ff6b6b 1px solid;
+  color: #ff6b6b;
+}
+
 /* Secciones de navbar para actividades */
 .navbarLeft,
 .navbarCenter,
 .navbarRight {
     display: flex;
     align-items: center;
+    gap: 12px;
 }
 
-.navbarCenter {
-    flex-direction: column;
-    text-align: center;
-    flex: 1;
+
+.buttonsGroup {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 5px;
 }
 
 /* Información de actividad */
@@ -95,40 +244,28 @@
     margin-bottom: 4px;
 }
 
-.activityMeta {
-    font-size: 13px;
-    color: var(--plata);
-    margin-bottom: 8px;
-}
-
 .activityStatus {
   display: inline-block;
-  border-radius: 0.3rem;   /* bordes redondeados */
-  padding: 0.15rem 0.8rem; /* espacio interno */
-  font-size: 0.9rem;       /* un poco más grande que el texto normal */
+  border-radius: 0.3rem;
+  padding: 0.15rem 0.8rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: #fff;             /* texto blanco */
+  color: #fff;
   margin-left: 10px;
-  background-color: var(--azul-oscuro);  /* color por defecto */
+  background-color: var(--azul-oscuro);
 }
 
 /* Estado activo */
 .activityStatus.activo {
-    border: var(--casi-blanco) 1px solid; /* borde blanco */
+    border: var(--casi-blanco) 1px solid;
 }
 
 /* Estado cerrado */
 .activityStatus.cerrado {
-  border: #ff6b6b 1px solid; /* rojo claro */
-  color: #ff6b6b;           /* texto rojo claro */
+  border: #ff6b6b 1px solid;
+  color: #ff6b6b;
 }
 
-.activityTags {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px;
-}
 
 .tag {
     background-color: rgba(255, 255, 255, 0.15);
@@ -141,18 +278,30 @@
 
 /* Botón cerrar actividad (solo docente) */
 .closeActivityBtn {
-            padding: 8px 20px;
-            background-color: transparent;
-            color: #d66;
-            border-radius: 6px;
-            font-weight: 500;
-            border: 1px solid #d66;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
+    padding: 8px 20px;
+    background-color: transparent;
+    color: #d66;
+    border-radius: 6px;
+    font-weight: 500;
+    border: 1px solid #d66;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
 }
 
 .closeActivityBtn:hover {
-            background-color: #d66;
-            color: var(--blanco);
+    background-color: #d66;
+    color: var(--blanco);
+}
+
+/* Estilos para el wrapper del navbar estudiante */
+.navbarWrapper {
+  position: relative;
+}
+
+/* Estilos para el contenedor del botón cronograma */
+.cronogramaButtonWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }

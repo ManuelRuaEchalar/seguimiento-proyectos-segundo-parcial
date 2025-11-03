@@ -94,6 +94,7 @@ export class PdfHighlighterEstudiante<T_HT extends IHighlight> extends PureCompo
     [page: number]: { reactRoot: Root; container: Element };
   } = {};
   unsubscribe = () => {};
+  unmountTimeoutId?: NodeJS.Timeout;
 
   constructor(props: Props<T_HT>) {
     super(props);
@@ -143,91 +144,113 @@ export class PdfHighlighterEstudiante<T_HT extends IHighlight> extends PureCompo
     }
   }
 
-async init() {
-  this.isReady = false; // <--- AÑADE ESTA LÍNEA AL INICIO
-  console.log("=== DEBUG: init() started");
-  const { pdfDocument, pdfViewerOptions } = this.props;
-  const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
+  async init() {
+    this.isReady = false;
+    console.log("=== DEBUG: init() started");
+    const { pdfDocument, pdfViewerOptions } = this.props;
+    const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
 
-  const eventBus = new pdfjs.EventBus();
+    const eventBus = new pdfjs.EventBus();
 
-  const linkService = new pdfjs.PDFLinkService({
-    eventBus,
-    externalLinkTarget: 2,
-  });
-
-  if (!this.containerNodeRef.current) {
-    console.error("=== DEBUG: init() - Container ref not found!");
-    throw new Error("Container node not found!");
-  }
-
-  this.viewer =
-    this.viewer ||
-    new pdfjs.PDFViewer({
-      container: this.containerNodeRef.current,
-      eventBus: eventBus,
-      textLayerMode: 2,
-      removePageBorders: true,
-      linkService: linkService,
-      ...pdfViewerOptions,
+    const linkService = new pdfjs.PDFLinkService({
+      eventBus,
+      externalLinkTarget: 2,
     });
 
-  linkService.setDocument(pdfDocument);
-  linkService.setViewer(this.viewer);
-
-  // Inicia la carga del documento
-  this.viewer.setDocument(pdfDocument);
-  console.log("=== DEBUG: setDocument called");
-
-  // Agrega listeners DESPUÉS de setDocument
-  this.attachRef(eventBus);
-  console.log("=== DEBUG: attachRef called after setDocument");
-
-  // Fallback asincrónico: Verifica múltiples veces si páginas están listas
-  const checkPagesReady = () => {
-    if (
-      this.viewer._pages &&
-      this.viewer._pages.length > 0 &&
-      this.viewer._pages[0] &&
-      this.viewer._pages[0].viewport
-    ) {
-      console.log("=== DEBUG: Pages ready in fallback, calling onDocumentReady");
-      this.onDocumentReady();
-      return true;
+    if (!this.containerNodeRef.current) {
+      console.error("=== DEBUG: init() - Container ref not found!");
+      throw new Error("Container node not found!");
     }
-    return false;
-  };
 
-  // Verificación inmediata (por si ya listo)
-  if (checkPagesReady()) return;
+    this.viewer =
+      this.viewer ||
+      new pdfjs.PDFViewer({
+        container: this.containerNodeRef.current,
+        eventBus: eventBus,
+        textLayerMode: 2,
+        removePageBorders: true,
+        linkService: linkService,
+        ...pdfViewerOptions,
+      });
 
-  // Timeouts progresivos para fallback (cubre carga lazy)
-  const timeouts = [100, 500, 1000, 2000];
-  timeouts.forEach((delay, index) => {
-    setTimeout(() => {
-      if (!this.state.scrolledToHighlightId || this.state.scrolledToHighlightId === EMPTY_ID) { // Solo si no ya listo
-        if (checkPagesReady()) {
-          console.log(`=== DEBUG: Fallback timeout ${delay}ms triggered onDocumentReady`);
-        }
+    linkService.setDocument(pdfDocument);
+    linkService.setViewer(this.viewer);
+
+    this.viewer.setDocument(pdfDocument);
+    console.log("=== DEBUG: setDocument called");
+
+    this.attachRef(eventBus);
+    console.log("=== DEBUG: attachRef called after setDocument");
+
+    const checkPagesReady = () => {
+      if (
+        this.viewer._pages &&
+        this.viewer._pages.length > 0 &&
+        this.viewer._pages[0] &&
+        this.viewer._pages[0].viewport
+      ) {
+        console.log("=== DEBUG: Pages ready in fallback, calling onDocumentReady");
+        this.onDocumentReady();
+        return true;
       }
-    }, delay);
-  });
+      return false;
+    };
 
-  // Opcional: Escucha 'pagerendered' para al menos la primera página
-  const originalOnTextLayerRendered = this.onTextLayerRendered;
-  eventBus.on("pagerendered", (e: { pageNumber: number; }) => {
-    console.log("=== DEBUG: pagerendered event for page", e.pageNumber);
-    if (e.pageNumber === 1 && !checkPagesReady()) {
-      console.log("=== DEBUG: First page rendered, forcing onDocumentReady");
-      this.onDocumentReady();
-    }
-    originalOnTextLayerRendered(); // Llama al original
-  });
-}
+    if (checkPagesReady()) return;
 
-  componentWillUnmount() {
-    this.unsubscribe();
+    const timeouts = [100, 500, 1000, 2000];
+    timeouts.forEach((delay, index) => {
+      setTimeout(() => {
+        if (!this.state.scrolledToHighlightId || this.state.scrolledToHighlightId === EMPTY_ID) {
+          if (checkPagesReady()) {
+            console.log(`=== DEBUG: Fallback timeout ${delay}ms triggered onDocumentReady`);
+          }
+        }
+      }, delay);
+    });
+
+    const originalOnTextLayerRendered = this.onTextLayerRendered;
+    eventBus.on("pagerendered", (e: { pageNumber: number; }) => {
+      console.log("=== DEBUG: pagerendered event for page", e.pageNumber);
+      if (e.pageNumber === 1 && !checkPagesReady()) {
+        console.log("=== DEBUG: First page rendered, forcing onDocumentReady");
+        this.onDocumentReady();
+      }
+      originalOnTextLayerRendered();
+    });
   }
+
+componentWillUnmount() {
+  this.unsubscribe();
+  
+  // Limpiar timeout previo si existe
+  if (this.unmountTimeoutId) {
+    clearTimeout(this.unmountTimeoutId);
+  }
+
+  // Desmontar de forma asíncrona para evitar condición de carrera
+  const rootsToUnmount = Object.values(this.highlightRoots);
+  this.highlightRoots = {}; // Limpiar referencia inmediatamente
+  
+  this.unmountTimeoutId = setTimeout(() => {
+    rootsToUnmount.forEach(({ reactRoot, container }) => {
+      try {
+        // Verificar que el contenedor aún está en el DOM antes de desmontar
+        if (container.isConnected) {
+          queueMicrotask(() => {
+            try {
+              reactRoot.unmount();
+            } catch (e) {
+              console.error("Error unmounting root:", e);
+            }
+          });
+        }
+      } catch (e) {
+        console.error("Error in unmount process:", e);
+      }
+    });
+  }, 0);
+}
 
   findOrCreateHighlightLayer(page: number) {
     const { textLayer } = this.viewer.getPageView(page - 1) || {};
@@ -424,21 +447,18 @@ async init() {
       () => this.renderHighlightLayers(),
     );
 
-    // wait for scrolling to finish
     setTimeout(() => {
       this.viewer.container.addEventListener("scroll", this.onScroll);
     }, 100);
   };
 
   onDocumentReady = () => {
-    // Si ya se ejecutó, no hacer nada más.
     if (this.isReady) {
       return;
     }
-    // Marcar como ejecutado para que futuras llamadas no hagan nada.
     this.isReady = true;
 
-    console.log("=== DEBUG: onDocumentReady ejecutado por primera vez."); // Log para confirmar
+    console.log("=== DEBUG: onDocumentReady ejecutado por primera vez.");
 
     const { scrollRef } = this.props;
 
@@ -446,13 +466,12 @@ async init() {
 
     this.viewer.viewer?.classList.add(styles.disableSelection);
 
-    // Comprobación adicional para seguridad
     if (this.viewer && typeof this.scrollTo === "function") {
-        scrollRef(this.scrollTo);
+      scrollRef(this.scrollTo);
     } else {
-        console.error("=== DEBUG: onDocumentReady se llamó pero el viewer o la función scrollTo no estaban listos.");
+      console.error("=== DEBUG: onDocumentReady se llamó pero el viewer o la función scrollTo no estaban listos.");
     }
-};
+  };
 
   onScroll = () => {
     const { onScrollChange } = this.props;
@@ -489,7 +508,7 @@ async init() {
 
   handleScaleValue = () => {
     if (this.viewer) {
-      this.viewer.currentScaleValue = this.props.pdfScaleValue; //"page-width";
+      this.viewer.currentScaleValue = this.props.pdfScaleValue;
     }
   };
 
@@ -513,19 +532,32 @@ async init() {
   private renderHighlightLayers() {
     const { pdfDocument } = this.props;
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
-      const highlightRoot = this.highlightRoots[pageNumber];
-      /** Need to check if container is still attached to the DOM as PDF.js can unload pages. */
-      if (highlightRoot?.container.isConnected) {
-        this.renderHighlightLayer(highlightRoot.reactRoot, pageNumber);
+      const existingRoot = this.highlightRoots[pageNumber];
+      
+      if (existingRoot?.container.isConnected) {
+        // El root ya existe y el contenedor está en el DOM, reutilizarlo
+        this.renderHighlightLayer(existingRoot.reactRoot, pageNumber);
       } else {
+        // Necesitamos crear un nuevo root
         const highlightLayer = this.findOrCreateHighlightLayer(pageNumber);
         if (highlightLayer) {
-          const reactRoot = createRoot(highlightLayer);
-          this.highlightRoots[pageNumber] = {
-            reactRoot,
-            container: highlightLayer,
-          };
-          this.renderHighlightLayer(reactRoot, pageNumber);
+          // Verificar si ya existe un root para este contenedor específico
+          const existingRootForContainer = Object.values(this.highlightRoots).find(
+            root => root.container === highlightLayer
+          );
+
+          if (existingRootForContainer) {
+            // Ya existe un root para este contenedor, reutilizarlo
+            this.renderHighlightLayer(existingRootForContainer.reactRoot, pageNumber);
+          } else {
+            // Crear un nuevo root solo si no existe uno para este contenedor
+            const reactRoot = createRoot(highlightLayer);
+            this.highlightRoots[pageNumber] = {
+              reactRoot,
+              container: highlightLayer,
+            };
+            this.renderHighlightLayer(reactRoot, pageNumber);
+          }
         }
       }
     }

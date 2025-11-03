@@ -9,6 +9,7 @@ export async function crearSolicitud(solicitudData: {
 
   const endpoint = `${apiUrl}/solicitud`;
   console.log('📡 Creando solicitud en:', endpoint);
+  console.log('🧩 Datos de la solicitud:', solicitudData);
 
   const response = await fetch(endpoint, {
     method: 'POST',

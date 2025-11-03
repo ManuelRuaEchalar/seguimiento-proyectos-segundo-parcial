@@ -64,13 +64,14 @@ export class SolicitudService {
         );
       }
 
-      // Crear la solicitud
+      // Crear la solicitud con el título del proyecto
       const solicitud = await prisma.solicitud.create({
         data: {
           tipo: data.tipo,
           proyecto_id: data.proyecto_id,
           emisor_id: data.emisor_id,
-          receptor_id: data.receptor_id
+          receptor_id: data.receptor_id,
+          titulo: proyecto.titulo  // ← Agregar el título del proyecto
         },
         include: {
           proyecto: {

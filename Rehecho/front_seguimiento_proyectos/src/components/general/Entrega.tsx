@@ -52,12 +52,15 @@ export default function Entrega({
     return date.toLocaleDateString('es-ES', opciones);
   };
 
-  const getEstadoClass = () => {
+
+const getEstadoClass = () => {
     switch (estado.toLowerCase()) {
       case 'aprobado':
         return styles.aprobado;
       case 'rechazado':
         return styles.rechazado;
+      case 'revisado':
+        return styles.revisado;
       case 'pendiente':
       default:
         return styles.pendiente;

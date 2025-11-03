@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import NavbarRevision from '@/components/general/NavbarRevision';
 import { fetchDoc } from '@/services/proyecto';
+import { fetchFinal } from '@/services/finales';
 import { fetchTeacherObservations } from '@/services/docentes';
 import styles from './page.module.css';
 import { VisualizadorPDF } from '@/components/documento/VisualizadorPDF';
@@ -36,6 +37,7 @@ interface Documento {
   created_at: string;
   file: string;
   proyecto: Proyecto;
+  tags?: any[]; // Propiedad opcional que indica si es un documento final
 }
 
 interface infoProyecto {
@@ -51,6 +53,11 @@ export default function RevisionEstudiantePage() {
   const [observacionesYCorrecciones, setObservacionesYCorrecciones] = useState<any>(null);
   const [documentoBlob, setDocumentoBlob] = useState<{ blob: Blob; contentType: string } | null>(null);
 
+  // Determinar si es un documento final (tiene tags)
+  const esDocumentoFinal = useMemo(() => {
+    return documento?.tags !== undefined;
+  }, [documento]);
+
   // 🔹 1️⃣ Cargar los datos básicos desde localStorage
   useEffect(() => {
     const documentoStr = localStorage.getItem('documentoActual');
@@ -59,7 +66,7 @@ export default function RevisionEstudiantePage() {
 
     if (!documentoStr || !actividadStr || !estudianteStr) {
       console.warn('⚠️ Faltan datos en localStorage');
-      router.push('/dashboard/docente/actividad');
+      router.push('/dashboard/estudiante/actividad');
       return;
     }
 
@@ -75,6 +82,7 @@ export default function RevisionEstudiantePage() {
     console.log('📘 Documento:', documentoData);
     console.log('📗 Actividad:', actividadData);
     console.log('📙 Estudiante (raw):', estudianteData);
+    console.log('🎯 Es documento final:', documentoData.tags !== undefined);
 
     setDocumento(documentoData);
     setActividad(actividadData);
@@ -87,20 +95,35 @@ export default function RevisionEstudiantePage() {
 
     const fetchData = async () => {
       try {
-        console.log('🔹 Cargando datos de observaciones...');
+        console.log('🔹 Cargando datos de documento...');
         console.log('👤 ID estudiante:', estudianteInfo.id);
         console.log('📄 ID documento:', documento.id);
+        console.log('📋 Es final:', documento.tags !== undefined);
 
-        const [docData, obsData] = await Promise.all([
-          fetchDoc(documento.id),
-          fetchTeacherObservations(estudianteInfo.id, actividad.id),
-        ]);
+        // Determinar si es documento final
+        const esDocFinal = documento.tags !== undefined;
+        
+        let docData;
+        if (esDocFinal) {
+          console.log('📄 Obteniendo documento FINAL con ID:', documento.id);
+          docData = await fetchFinal(documento.id);
+        } else {
+          console.log('📄 Obteniendo documento NORMAL con ID:', documento.id);
+          docData = await fetchDoc(documento.id);
+        }
 
         setDocumentoBlob(docData);
-        setObservacionesYCorrecciones(obsData);
+
+        // Solo obtener observaciones si NO es documento final
+        if (!esDocFinal) {
+          const obsData = await fetchTeacherObservations(estudianteInfo.id, actividad.id);
+          setObservacionesYCorrecciones(obsData);
+          console.log('🗒️ Observaciones y correcciones:', obsData);
+        } else {
+          console.log('📋 Documento final - sin observaciones ni correcciones');
+        }
 
         console.log('📑 Documento Blob cargado:', docData);
-        console.log('🗒️ Observaciones y correcciones:', obsData);
       } catch (error) {
         console.error('❌ Error al obtener el documento o las observaciones:', error);
       }
@@ -127,27 +150,23 @@ export default function RevisionEstudiantePage() {
 
   const nombreCompleto = `${estudiante.usuario.nombre} ${estudiante.usuario.apellido}`;
 
-  // 🔹 4️⃣ Procesar observaciones/correcciones (solo si ya llegaron)
-  const observacionesLocales =
-    observacionesYCorrecciones?.documentos
-      ?.find((doc: any) => doc.id === documento.id)
-      ?.observaciones || [];
+  // 🔹 4️⃣ Procesar observaciones/correcciones (solo si NO es final y ya llegaron)
+  const observacionesLocales = !esDocumentoFinal && observacionesYCorrecciones?.documentos
+    ?.find((doc: any) => doc.id === documento.id)
+    ?.observaciones || [];
 
-const correccionesLocales =
-  observacionesYCorrecciones?.documentos
+  const correccionesLocales = !esDocumentoFinal && observacionesYCorrecciones?.documentos
     ?.find((doc: any) => doc.id === documento.id)
     ?.correcciones
     ?.filter((c: any) => c.estado !== 'rechazado') || [];
 
-  const observacionesExternas =
-    observacionesYCorrecciones?.documentos
-      ?.filter((doc: any) => doc.id !== documento.id)
-      ?.flatMap((doc: any) => doc.observaciones) || [];
+  const observacionesExternas = !esDocumentoFinal && observacionesYCorrecciones?.documentos
+    ?.filter((doc: any) => doc.id !== documento.id)
+    ?.flatMap((doc: any) => doc.observaciones) || [];
 
-  const correccionesExternas =
-    observacionesYCorrecciones?.documentos
-      ?.filter((doc: any) => doc.id !== documento.id)
-      ?.flatMap((doc: any) => doc.correcciones) || [];
+  const correccionesExternas = !esDocumentoFinal && observacionesYCorrecciones?.documentos
+    ?.filter((doc: any) => doc.id !== documento.id)
+    ?.flatMap((doc: any) => doc.correcciones) || [];
 
   console.log('📘 Observaciones Locales:', observacionesLocales);
   console.log('📕 Observaciones Externas:', observacionesExternas);
@@ -162,32 +181,37 @@ const correccionesLocales =
 
   return (
     <>
-        <div className={styles.documentoPageLayout}>
-      <NavbarRevision
-        role="estudiante"
-        version={documento.version}
-        titulo={documento.titulo}
-        nombreEstudiante={nombreCompleto}
-        codigoUniversitario={estudiante.cu}
-        carrera={estudiante.carrera}
-      />
+      <div className={styles.documentoPageLayout}>
+        <NavbarRevision
+          role="estudiante"
+          version={documento.version}
+          titulo={documento.titulo}
+          nombreEstudiante={nombreCompleto}
+          codigoUniversitario={estudiante.cu}
+          carrera={estudiante.carrera}
+          documento_id={documento.id}
+          fase={actividad.fase}
+          fase_proyecto={estudianteInfo.proyecto.fase_actual}
+          proyecto_id={estudianteInfo.proyecto.id}
+          es_final={actividad.es_final || esDocumentoFinal}
+        />
 
-      <div className={styles.documentoBody}>
-        <div className={styles.pdfContainer}>
-          {documentoBlob && (
-            <VisualizadorPDF
-              blob={documentoBlob.blob}
-              observaciones={observacionesLocales}
-              observacionesOtrasVersiones={observacionesExternas}
-              correcciones={correccionesLocales}
-              infoProyecto={infoProyecto}
-              contentType={documentoBlob.contentType}
-              role={'estudiante'}
-            />
-          )}
+        <div className={styles.documentoBody}>
+          <div className={styles.pdfContainer}>
+            {documentoBlob && (
+              <VisualizadorPDF
+                blob={documentoBlob.blob}
+                observaciones={observacionesLocales}
+                observacionesOtrasVersiones={observacionesExternas}
+                correcciones={correccionesLocales}
+                infoProyecto={infoProyecto}
+                contentType={documentoBlob.contentType}
+                role={'estudiante'}
+              />
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

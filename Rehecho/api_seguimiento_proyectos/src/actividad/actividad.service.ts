@@ -6,12 +6,12 @@ const prisma = new PrismaClient();
 @Injectable()
 export class ActividadService {
   
-  async crearActividad(data: {
+async crearActividad(data: {
   nombre: string;
   elementos: any;
   descripcion?: string;
   grupo_id: number;
-  fase: FaseProyecto; // 👈 Nuevo parámetro
+  fase: FaseProyecto;
 }) {
   try {
     // Validar que fase sea un valor válido del enum
@@ -79,6 +79,38 @@ export class ActividadService {
         elementos_hechos: nuevosElementosHechos
       }
     });
+
+    // ✨ Verificar si elementos quedó vacío y crear "Trabajo Final"
+    if (elementosRestantes.length === 0 && nuevosElementosHechos.length > 0) {
+      // Determinar el grado y la fase final
+      const grado = grupo.nombre === 'grado1' ? 'Grado 1' : 'Grado 2';
+      const faseFinal = grupo.nombre === 'grado1' ? 'perfil' : 'proyecto';
+
+      const descripcionFinal = `Ya se han trabajado todos los apartados definidos al inicio del curso de ${grado} para la fase de ${data.fase}. 
+            Es momento de subir el documento final, que contiene todos los apartados trabajados durante el curso, 
+            incluir carátula con datos de autor: título, nombre completo, carrera, asesor, año.`;
+
+      // Crear actividad "Trabajo Final"
+      await prisma.actividad.create({
+        data: {
+          nombre: 'Trabajo Final',
+          elementos: nuevosElementosHechos,
+          descripcion: descripcionFinal,
+          grupo_id: grupo.id,
+          estado: 'cerrado',
+          fase: faseFinal as FaseProyecto,
+          es_final: true
+        }
+      });
+
+      // Actualizar contador de actividades del grupo
+      await prisma.grupo.update({
+        where: { id: grupo.id },
+        data: {
+          total_actividades: { increment: 1 }
+        }
+      });
+    }
 
     return {
       message: 'Actividad creada exitosamente',

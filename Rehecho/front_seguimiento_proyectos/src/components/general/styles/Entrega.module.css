@@ -73,6 +73,11 @@
   background-color: #902a2a;
 }
 
+.statusBadge.revisado {
+  background-color: var(--celeste);
+  color: var(--casi-negro);
+}
+
 /* Contenido */
 .titleContainer {
   margin-top: 28px; /* espacio para badges */

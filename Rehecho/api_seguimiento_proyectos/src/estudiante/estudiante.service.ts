@@ -171,7 +171,7 @@ export class EstudianteService {
     return estudiante;
   }
 
-  async getConfiguracionProyecto(userId: number) {
+async getConfiguracionProyecto(userId: number) {
   // 1. Obtener el estudiante con su grupo
   const estudiante = await this.prisma.estudiante.findUnique({
     where: { id: userId },
@@ -251,7 +251,7 @@ export class EstudianteService {
 
   // 4. Obtener proyectos únicos de los compañeros del grupo
   const proyectosIds = new Set<number>();
-  const proyectosMap = new Map<number, { id: number; titulo: string; estudiantes: string[] }>();
+  const proyectosMap = new Map<number, { id: number; titulo: string; estudiantes: { id: number; nombre: string }[] }>();
 
   for (const est of estudiantesGrupo) {
     if (est.proyecto_id && !proyectosIds.has(est.proyecto_id)) {
@@ -265,6 +265,7 @@ export class EstudianteService {
         include: {
           usuario: {
             select: {
+              id: true,
               nombre: true,
               apellido: true,
             },
@@ -275,9 +276,10 @@ export class EstudianteService {
       proyectosMap.set(est.proyecto_id, {
         id: est.proyecto.id,
         titulo: est.proyecto.titulo || 'Proyecto sin título',
-        estudiantes: estudiantesDelProyecto.map(
-          e => `${e.usuario.nombre} ${e.usuario.apellido}`
-        ),
+        estudiantes: estudiantesDelProyecto.map(e => ({
+          id: e.id, // ID del estudiante
+          nombre: `${e.usuario.nombre} ${e.usuario.apellido}`,
+        })),
       });
     }
   }
@@ -293,76 +295,136 @@ export class EstudianteService {
   };
 }
 
-    async getInfoByUserId(userId: number) {
-    const estudiante = await this.prisma.estudiante.findFirst({
-      where: { id: userId },
-      include: {
-        usuario: {
-          select: { 
-            id: true, 
-            nombre: true, 
-            apellido: true, 
-            email: true, 
-            rol: true 
-          },
+async getInfoByUserId(userId: number) {
+  const estudiante = await this.prisma.estudiante.findFirst({
+    where: { id: userId },
+    include: {
+      usuario: {
+        select: { 
+          id: true, 
+          nombre: true, 
+          apellido: true, 
+          email: true, 
+          rol: true 
         },
-        grupo: {
-          select: {
-            id: true,
-            nombre: true,
-            grado: true,
-            total_actividades: true,
-            total_estudiantes: true,
-            elementos: true,
-            elementos_hechos: true,
-            fase: true,
-            fecha_ultima_actividad: true,
-            docente: {
-              select: {
-                id: true,
-                especialidad: true,
-                usuario: {
-                  select: {
-                    nombre: true,
-                    apellido: true,
-                    email: true,
-                  },
+      },
+      grupo: {
+        select: {
+          id: true,
+          nombre: true,
+          grado: true,
+          total_actividades: true,
+          total_estudiantes: true,
+          elementos: true,
+          elementos_hechos: true,
+          fase: true,
+          fecha_inicio_tema: true,
+          fecha_fin_tema: true,
+          fecha_inicio_perfil: true,
+          fecha_fin_perfil: true,
+          fecha_inicio_proyecto: true,
+          fecha_fin_proyecto: true,
+          fecha_ultima_actividad: true,
+          docente: {
+            select: {
+              id: true,
+              especialidad: true,
+              usuario: {
+                select: {
+                  nombre: true,
+                  apellido: true,
+                  email: true,
                 },
               },
             },
-            actividades: {
-              select: {
-                id: true,
-                nombre: true,
-                descripcion: true,
-                elementos: true,
-                fecha_creacion: true,
-                fase: true,
-                estado: true,
-              },
-              orderBy: {
-                fecha_creacion: 'desc', // Más recientes primero
-              },
+          },
+          actividades: {
+            select: {
+              id: true,
+              nombre: true,
+              descripcion: true,
+              elementos: true,
+              fecha_creacion: true,
+              es_final: true,
+              fase: true,
+              estado: true,
+            },
+            orderBy: {
+              fecha_creacion: 'desc',
             },
           },
         },
-        proyecto: {
-          select: {
-            id: true,
-            titulo: true,
-            fase_actual: true,
-            grado_actual: true,
+      },
+      grupo_dos: {
+        select: {
+          id: true,
+          nombre: true,
+          grado: true,
+          total_actividades: true,
+          total_estudiantes: true,
+          elementos: true,
+          elementos_hechos: true,
+          fase: true,
+          fecha_inicio_tema: true,
+          fecha_fin_tema: true,
+          fecha_inicio_perfil: true,
+          fecha_fin_perfil: true,
+          fecha_inicio_proyecto: true,
+          fecha_fin_proyecto: true,
+          fecha_ultima_actividad: true,
+          docente: {
+            select: {
+              id: true,
+              especialidad: true,
+              usuario: {
+                select: {
+                  nombre: true,
+                  apellido: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          actividades: {
+            select: {
+              id: true,
+              nombre: true,
+              descripcion: true,
+              elementos: true,
+              fecha_creacion: true,
+              es_final: true,
+              fase: true,
+              estado: true,
+            },
+            orderBy: {
+              fecha_creacion: 'desc',
+            },
           },
         },
       },
-    });
+      proyecto: {
+        select: {
+          id: true,
+          titulo: true,
+          fase_actual: true,
+          grado_actual: true,
+        },
+      },
+    },
+  });
 
-    if (!estudiante) {
-      throw new NotFoundException('Estudiante no encontrado');
-    }
-
-    return estudiante;
+  if (!estudiante) {
+    throw new NotFoundException('Estudiante no encontrado');
   }
+
+  // Si grupo_dos_id es null, no se devuelve el campo grupo_dos
+  if (!estudiante.grupo_dos_id) {
+    delete (estudiante as any).grupo_dos;
+  }
+
+  return estudiante;
+}
+
 
   async actualizarTituloProyecto(proyectoId: number, titulo: string) {
   // Verificar que el proyecto existe

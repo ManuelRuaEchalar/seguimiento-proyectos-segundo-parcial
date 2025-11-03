@@ -70,7 +70,7 @@ export function VisualizadorPDFFinal({
     );
   }
 
-  return (
+return (
     <div className={styles.pdfViewerContainer}>
       <div className={styles.pdfViewerContent}>
         <div className={styles.pageIndicator}>
@@ -86,14 +86,17 @@ export function VisualizadorPDFFinal({
           }}
         >
           {(pdfDocument) => {
-            const updatePages = () => {
-              if (pdfDocument.numPages && totalPages !== pdfDocument.numPages) {
-                setTotalPages(pdfDocument.numPages);
-              }
-              setIsPdfReady(true);
-            };
+            if (!isPdfReady) {
+              const updatePages = () => {
+                if (pdfDocument.numPages && totalPages !== pdfDocument.numPages) {
+                  setTotalPages(pdfDocument.numPages);
+                }
+                setIsPdfReady(true);
+              };
 
-            setTimeout(updatePages, 0);
+              setTimeout(updatePages, 0);
+              return <Spinner />;
+            }
 
             return (
               <PdfHighlighterEstudiante

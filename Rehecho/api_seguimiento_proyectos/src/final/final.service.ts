@@ -1,43 +1,64 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as fs from 'fs';
+import path from 'path';
 
 @Injectable()
 export class FinalService {
   constructor(private prisma: PrismaService) {}
 
-  async crearFinal(data: {
-    titulo: string;
-    carrera: string;
-    año: number;
-    estado?: string;
-    archivo: string;
-    fase: string;
-    proyecto_id: number;
-    tags?: number[];
-  }) {
-    const { tags, proyecto_id, ...finalData } = data;
+async crearFinal(data: {
+  titulo: string;
+  carrera: string;
+  año: number;
+  estado?: string;
+  archivo: string;
+  fase: string;
+  actividad_id: number;
+  proyecto_id: number;
+  tags?: number[];
+}) {
+  const { tags, proyecto_id, actividad_id, ...finalData } = data;
 
-    // Crear el final con las relaciones de tags y la relación con proyecto
-    const createData: any = {
-      ...finalData,
-      // 🏷️ Conectar tags existentes usando su ID
-      tags:
-        tags && tags.length > 0
-          ? {
-              connect: tags.map((tagId) => ({ id: tagId })),
-            }
-          : undefined,
-      // 🔗 Conectar el proyecto por su id en lugar de usar proyecto_id en el objeto raíz
-      proyecto: proyecto_id ? { connect: { id: proyecto_id } } : undefined,
-    };
+  // 📊 Contar finales existentes con el mismo proyecto_id y actividad_id
+  const finalesExistentes = await this.prisma.final.count({
+    where: {
+      proyecto_id: proyecto_id,
+      actividad_id: actividad_id,
+    },
+  });
 
-    const nuevoFinal = await this.prisma.final.create({
-      data: createData,
-      include: {
-        tags: true, // Incluir los tags en la respuesta
-        proyecto: true,
-      },
-    });
+  // 🔢 Calcular la nueva versión (cantidad existente + 1)
+  const nuevaVersion = finalesExistentes + 1;
+
+  // Crear el final con las relaciones de tags, proyecto y actividad
+  const createData: any = {
+    ...finalData,
+    version: nuevaVersion, // ✨ Asignar la versión calculada
+    // 🏷️ Conectar tags existentes usando su ID
+    tags: tags && tags.length > 0
+      ? {
+          connect: tags.map(tagId => ({ id: tagId }))
+        }
+      : undefined,
+    // 🔗 Conectar el proyecto por su id
+    proyecto: proyecto_id
+      ? { connect: { id: proyecto_id } }
+      : undefined,
+    // 🔗 Conectar la actividad por su id
+    actividad: actividad_id
+      ? { connect: { id: actividad_id } }
+      : undefined,
+  };
+
+  const nuevoFinal = await this.prisma.final.create({
+    data: createData,
+    include: {
+      tags: true,
+      proyecto: true,
+      actividad: true,
+    },
+  });
 
     return nuevoFinal;
   }
@@ -60,45 +81,83 @@ export class FinalService {
   async buscarFinales(filtros: any) {
     const { tag, carrera, año, titulo } = filtros;
 
-    // Build a base where clause that avoids database-specific 'mode' options
-    const whereBase: any = { estado: 'aprobado' };
-    if (carrera) {
-      // simple contains (case-sensitivity depends on DB collation)
-      whereBase.carrera = { contains: String(carrera) };
-    }
-    if (año) {
-      whereBase.año = parseInt(String(año));
+  return this.prisma.final.findMany({
+    where: {
+      AND: [
+        carrera ? { carrera: { contains: String(carrera), mode: 'insensitive' } } : {},
+        año ? { año: parseInt(String(año)) } : {},
+        titulo ? { titulo: { contains: String(titulo), mode: 'insensitive' } } : {},
+        tag
+          ? {
+              tags: {
+                some: { 
+                  nombre: { contains: String(tag) } // Remove mode here
+                },
+              },
+            }
+          : {},
+      ].filter(condition => Object.keys(condition).length > 0), // Filter out empty objects
+      estado: 'aprobado',
+    },
+    include: { tags: true, proyecto: true },
+  });
+}
+
+async getDoc(id: number) {
+    // Validar que id sea un número válido
+    if (!id || isNaN(id) || id <= 0) {
+      throw new BadRequestException(`El ID del documento final debe ser un número positivo pero es ${id}`);
     }
 
-    // Fetch candidates from DB (tags and proyecto included) then apply robust JS filtering
-    const candidates = await this.prisma.final.findMany({
-      where: whereBase,
-      include: { tags: true, proyecto: true },
+    const documentoFinal = await this.prisma.final.findUnique({
+      where: { id },
+      select: {
+        archivo: true,
+      }
     });
 
-    // If no titulo filter provided, optionally filter by tag if given and return
-    let results = candidates;
-
-    if (tag) {
-      const tagLower = String(tag).toLowerCase();
-      results = results.filter((f) =>
-        (f.tags || []).some((t) =>
-          String((t as any).nombre || '')
-            .toLowerCase()
-            .includes(tagLower),
-        ),
-      );
+    if (!documentoFinal) {
+      throw new NotFoundException(`Documento final con ID ${id} no encontrado`);
     }
 
-    if (titulo) {
-      const q = String(titulo).toLowerCase();
-      results = results.filter((f) => {
-        const t1 = String(f.titulo || '').toLowerCase();
-        const t2 = String((f.proyecto as any)?.titulo || '').toLowerCase();
-        return t1.includes(q) || t2.includes(q);
-      });
+    const relativePath = documentoFinal.archivo;
+    const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
+    const absolutePath = path.join(process.cwd(), 'public', cleanPath);
+
+    console.log('🔍 Ruta en BD (Final):', relativePath);
+    console.log('🔍 Ruta absoluta construida:', absolutePath);
+
+    if (!fs.existsSync(absolutePath)) {
+      console.error('❌ Archivo final no encontrado físicamente:', absolutePath);
+
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'finales');
+      console.log('📂 Contenido de uploads/finales:');
+      try {
+        const files = fs.readdirSync(uploadsDir);
+        files.forEach(file => console.log(`   - ${file}`));
+      } catch (err) {
+        console.log('   📂 Carpeta no existe o está vacía');
+      }
+
+      throw new NotFoundException('El archivo final no existe en el servidor');
     }
 
-    return results;
+    console.log('✅ Archivo final encontrado:', absolutePath);
+
+    return {
+      filePath: absolutePath,
+      mimeType: this.getMimeType(relativePath),
+    };
+  }
+
+  private getMimeType(filename: string): string {
+    const ext = path.extname(filename).toLowerCase();
+    const mimeTypes: { [key: string]: string } = {
+      '.pdf': 'application/pdf',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.txt': 'text/plain',
+    };
+    return mimeTypes[ext] || 'application/octet-stream';
   }
 }

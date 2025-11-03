@@ -11,7 +11,7 @@ interface ActividadProps {
     id: number;
     nombre: string;
     estado: string;
-    fecha: string;
+    fecha?: string;
     elementos: string[];
     descripcion?: string;
   };
@@ -42,10 +42,6 @@ export default function Actividad({
   const [error, setError] = useState<string | null>(null);
 
   const manejarCerrarActividad = async () => {
-    if (!confirm('¿Estás seguro de que quieres cerrar esta actividad?')) {
-      return;
-    }
-
     setCerrando(true);
     try {
       await editarActividad(actividad.id, { estado: 'cerrado' });

@@ -7,6 +7,7 @@ import { File as MulterFile } from 'multer';
 import { Response } from 'express';
 import * as path from 'path';
 import { $Enums } from '@prisma/client';
+import { version } from 'os';
 
 @Injectable()
 export class DocumentoService {
@@ -166,74 +167,50 @@ export class DocumentoService {
 }
 
   async getStudentDocuments(userId: number, actividadId: number) {
-    // 1. Obtener el estudiante con su proyecto
-    const estudiante = await this.prisma.estudiante.findFirst({
-      where: { id: userId },
-      select: {
-        id: true,
-        proyecto_id: true,
-      },
-    });
+  // 1. Obtener el estudiante con su proyecto
+  const estudiante = await this.prisma.estudiante.findFirst({
+    where: { id: userId },
+    select: {
+      id: true,
+      proyecto_id: true,
+    },
+  });
 
-    if (!estudiante) {
-      throw new NotFoundException('Estudiante no encontrado');
-    }
+  if (!estudiante) {
+    throw new NotFoundException('Estudiante no encontrado');
+  }
 
-    if (!estudiante.proyecto_id) {
-      throw new NotFoundException('El estudiante no tiene un proyecto asignado');
-    }
+  if (!estudiante.proyecto_id) {
+    throw new NotFoundException('El estudiante no tiene un proyecto asignado');
+  }
 
-    // 2. Verificar que la actividad existe
-    const actividad = await this.prisma.actividad.findUnique({
-      where: { id: actividadId },
-    });
+  // 2. Verificar que la actividad existe y obtener es_final
+  const actividad = await this.prisma.actividad.findUnique({
+    where: { id: actividadId },
+    select: {
+      id: true,
+      nombre: true,
+      descripcion: true,
+      es_final: true,
+    },
+  });
 
-    if (!actividad) {
-      throw new NotFoundException('Actividad no encontrada');
-    }
+  if (!actividad) {
+    throw new NotFoundException('Actividad no encontrada');
+  }
 
-    // 3. Obtener los documentos del proyecto y actividad
-    const documentos = await this.prisma.documento.findMany({
+  // 3. Si es actividad final, retornar finales en lugar de documentos
+  if (actividad.es_final) {
+    const finales = await this.prisma.final.findMany({
       where: {
         proyecto_id: estudiante.proyecto_id,
         actividad_id: actividadId,
       },
       include: {
-        observaciones: {
+        tags: {
           select: {
             id: true,
-            content_text: true,
-            comment_text: true,
-            comment_emoji: true,
-            estado: true,
-            bounding_x1: true,
-            bounding_y1: true,
-            bounding_x2: true,
-            bounding_y2: true,
-            bounding_page: true,
-            rects: true,
-          },
-          orderBy: {
-            id: 'desc', // Más recientes primero
-          },
-        },
-        correcciones: {
-          select: {
-            id: true,
-            content_text: true,
-            comment_text: true,
-            comment_emoji: true,
-            estado: true,
-            bounding_x1: true,
-            bounding_y1: true,
-            bounding_x2: true,
-            bounding_y2: true,
-            bounding_page: true,
-            rects: true,
-            observacion_id: true,
-          },
-          orderBy: {
-            id: 'desc', // Más recientes primero
+            nombre: true,
           },
         },
         actividad: {
@@ -245,25 +222,107 @@ export class DocumentoService {
         },
       },
       orderBy: {
-        created_at: 'desc',
+        id: 'desc',
       },
     });
 
     return {
       proyecto_id: estudiante.proyecto_id,
       actividad_id: actividadId,
-      total_documentos: documentos.length,
-      documentos,
+      es_final: true,
+      total_finales: finales.length,
+      finales,
     };
   }
 
-  async getActivityDocs(actividadId: number) {
-    // Validar el ID
-    if (!actividadId || isNaN(actividadId) || actividadId <= 0) {
-      throw new BadRequestException('El ID de la actividad debe ser un número positivo');
-    }
+  // 4. Flujo normal: Obtener documentos si no es actividad final
+  const documentos = await this.prisma.documento.findMany({
+    where: {
+      proyecto_id: estudiante.proyecto_id,
+      actividad_id: actividadId,
+    },
+    include: {
+      observaciones: {
+        select: {
+          id: true,
+          content_text: true,
+          comment_text: true,
+          comment_emoji: true,
+          estado: true,
+          bounding_x1: true,
+          bounding_y1: true,
+          bounding_x2: true,
+          bounding_y2: true,
+          bounding_page: true,
+          rects: true,
+        },
+        orderBy: {
+          id: 'desc',
+        },
+      },
+      correcciones: {
+        select: {
+          id: true,
+          content_text: true,
+          comment_text: true,
+          comment_emoji: true,
+          estado: true,
+          bounding_x1: true,
+          bounding_y1: true,
+          bounding_x2: true,
+          bounding_y2: true,
+          bounding_page: true,
+          rects: true,
+          observacion_id: true,
+        },
+        orderBy: {
+          id: 'desc',
+        },
+      },
+      actividad: {
+        select: {
+          id: true,
+          nombre: true,
+          descripcion: true,
+        },
+      },
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+  });
 
-    const documentos = await this.prisma.documento.findMany({
+  return {
+    proyecto_id: estudiante.proyecto_id,
+    actividad_id: actividadId,
+    es_final: false,
+    total_documentos: documentos.length,
+    documentos,
+  };
+}
+
+async getActivityDocs(actividadId: number) {
+  // Validar el ID
+  if (!actividadId || isNaN(actividadId) || actividadId <= 0) {
+    throw new BadRequestException('El ID de la actividad debe ser un número positivo');
+  }
+
+  // Verificar si la actividad existe y obtener es_final
+  const actividad = await this.prisma.actividad.findUnique({
+    where: { id: actividadId },
+    select: {
+      id: true,
+      es_final: true,
+    },
+  });
+
+  if (!actividad) {
+    throw new NotFoundException('Actividad no encontrada');
+  }
+
+  // Si es actividad final, retornar finales
+  if (actividad.es_final) {
+    const finales = await this.prisma.final.findMany({
       where: {
         actividad_id: actividadId,
       },
@@ -272,34 +331,41 @@ export class DocumentoService {
           include: {
             estudiantes: {
               include: {
-                usuario: true, // Para incluir nombre, apellido, email, etc.
+                usuario: true,
               },
             },
           },
         },
+        tags: {
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { id: 'desc' },
     });
 
-    // ✅ CAMBIO: En lugar de lanzar error, devolver array vacío
-    // No encontrar documentos NO es un error, es un estado válido
-    if (documentos.length === 0) {
-      return []; // Devolver array vacío
+    if (finales.length === 0) {
+      return [];
     }
 
-    // Mapeamos para retornar una estructura más limpia
-    return documentos.map((doc) => ({
-      id: doc.id,
-      titulo: doc.titulo,
-      version: doc.version,
-      estado: doc.estado,
-      justificacion: doc.justificacion,
-      created_at: doc.created_at,
-      file: doc.file,
+    // Mapear finales con estructura similar a documentos
+    return finales.map((final) => ({
+      id: final.id,
+      titulo: final.titulo,
+      carrera: final.carrera,
+      año: final.año,
+      estado: final.estado,
+      version: final.version,
+      archivo: final.archivo,
+      fase: final.fase,
+      tags: final.tags,
       proyecto: {
-        id: doc.proyecto.id,
-        titulo: doc.proyecto.titulo,
-        estudiantes: doc.proyecto.estudiantes.map((est) => ({
+        id: final.proyecto.id,
+        titulo: final.proyecto.titulo,
+        fase: final.proyecto.fase_actual,
+        estudiantes: final.proyecto.estudiantes.map((est) => ({
           id: est.id,
           cu: est.cu,
           carrera: est.carrera,
@@ -312,6 +378,56 @@ export class DocumentoService {
       },
     }));
   }
+
+  // Flujo normal: obtener documentos
+  const documentos = await this.prisma.documento.findMany({
+    where: {
+      actividad_id: actividadId,
+    },
+    include: {
+      proyecto: {
+        include: {
+          estudiantes: {
+            include: {
+              usuario: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { created_at: 'desc' },
+  });
+
+  if (documentos.length === 0) {
+    return [];
+  }
+
+  // Mapear documentos
+  return documentos.map((doc) => ({
+    id: doc.id,
+    titulo: doc.titulo,
+    version: doc.version,
+    estado: doc.estado,
+    justificacion: doc.justificacion,
+    created_at: doc.created_at,
+    file: doc.file,
+    proyecto: {
+      id: doc.proyecto.id,
+      titulo: doc.proyecto.titulo,
+      fase: doc.proyecto.fase_actual,
+      estudiantes: doc.proyecto.estudiantes.map((est) => ({
+        id: est.id,
+        cu: est.cu,
+        carrera: est.carrera,
+        usuario: {
+          nombre: est.usuario.nombre,
+          apellido: est.usuario.apellido,
+          email: est.usuario.email,
+        },
+      })),
+    },
+  }));
+}
 
 
   async getPendientes(docenteId: number) {

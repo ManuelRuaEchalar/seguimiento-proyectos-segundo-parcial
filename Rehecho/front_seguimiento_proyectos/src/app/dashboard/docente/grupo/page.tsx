@@ -4,13 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/general/Navbar';
 import ControlGrupo from '@/components/general/ControlGrupo';
-import GroupInfo from '@/components/docente/GroupInfo';
+import SelectorFecha from '@/components/docente/SelectorFecha';
 import FormularioActividad from '@/components/docente/FormularioActividad';
 import FormularioFormatoDocumento from '@/components/docente/FormularioFormatoDocumento';
 import ListaActividades from '@/components/general/ListaActividades';
 import Actividad from '@/components/general/Actividad';
 import TrabajoFinal from '@/components/general/TrabajoFinal';
+import Solicitudes from '@/components/general/Solicitudes';
 import { obtenerActividadesPorGrupo } from '@/services/actividades';
+import { obtenerSolicitudesPendientesDocente } from '@/services/solicitudes';
 import styles from './page.module.css';
 
 type Fase = 'tema' | 'perfil' | 'proyecto';
@@ -22,6 +24,12 @@ interface Grupo {
   fase: Fase;
   elementos?: string[] | null;
   elementos_hechos?: string[] | null;
+  fecha_inicio_tema?: string | null;
+  fecha_fin_tema?: string | null;
+  fecha_inicio_perfil?: string | null;
+  fecha_fin_perfil?: string | null;
+  fecha_inicio_proyecto?: string | null;
+  fecha_fin_proyecto?: string | null;
 }
 
 interface DocenteInfo {
@@ -32,11 +40,18 @@ interface DocenteInfo {
 interface Actividad {
   id: number;
   nombre: string;
-  estado: string;
-  fecha: string;
   elementos: string[];
   descripcion?: string;
-  fase: Fase;
+  fecha_creacion: string;
+  estado: string;
+  grupo_id: number;
+  fase: string;
+  es_final: boolean;
+}
+
+interface SolicitudesData {
+  enviadas: any[];
+  recibidas: any[];
 }
 
 export default function GrupoPage() {
@@ -44,9 +59,11 @@ export default function GrupoPage() {
   const [docenteInfo, setDocenteInfo] = useState<DocenteInfo | null>(null);
   const [grupo, setGrupo] = useState<Grupo | null>(null);
   const [actividades, setActividades] = useState<Actividad[]>([]);
+  const [actividadFinal, setActividadFinal] = useState<Actividad | null>(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(true);
   const [faseActual, setFaseActual] = useState<Fase>('tema');
   const [cargando, setCargando] = useState(true);
+  const [solicitudes, setSolicitudes] = useState<SolicitudesData>({ enviadas: [], recibidas: [] });
 
   useEffect(() => {
     cargarDatos();
@@ -69,7 +86,21 @@ export default function GrupoPage() {
 
         const actividadesData = await obtenerActividadesPorGrupo(grupoData.id);
         console.log('Actividades cargadas:', actividadesData);
-        setActividades(actividadesData.actividades);
+        
+        // Buscar la actividad final
+        const final = actividadesData.actividades.find((act: Actividad) => act.es_final === true);
+        const actividadesRegulares = actividadesData.actividades.filter((act: Actividad) => act.es_final !== true);
+        
+        console.log('🎯 Actividad final encontrada:', final);
+        console.log('📚 Actividades regulares:', actividadesRegulares);
+        
+        setActividadFinal(final || null);
+        setActividades(actividadesRegulares);
+
+        // Cargar solicitudes pendientes del docente para este grupo
+        const solicitudesData = await obtenerSolicitudesPendientesDocente(grupoData.id);
+        console.log('📋 Solicitudes del docente:', solicitudesData);
+        setSolicitudes(solicitudesData);
       }
 
       if (docenteGuardado) {
@@ -114,6 +145,38 @@ export default function GrupoPage() {
     cargarDatos();
   };
 
+  const handleFechasGuardadas = () => {
+    // Recargar los datos del grupo desde el servidor para actualizar las fechas
+    cargarDatos();
+  };
+
+  const manejarSolicitudRespondida = async () => {
+    // Recargar solicitudes después de responder
+    if (grupo) {
+      try {
+        const solicitudesActualizadas = await obtenerSolicitudesPendientesDocente(grupo.id);
+        setSolicitudes(solicitudesActualizadas);
+      } catch (err: any) {
+        console.error('❌ Error al recargar solicitudes:', err.message);
+      }
+    }
+  };
+
+  // Verificar si se necesitan fechas para la fase actual
+  const necesitaFechas = () => {
+    if (!grupo) return false;
+    
+    if (faseActual === 'tema') {
+      return !grupo.fecha_inicio_tema || !grupo.fecha_fin_tema;
+    } else if (faseActual === 'perfil') {
+      return !grupo.fecha_inicio_perfil || !grupo.fecha_fin_perfil;
+    } else if (faseActual === 'proyecto') {
+      return !grupo.fecha_inicio_proyecto || !grupo.fecha_fin_proyecto;
+    }
+    
+    return false;
+  };
+
   // Filtrar actividades por fase
   const actividadesPerfil = actividades.filter(act => act.fase === 'perfil');
   const actividadesProyecto = actividades.filter(act => act.fase === 'proyecto');
@@ -127,9 +190,7 @@ export default function GrupoPage() {
   const mostrarFormatoDocumento = grupo && (!grupo.elementos || grupo.elementos.length === 0) && (!grupo.elementos_hechos || grupo.elementos_hechos.length === 0);
   
   // Determinar si mostrar el componente de trabajo final
-  const mostrarTrabajoFinal = grupo && 
-    (!grupo.elementos || grupo.elementos.length === 0) && 
-    (grupo.elementos_hechos && grupo.elementos_hechos.length > 0);
+  const mostrarTrabajoFinal = actividadFinal !== null;
 
   return (
     <>
@@ -145,63 +206,80 @@ export default function GrupoPage() {
           <ControlGrupo
             nombreGrupo={grupo?.nombre || 'Sin grupo'}
             grado={grupo?.grado || 'grado1'}
+            rol="docente"
             faseActual={faseActual}
             onFaseChange={setFaseActual}
           />
 
+          {/* Mostrar selector de fechas si son necesarias */}
+          {grupo && necesitaFechas() && (
+            <SelectorFecha
+              grupoId={grupo.id}
+              fase={faseActual}
+              onFechasGuardadas={handleFechasGuardadas}
+            />
+          )}
+
           {faseActual === 'perfil' && (
-            <>
-              {mostrarFormatoDocumento ? (
-                // Mostrar formulario de formato de documento si no hay elementos
-                <FormularioFormatoDocumento
-                  grupoId={grupo!.id}
-                  onElementosGuardados={handleElementosGuardados}
-                />
-              ) : (
-                // Mostrar interfaz normal o trabajo final
-                <>
-                  {!mostrarTrabajoFinal && (
-                    <div className={styles.newActivityToggle}>
-                      <button className={styles.newActivityBtn} onClick={toggleFormulario}>
-                        {mostrarFormulario ? 'Cerrar Nueva Actividad' : 'Nueva Actividad'}
-                      </button>
-                      <button className={styles.newActivityPlusBtn} onClick={toggleFormulario}>
-                        {mostrarFormulario ? '−' : '+'}
-                      </button>
-                    </div>
-                  )}
-
-                  <div className={`${styles.activitiesWrapper} ${!mostrarTrabajoFinal && mostrarFormulario ? styles.withForm : ''}`}>
-                    {!mostrarTrabajoFinal && mostrarFormulario && grupo && grupo.elementos && (
-                      <FormularioActividad
-                        grupoId={grupo.id}
-                        fase={grupo.fase}
-                        elementosGrupo={grupo.elementos}
-                        onActividadCreada={handleActividadCreada}
-                      />
+            <div className={styles.contentWrapper}>
+              <div className={styles.mainContent}>
+                {mostrarFormatoDocumento ? (
+                  <FormularioFormatoDocumento
+                    grupoId={grupo!.id}
+                    onElementosGuardados={handleElementosGuardados}
+                  />
+                ) : (
+                  <>
+                    {!mostrarTrabajoFinal && (
+                      <div className={styles.newActivityToggle}>
+                        <button className={styles.newActivityBtn} onClick={toggleFormulario}>
+                          {mostrarFormulario ? 'Cerrar Nueva Actividad' : 'Nueva Actividad'}
+                        </button>
+                        <button className={styles.newActivityPlusBtn} onClick={toggleFormulario}>
+                          {mostrarFormulario ? '−' : '+'}
+                        </button>
+                      </div>
                     )}
 
-                    {mostrarTrabajoFinal && grupo.elementos_hechos && (
-                      <TrabajoFinal
-                        elementos={grupo.elementos_hechos}
-                        grado={grupo.grado}
-                        fase={grupo.fase}
+                    <div className={`${styles.activitiesWrapper} ${!mostrarTrabajoFinal && mostrarFormulario ? styles.withForm : ''}`}>
+                      {!mostrarTrabajoFinal && mostrarFormulario && grupo && grupo.elementos && (
+                        <FormularioActividad
+                          grupoId={grupo.id}
+                          fase={grupo.grado === 'grado1' ? 'perfil' : grupo.grado === 'grado2' ? 'proyecto' : grupo.fase}
+                          elementosGrupo={grupo.elementos}
+                          onActividadCreada={handleActividadCreada}
+                        />
+                      )}
+
+                      {mostrarTrabajoFinal && actividadFinal && grupo && (
+                        <TrabajoFinal
+                          actividad={actividadFinal}
+                          grado={grupo.grado}
+                          rol="docente"
+                          onActividadActualizada={cargarDatos}
+                        />
+                      )}
+
+                      <ListaActividades
                         rol="docente"
-                        onFinalSubido={cargarDatos}
+                        fase="perfil"
+                        actividades={actividadesPerfil}
+                        onActividadActualizada={cargarDatos}
+                        onVerEntregas={handleActividadClick}
                       />
-                    )}
+                    </div>
+                  </>
+                )}
+              </div>
 
-                    <ListaActividades
-                      rol="docente"
-                      fase="perfil"
-                      actividades={actividadesPerfil}
-                      onActividadActualizada={cargarDatos}
-                      onVerEntregas={handleActividadClick}
-                    />
-                  </div>
-                </>
-              )}
-            </>
+              <div className={styles.sidebar}>
+                <Solicitudes 
+                  solicitudes={solicitudes} 
+                  onSolicitudRespondida={manejarSolicitudRespondida}
+                  rol="docente"
+                />
+              </div>
+            </div>
           )}
 
           {faseActual === 'tema' && (
@@ -223,14 +301,64 @@ export default function GrupoPage() {
           )}
 
           {faseActual === 'proyecto' && (
-            <div className={styles.proyectoContainer}>
-              <ListaActividades
-                rol="docente"
-                fase="proyecto"
-                actividades={actividadesProyecto}
-                onActividadActualizada={cargarDatos}
-                onVerEntregas={handleActividadClick}
-              />
+            <div className={styles.contentWrapper}>
+              <div className={styles.mainContent}>
+                {mostrarFormatoDocumento ? (
+                  <FormularioFormatoDocumento
+                    grupoId={grupo!.id}
+                    onElementosGuardados={handleElementosGuardados}
+                  />
+                ) : (
+                  <>
+                    {!mostrarTrabajoFinal && (
+                      <div className={styles.newActivityToggle}>
+                        <button className={styles.newActivityBtn} onClick={toggleFormulario}>
+                          {mostrarFormulario ? 'Cerrar Nueva Actividad' : 'Nueva Actividad'}
+                        </button>
+                        <button className={styles.newActivityPlusBtn} onClick={toggleFormulario}>
+                          {mostrarFormulario ? '−' : '+'}
+                        </button>
+                      </div>
+                    )}
+
+                    <div className={`${styles.activitiesWrapper} ${!mostrarTrabajoFinal && mostrarFormulario ? styles.withForm : ''}`}>
+                      {!mostrarTrabajoFinal && mostrarFormulario && grupo && grupo.elementos && (
+                        <FormularioActividad
+                          grupoId={grupo.id}
+                          fase={grupo.grado === 'grado1' ? 'perfil' : grupo.grado === 'grado2' ? 'proyecto' : grupo.fase}
+                          elementosGrupo={grupo.elementos}
+                          onActividadCreada={handleActividadCreada}
+                        />
+                      )}
+
+                      {mostrarTrabajoFinal && actividadFinal && grupo && (
+                        <TrabajoFinal
+                          actividad={actividadFinal}
+                          grado={grupo.grado}
+                          rol="docente"
+                          onActividadActualizada={cargarDatos}
+                        />
+                      )}
+
+                      <ListaActividades
+                        rol="docente"
+                        fase="proyecto"
+                        actividades={actividadesProyecto}
+                        onActividadActualizada={cargarDatos}
+                        onVerEntregas={handleActividadClick}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className={styles.sidebar}>
+                <Solicitudes 
+                  solicitudes={solicitudes} 
+                  onSolicitudRespondida={manejarSolicitudRespondida}
+                  rol="docente"
+                />
+              </div>
             </div>
           )}
         </div>

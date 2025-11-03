@@ -15,6 +15,63 @@
   margin-bottom: 24px;
 }
 
+/* Toggle Switch */
+.toggleContainer {
+  display: flex;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  padding: 4px;
+  width: fit-content;
+  margin: 0 auto 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.toggleOption {
+  padding: 10px 24px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--carbon);
+  font-size: 14px;
+}
+
+.toggleOption.active {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+}
+
+.cicloTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--azul);
+  background-color: var(--casi-blanco);
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cicloIconWrapper {
+  background-color: var(--blanco);
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cicloIcon {
+  width: 24px;
+  height: 24px;
+  filter: invert(20%) sepia(50%) saturate(1500%) hue-rotate(195deg) brightness(90%) contrast(90%);
+}
+
 .emptyState {
   background-color: var(--blanco);
   border-radius: 8px;
