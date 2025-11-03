@@ -64,13 +64,16 @@ export default function GroupsSection({ groups, refreshGroups, setError }: Group
               onChange={(e) => setForm({ ...form, nombre: e.target.value })}
               className="groups-section__input"
             />
-            <input
-              type="text"
-              placeholder="Grado"
+            <select
               value={form.grado}
               onChange={(e) => setForm({ ...form, grado: e.target.value })}
               className="groups-section__input"
-            />
+              required
+            >
+              <option value="">Seleccionar Grado</option>
+              <option value="grado1">Grado 1</option>
+              <option value="grado2">Grado 2</option>
+            </select>
             <div className="groups-section__form-actions">
               <button type="submit" className="groups-section__button">Crear Grupo</button>
               <button 

@@ -60,8 +60,8 @@ async crearFinal(data: {
     },
   });
 
-  return nuevoFinal;
-}
+    return nuevoFinal;
+  }
 
   async borrarFinal(id: number) {
     return this.prisma.final.delete({ where: { id } });
@@ -78,8 +78,8 @@ async crearFinal(data: {
     });
   }
 
-async buscarFinales(filtros: any) {
-  const { tag, carrera, año, titulo } = filtros;
+  async buscarFinales(filtros: any) {
+    const { tag, carrera, año, titulo } = filtros;
 
   return this.prisma.final.findMany({
     where: {
