@@ -17,7 +17,7 @@ export default function RegisterPage() {
     password: '',
     cu: '',
     carrera: '',
-    rol: 'estudiante',
+    rol: 'estudiante' as const, // ← CAMBIO AQUÍ
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -106,7 +106,6 @@ export default function RegisterPage() {
             required
           />
 
-          {/* Select de carreras */}
           <label htmlFor="carrera">Carrera</label>
           <select
             id="carrera"

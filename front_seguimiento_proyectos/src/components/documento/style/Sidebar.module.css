@@ -1,16 +1,3 @@
-:root {
-  --azul-oscuro: #272D3A;
-  --blanco: #fff;
-  --casi-negro: #171717;
-  --plata: #BDB3AB;
-  --casi-blanco: #F6F9FF;
-  --azul: #1E396C;
-  --celeste: #9BC7E8;
-  --carbon: #1F2937;
-  --bosque: #2D4A3E;
-  --rechazado: #902a2a;
-}
-
 /* Sidebar */
 .sidebar {
   width: 400px;
@@ -22,6 +9,16 @@
   overflow: hidden;
   height: 100%;
   position: relative;
+  --azul-oscuro: #272D3A;
+  --blanco: #fff;
+  --casi-negro: #171717;
+  --plata: #BDB3AB;
+  --casi-blanco: #F6F9FF;
+  --azul: #1E396C;
+  --celeste: #9BC7E8;
+  --carbon: #1F2937;
+  --bosque: #2D4A3E;
+  --rechazado: #902a2a;
 }
 
 .sidebar.collapsed {

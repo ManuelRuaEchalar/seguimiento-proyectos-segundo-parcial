@@ -1,16 +1,4 @@
-/* Variables de color */
-:root {
-    --azul-oscuro: #272D3A;
-    --blanco: #fff;
-    --casi-negro: #171717;
-    --plata: #BDB3AB;
-    --casi-blanco: #F6F9FF;
-    --azul: #1E396C;
-    --celeste: #9BC7E8;
-    --carbon: #1F2937;
-    --bosque: #2D4A3E;
-    --rechazado: #7c3a3a;
-}
+
 
 /* Navbar base */
 .navbar {
@@ -22,6 +10,16 @@
     align-items: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     gap: 24px;
+    --azul-oscuro: #272D3A;
+    --blanco: #fff;
+    --casi-negro: #171717;
+    --plata: #BDB3AB;
+    --casi-blanco: #F6F9FF;
+    --azul: #1E396C;
+    --celeste: #9BC7E8;
+    --carbon: #1F2937;
+    --bosque: #2D4A3E;
+    --rechazado: #7c3a3a;
 }
 
 /* Estilos específicos para navbar de docente y estudiante */

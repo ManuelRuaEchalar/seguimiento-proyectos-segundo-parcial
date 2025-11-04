@@ -216,37 +216,37 @@
   }
 }
 
-/* Global styles for PDF highlighter */
-:global(.PdfHighlighter) {
+/* Estilos globales usando clase existente como wrapper */
+.pdfViewerContent :global(.PdfHighlighter) {
   height: 100%;
 }
 
-:global(.PdfHighlighter__page-container) {
+.pdfViewerContent :global(.PdfHighlighter__page-container) {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 1rem;
 }
 
-:global(.react-pdf__Page) {
+.pdfViewerContent :global(.react-pdf__Page) {
   margin-bottom: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background-color: var(--white);
   transition: box-shadow 0.2s ease;
 }
 
-:global(.react-pdf__Page:hover) {
+.pdfViewerContent :global(.react-pdf__Page:hover) {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-:global(.react-pdf__Page canvas) {
+.pdfViewerContent :global(.react-pdf__Page canvas) {
   display: block;
 }
 
-:global(.react-pdf__Page__textContent) {
+.pdfViewerContent :global(.react-pdf__Page__textContent) {
   user-select: text;
 }
 
-:global(.react-pdf__Page__annotations) {
+.pdfViewerContent :global(.react-pdf__Page__annotations) {
   pointer-events: none;
 }

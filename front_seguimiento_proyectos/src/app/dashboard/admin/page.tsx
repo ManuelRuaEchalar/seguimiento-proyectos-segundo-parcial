@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUsers, getGroups, getDocentes, logout, getEstudiantes } from '@/services/api';
 import { User, Group } from '@/types';
-import { useAuthGuard } from '../../../hooks/userAuthGuard';
-import UsersSection from '../../../components/admin/UsersSection';
-import EstudiantesSection from '../../../components/admin/EstudiantesSection';
-import DocentesSection from '../../../components/admin/DocentesSection';
-import GroupsSection from '../../../components/admin/GroupsSection';
+import { useAuthGuard } from '@/hooks/userAuthGuard';
+import UsersSection from '@/components/admin/UsersSection';
+import EstudiantesSection from '@/components/admin/EstudiantesSection';
+import DocentesSection from '@/components/admin/DocentesSection';
+import GroupsSection from '@/components/admin/GroupsSection';
 
-import '../../..//styles/admin/admin.css';
+import '@/styles/admin/admin.css';
 
 export default function AdminDashboard() {
   const router = useRouter();
