@@ -19,32 +19,57 @@ async function bootstrap() {
   const prismaService = app.get(PrismaService);
   const configService = app.get(ConfigService);
 
+  // Agregar lógica de reintentos para la conexión de base de datos
+  let retries = 10;
+  while (retries > 0) {
+    try {
+      await prismaService.$connect();
+      console.log('✅ Base de datos conectada exitosamente');
+      break;
+    } catch (error) {
+      retries--;
+      console.log(`❌ Conexión a la base de datos falló. Reintentos restantes: ${retries}`);
+      if (retries === 0) {
+        console.error('No se pudo conectar a la base de datos después de varios intentos');
+        throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+
   const adminEmail = configService.get<string>('ADMIN_EMAIL');
   const adminPassword = configService.get<string>('ADMIN_PASSWORD');
   const adminName = configService.get<string>('ADMIN_NAME');
   const adminLastname = configService.get<string>('ADMIN_LASTNAME');
-  const adminRole = configService.get<string>('ADMIN_ROLE', 'admin'); // Valor por defecto 'admin'
+  const adminRole = configService.get<string>('ADMIN_ROLE', 'admin');
 
   if (adminEmail && adminPassword && adminName && adminLastname) {
-    const existingAdmin = await prismaService.usuario.findUnique({
-      where: { email: adminEmail },
-    });
-
-    if (!existingAdmin) {
-      const hash = await argon.hash(adminPassword);
-      await prismaService.usuario.create({
-        data: {
-          nombre: adminName,
-          apellido: adminLastname,
-          email: adminEmail,
-          hash,
-          rol: adminRole as any, // Rol configurable desde .env
-        },
+    try {
+      const existingAdmin = await prismaService.usuario.findUnique({
+        where: { email: adminEmail },
       });
-      console.log('Usuario admin creado por defecto');
+
+      if (!existingAdmin) {
+        const hash = await argon.hash(adminPassword);
+        await prismaService.usuario.create({
+          data: {
+            nombre: adminName,
+            apellido: adminLastname,
+            email: adminEmail,
+            hash,
+            rol: adminRole as any,
+          },
+        });
+        console.log('✅ Usuario admin creado por defecto');
+      } else {
+        console.log('ℹ️ Usuario admin ya existe');
+      }
+    } catch (error) {
+      console.error('❌ Error al crear usuario admin:', error);
     }
   }
 
   await app.listen(3000);
+  console.log('🚀 Aplicación corriendo en el puerto 3000');
 }
 bootstrap();

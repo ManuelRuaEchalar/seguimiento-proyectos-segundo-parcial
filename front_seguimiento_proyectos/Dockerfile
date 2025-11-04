@@ -6,8 +6,8 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Etapa 2: producción
-FROM node:18
+# Etapa 2: producción (usar la misma versión)
+FROM node:22
 WORKDIR /app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
