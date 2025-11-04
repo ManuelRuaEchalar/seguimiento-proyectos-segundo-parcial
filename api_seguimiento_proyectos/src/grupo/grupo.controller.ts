@@ -1,53 +1,88 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    ParseIntPipe,
-    UseGuards,
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Req,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { GrupoService } from './grupo.service';
-import { JwtGuard } from '../auth/guard';
-import { GetUser } from 'src/auth/decorator';
+import { JwtGuard } from '../auth/guard/jwt.guard';
+import { Request } from 'express';
 
-@UseGuards(JwtGuard)
 @Controller('grupos')
 export class GrupoController {
-    constructor(private readonly grupoService: GrupoService) {}
+  constructor(private readonly grupoService: GrupoService) {}
 
-    @Post()
-    create(@Body('nombre') nombre: string) {
-        return this.grupoService.create(nombre);
+  @Get()
+  findAll() {
+    return this.grupoService.findAll();
+  }
+
+@Patch('asignar-fechas')
+@UseGuards(JwtGuard)
+asignarFechasGrupo(@Body() body: any) {
+  return this.grupoService.asignarFechasGrupo(body);
+}
+
+  @Get('grupo-final')
+  @UseGuards(JwtGuard)
+  obtenerGruposFinal() {
+    return this.grupoService.obtenerGruposFinal();
+  }
+
+  @Post()
+  @UseGuards(JwtGuard)
+  create(@Body() createGrupoDto: any) {
+    return this.grupoService.create(createGrupoDto);
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.grupoService.findOne(id);
+  }
+
+  @Patch(':id/elementos')
+  @UseGuards(JwtGuard)
+  actualizarElementos(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { elementos: any }
+  ) {
+    const user = req.user as { id: number; email: string; rol: string };
+
+    if (user.rol !== 'docente') {
+      throw new HttpException(
+        'Solo los docentes pueden actualizar elementos del grupo',
+        HttpStatus.FORBIDDEN
+      );
     }
 
-    @Get()
-    findAll() {
-        return this.grupoService.findAll();
-    }
+    return this.grupoService.actualizarElementos(id, body.elementos);
+  }
 
-    @Get('disponibles')
-    getGruposDisponibles() {
-        return this.grupoService.getGruposDisponibles();
-    }
+  @Post(':id/unirse-grado2')
+@UseGuards(JwtGuard)
+async unirseAGrupoGrado2(
+  @Req() req: Request,
+  @Param('id', ParseIntPipe) grupoId: number,
+) {
+  const user = req.user as { id: number; email: string; rol: string };
 
-    @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.grupoService.findOne(id);
-    }
+  // Verificar rol
+  if (user.rol !== 'estudiante') {
+    throw new HttpException(
+      'Solo los estudiantes pueden unirse a un segundo grupo',
+      HttpStatus.FORBIDDEN,
+    );
+  }
 
-    @Patch(':id')
-    update(
-        @Param('id', ParseIntPipe) id: number,
-        @Body('nombre') nombre: string,
-    ) {
-        return this.grupoService.update(id, nombre);
-    }
+  return this.grupoService.unirseAGrupoGrado2(user.id, grupoId);
+}
 
-    @Delete(':id')
-    remove(@Param('id', ParseIntPipe) id: number) {
-        return this.grupoService.remove(id);
-    }
 }
