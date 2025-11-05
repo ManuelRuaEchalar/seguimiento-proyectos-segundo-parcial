@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "../../styles/repositorio/ListadoDeProyectos.module.css";
 import { obtenerFinalesAprobados, buscarFinales } from "../../services/finales";
 
@@ -17,6 +18,7 @@ type FinalItem = {
 };
 
 export default function ListadoDeProyecto() {
+  const router = useRouter();
   const [finales, setFinales] = useState<FinalItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,6 @@ export default function ListadoDeProyecto() {
   const [filterFase, setFilterFase] = useState<string>("");
 
   useEffect(() => {
-    // cargar finales aprobados al montar
     async function load() {
       setLoading(true);
       setError(null);
@@ -44,16 +45,15 @@ export default function ListadoDeProyecto() {
     load();
   }, []);
 
-  // opciones para selects, derivadas de los datos
   const opciones = useMemo(() => {
     const anios = new Set<string>();
     const carreras = new Set<string>();
     const fases = new Set<string>();
 
     finales.forEach((f) => {
-  if (f.año) anios.add(String(f.año));
-  if (f.carrera) carreras.add(f.carrera);
-  if (f.fase) fases.add(f.fase);
+      if (f.año) anios.add(String(f.año));
+      if (f.carrera) carreras.add(f.carrera);
+      if (f.fase) fases.add(f.fase);
     });
 
     return {
@@ -63,7 +63,6 @@ export default function ListadoDeProyecto() {
     };
   }, [finales]);
 
-  // Escucha eventos globales de búsqueda (disparados por la barra de búsqueda en la página)
   useEffect(() => {
     async function onBuscarFinales(e: Event) {
       const detail = (e as CustomEvent)?.detail || {};
@@ -90,7 +89,6 @@ export default function ListadoDeProyecto() {
     };
   }, []);
 
-  // filtrado local: año, carrera y fase
   const finalesFiltrados = useMemo(() => {
     return finales.filter((f) => {
       if (filterAnio && Number(f.año) !== parseInt(filterAnio)) return false;
@@ -99,6 +97,11 @@ export default function ListadoDeProyecto() {
       return true;
     });
   }, [finales, filterAnio, filterCarrera, filterFase]);
+
+  // ✅ Función para navegar a la página del documento
+  const handleVerDocumento = (finalId: number) => {
+    router.push(`/repositorio/${finalId}`);
+  };
 
   return (
     <section className={styles.container}>
@@ -128,8 +131,6 @@ export default function ListadoDeProyecto() {
             ))}
           </select>
 
-          {/* Filtro Estado eliminado: no viene en el endpoint */}
-
           <select
             className={styles.filterSelect}
             value={filterFase}
@@ -140,10 +141,6 @@ export default function ListadoDeProyecto() {
               <option key={f} value={f}>{f}</option>
             ))}
           </select>
-
-          {/* No hay filtro por asesor: el endpoint no devuelve ese campo */}
-
-          {/* La búsqueda ahora la maneja la barra en la página (SearchBarClient). */}
         </div>
       </div>
 
@@ -154,7 +151,7 @@ export default function ListadoDeProyecto() {
         {!loading && !error && finalesFiltrados.length === 0 && (
           <div>
             {lastSearchQuery
-              ? "no se encontro datos con su busqueda"
+              ? "No se encontraron datos con su búsqueda"
               : "No se encontraron finales."}
           </div>
         )}
@@ -166,12 +163,10 @@ export default function ListadoDeProyecto() {
             </div>
 
             <div className={styles.cardBody}>
-              {/* Descripción: si el proyecto tiene título o descripción, muéstrala; en caso contrario usar texto genérico */}
               <p className={styles.cardDesc}>
-                {p.proyecto?.titulo || p.titulo || "Titulo del proyecto asociado"}
+                {p.proyecto?.titulo || p.titulo || "Título del proyecto asociado"}
               </p>
 
-              {/* Label de carrera (como en la maqueta) */}
               <div style={{ marginTop: 6 }}>
                 <span className={styles.advisor}>{p.carrera || "Carrera del proyecto"}</span>
               </div>
@@ -181,7 +176,9 @@ export default function ListadoDeProyecto() {
                   <span className={styles.year}>{p.año}</span>
                   <span className={styles.tag}>Fase: {p.fase}</span>
                   {Array.isArray(p.tags) && p.tags.map((t: any, idx: number) => (
-                    <span key={idx} className={styles.tag}>{typeof t === 'string' ? t : t.nombre ?? JSON.stringify(t)}</span>
+                    <span key={idx} className={styles.tag}>
+                      {typeof t === 'string' ? t : t.nombre ?? JSON.stringify(t)}
+                    </span>
                   ))}
                   <span
                     className={`${styles.status} ${
@@ -199,9 +196,13 @@ export default function ListadoDeProyecto() {
             </div>
 
             <div className={styles.cardFooter}>
-              <a href={p.archivo.startsWith("/") ? p.archivo : `/uploads/finales/${p.archivo}`} target="_blank" rel="noreferrer">
-                <button className={styles.viewBtn}>Ver documento</button>
-              </a>
+              {/* ✅ CAMBIO PRINCIPAL: onClick en lugar de <a> */}
+              <button 
+                className={styles.viewBtn}
+                onClick={() => handleVerDocumento(p.id)}
+              >
+                Ver documento
+              </button>
             </div>
           </article>
         ))}
