@@ -106,27 +106,27 @@ async crearFinal(data: {
   async buscarFinales(filtros: any) {
     const { tag, carrera, año, titulo } = filtros;
 
-  return this.prisma.final.findMany({
-    where: {
-      AND: [
-        carrera ? { carrera: { contains: String(carrera), mode: 'insensitive' } } : {},
-        año ? { año: parseInt(String(año)) } : {},
-        titulo ? { titulo: { contains: String(titulo), mode: 'insensitive' } } : {},
-        tag
-          ? {
-              tags: {
-                some: { 
-                  nombre: { contains: String(tag) } // Remove mode here
+    return this.prisma.final.findMany({
+      where: {
+        AND: [
+          carrera ? { carrera: { contains: String(carrera), mode: 'insensitive' as const } } : {},
+          año ? { año: parseInt(String(año)) } : {},
+          titulo ? { titulo: { contains: String(titulo), mode: 'insensitive' as const } } : {},
+          tag
+            ? {
+                tags: {
+                  some: { 
+                    nombre: { contains: String(tag), mode: 'insensitive' as const }
+                  },
                 },
-              },
-            }
-          : {},
-      ].filter(condition => Object.keys(condition).length > 0), // Filter out empty objects
-      estado: 'aprobado',
-    },
-    include: { tags: true, proyecto: true },
-  });
-}
+              }
+            : {},
+        ].filter(condition => Object.keys(condition).length > 0), // Filter out empty objects
+        estado: 'aprobado',
+      },
+      include: { tags: true, proyecto: true },
+    });
+  }
 
 async getDoc(id: number) {
     // Validar que id sea un número válido

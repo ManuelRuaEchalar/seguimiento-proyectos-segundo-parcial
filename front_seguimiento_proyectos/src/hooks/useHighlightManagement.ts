@@ -107,15 +107,12 @@ export const useHighlightManagement = ({
       await createObservacion(observacionData);
       console.log("✅ Highlight guardado en BD");
       
-      const observacionesSinCorrecciones = highlights.filter(h => !h.isCorreccion);
-      if (observacionesSinCorrecciones.length === 0) {
-        console.log("📝 Primera observación detectada, cambiando estado del documento a 'revisado'");
-        const resultado = await cambiarEstadoDocumento(infoProyecto.codigoDoc, 'revisado');
-        if (resultado.success) {
-          console.log("✅ Estado del documento cambiado a 'revisado'");
-        } else {
-          console.error("❌ Error al cambiar estado del documento:", resultado.error);
-        }
+      console.log("📝 Cambiando estado del documento a 'revisado'");
+      const resultado = await cambiarEstadoDocumento(infoProyecto.codigoDoc, 'revisado');
+      if (resultado.success) {
+        console.log("✅ Estado del documento cambiado a 'revisado'");
+      } else {
+        console.error("❌ Error al cambiar estado del documento:", resultado.error);
       }
     } catch (error) {
       console.error("❌ Error al guardar el highlight en BD:", error);

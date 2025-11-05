@@ -1,17 +1,18 @@
 services:
   db:
-    image: mysql:8
-    container_name: mysql_db
+    image: postgres:16-alpine  # ← Cambiar imagen
+    container_name: postgres_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: seguimiento_proyectos_de_grado
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: seguimiento_proyectos_de_grado
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data  # ← Cambiar ruta
     ports:
-      - "3306:3306"
+      - "5432:5432"  # ← Cambiar puerto
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]  # ← Cambiar comando
       timeout: 5s
       retries: 10
       interval: 5s

@@ -13,6 +13,10 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/package.json ./
 COPY .env .env
+
 EXPOSE 3000
-CMD ["node", "dist/main.js"]
+
+# Usar db push en lugar de migrate deploy
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/main.js"]
