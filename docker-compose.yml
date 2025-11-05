@@ -1,22 +1,25 @@
 services:
   db:
-    image: postgres:16-alpine  # ← Cambiar imagen
+    image: postgres:16-alpine
     container_name: postgres_db
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}  # Mejor usar variable
       POSTGRES_DB: seguimiento_proyectos_de_grado
     volumes:
-      - db_data:/var/lib/postgresql/data  # ← Cambiar ruta
-    ports:
-      - "5432:5432"  # ← Cambiar puerto
+      - db_data:/var/lib/postgresql/data
+    # ⚠️ NO exponer puerto en producción
+    # ports:
+    #   - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]  # ← Cambiar comando
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       timeout: 5s
       retries: 10
       interval: 5s
       start_period: 30s
+    networks:
+      - app-network
 
   api:
     build: ./api_seguimiento_proyectos
@@ -27,8 +30,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "3000:3000"
+    # ⚠️ NO exponer puerto directamente
+    # ports:
+    #   - "3000:3000"
+    networks:
+      - app-network
 
   front:
     build: ./front_seguimiento_proyectos
@@ -38,19 +44,32 @@ services:
       - ./front_seguimiento_proyectos/.env.local
     depends_on:
       - api
-    ports:
-      - "3001:3001"
+    # ⚠️ NO exponer puerto directamente
+    # ports:
+    #   - "3001:3001"
+    networks:
+      - app-network
 
   nginx:
     image: nginx:latest
     container_name: nginx_proxy
+    restart: always
     depends_on:
       - front
       - api
     ports:
       - "80:80"
+      - "443:443"  # Para SSL futuro
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # Para SSL:
+      # - ./ssl:/etc/nginx/ssl
+    networks:
+      - app-network
 
 volumes:
   db_data:
+
+networks:
+  app-network:
+    driver: bridge
