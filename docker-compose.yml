@@ -5,13 +5,10 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}  # Mejor usar variable
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: seguimiento_proyectos_de_grado
     volumes:
       - db_data:/var/lib/postgresql/data
-    # ⚠️ NO exponer puerto en producción
-    # ports:
-    #   - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       timeout: 5s
@@ -30,9 +27,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # ⚠️ NO exponer puerto directamente
-    # ports:
-    #   - "3000:3000"
+    volumes:
+      - uploads_data:/app/public/uploads
     networks:
       - app-network
 
@@ -44,12 +40,10 @@ services:
       - ./front_seguimiento_proyectos/.env.local
     depends_on:
       - api
-    # ⚠️ NO exponer puerto directamente
-    # ports:
-    #   - "3001:3001"
     networks:
       - app-network
 
+  # NGINX NUEVO (CACHE + UPLOADS + FIX PERMISOS)
   nginx:
     image: nginx:latest
     container_name: nginx_proxy
@@ -59,16 +53,25 @@ services:
       - api
     ports:
       - "80:80"
-      - "443:443"  # Para SSL futuro
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      # Para SSL:
-      # - ./ssl:/etc/nginx/ssl
+      - uploads_data:/app/public/uploads:ro
+      - nginx_cache:/var/cache/nginx
+    command: >
+      sh -c "
+        mkdir -p /var/cache/nginx &&
+        chown nginx:nginx /var/cache/nginx &&
+        nginx -g 'daemon off;'
+      "
     networks:
       - app-network
 
+# VOLUMENES NUEVOS
 volumes:
   db_data:
+  uploads_data:
+  nginx_cache:
 
 networks:
   app-network:

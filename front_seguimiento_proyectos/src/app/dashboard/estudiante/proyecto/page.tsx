@@ -169,7 +169,7 @@ export default function ProyectoPage() {
   const mostrarTrabajoFinalPerfil = actividadFinal !== undefined;
   const mostrarTrabajoFinalProyecto = actividadFinalProyecto !== undefined;
 
-  const noTitle = estudianteInfo.proyecto.titulo === '' || estudianteInfo.proyecto.titulo === null;
+  const noTitle = !estudianteInfo.proyecto?.titulo;
 
   // Verificar si tiene grupo para la fase proyecto
   const tieneGrupoProyecto = estudianteInfo.grupo_dos_id !== null;

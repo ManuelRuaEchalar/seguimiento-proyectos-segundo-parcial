@@ -31,13 +31,14 @@ export async function fetchProyecto(id: number) {
 
 // proyecto.ts
 export async function fetchDoc(id: number) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   if (!apiUrl) {
     throw new Error('NEXT_PUBLIC_API_URL no está configurada');
   }
 
-  const response = await fetch(`${apiUrl}/documento/get-doc`, {
+  // Primero obtener la URL
+  const response = await fetch(`${apiUrl}/documento/doc-url`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -47,24 +48,37 @@ export async function fetchDoc(id: number) {
   });
 
   if (!response.ok) {
-    throw new Error(`Error al cargar el documento: ${response.status}`);
+    throw new Error(`Error al obtener URL del documento: ${response.status}`);
   }
 
-  // ✅ USAR ARRAYBUFFER PARA GARANTIZAR DESCARGA COMPLETA
-  const arrayBuffer = await response.arrayBuffer();
-  const contentType = response.headers.get('Content-Type') || 'application/pdf';
-  
-  // Crear Blob desde ArrayBuffer (más confiable)
-  const blob = new Blob([arrayBuffer], { type: contentType });
-  
-  console.log('✅ Documento descargado:', blob.size, 'bytes, tipo:', contentType);
+  const data = await response.json();
 
-  return { blob, contentType };
+  if (!data.success || !data.url) {
+    throw new Error('No se pudo obtener la URL del documento');
+  }
+
+  // Descargar el archivo desde la URL pública (Nginx)
+  const fileResponse = await fetch(data.url, {
+    credentials: 'include',
+  });
+
+  if (!fileResponse.ok) {
+    throw new Error(`Error al descargar el documento: ${fileResponse.status}`);
+  }
+
+  const arrayBuffer = await fileResponse.arrayBuffer();
+  const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+
+  console.log('✅ Documento descargado:', blob.size, 'bytes');
+
+  return { 
+    blob, 
+    contentType: 'application/pdf',
+    titulo: data.titulo,
+    url: data.url
+  };
 }
 
-/**
- * Obtener observaciones de un proyecto por documento
- */
 export async function fetchProjectObservaciones(codigoProyecto: number, codigoDoc: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 

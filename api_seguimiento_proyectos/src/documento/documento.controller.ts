@@ -33,6 +33,51 @@ import { Request } from 'express';
 export class DocumentoController {
   constructor(private documentoService: DocumentoService) { }
 
+  // 🔥 NUEVO: Endpoint optimizado que solo retorna la URL
+@Post('doc-url')
+async getDocUrl(@Body() body: { id: number }) {
+  try {
+    const { id } = body;
+
+    if (!id || typeof id !== 'number') {
+      throw new BadRequestException('Código de documento inválido');
+    }
+
+    // Solo obtener la ruta del archivo, no el archivo físico
+    const documento = await this.documentoService.getDocUrl(id);
+
+    return {
+      success: true,
+      url: documento.url, // URL pública para acceso directo desde Nginx
+      ...documento
+    };
+  } catch (error) {
+    console.error('Error en getDocUrl:', error);
+    throw new HttpException(
+      error.message || 'Error al obtener URL del documento',
+      error.status || HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
+// Mantener este endpoint solo para casos legacy o descarga forzada
+@Post('get-doc')
+async getDoc(@Body('id') id: number, @Res() res: Response) {
+  try {
+    // Simplificado: solo validar y retornar info básica
+    const docInfo = await this.documentoService.getDocUrl(id);
+    
+    // Redirigir a la URL estática de Nginx
+    return res.redirect(docInfo.url);
+  } catch (error) {
+    console.error('❌ Error en getDoc:', error);
+    return res.status(error.status || 500).json({
+      success: false,
+      error: error.message || 'Error interno del servidor'
+    });
+  }
+}
+
   @UseGuards(JwtGuard)
 @Get('teacher-observations')
 async getTeacherObservations(
@@ -120,48 +165,6 @@ async getActivityDocs(@Param('actividadId') actividadId: string) {
       success: true,
       data: pendientes,
     };
-  }
-
-  @Post('get-doc')
-  async getDoc(@Body('id') id: number, @Res() res: Response) {
-    try {
-      const { filePath, mimeType } = await this.documentoService.getDoc(id);
-
-      console.log('📄 Enviando archivo:', filePath);
-      console.log('📄 Tipo MIME:', mimeType);
-
-      if (!fs.existsSync(filePath)) {
-        console.error('❌ Archivo no encontrado:', filePath);
-        return res.status(404).json({
-          success: false,
-          error: 'Archivo no encontrado en el servidor'
-        });
-      }
-
-      res.setHeader('Content-Type', mimeType);
-      res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
-
-      if (path.isAbsolute(filePath)) {
-        return res.sendFile(filePath);
-      } else {
-        return res.sendFile(filePath, { root: process.cwd() });
-      }
-
-    } catch (error) {
-      console.error('❌ Error en getDoc:', error);
-
-      if (error instanceof NotFoundException) {
-        return res.status(404).json({
-          success: false,
-          error: error.message
-        });
-      }
-
-      return res.status(500).json({
-        success: false,
-        error: 'Error interno del servidor'
-      });
-    }
   }
 
   @Post('doc-info')

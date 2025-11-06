@@ -13,6 +13,72 @@ import { version } from 'os';
 export class DocumentoService {
   constructor(private prisma: PrismaService) { }
 
+  // 🔥 NUEVO: Método optimizado que solo retorna URL
+async getDocUrl(id: number) {
+  if (!id || isNaN(id) || id <= 0) {
+    throw new BadRequestException('El ID del documento debe ser un número positivo');
+  }
+
+  const documento = await this.prisma.documento.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      file: true,
+      titulo: true,
+      version: true,
+      created_at: true,
+      // Agrega otros campos que necesites
+    }
+  });
+
+  if (!documento) {
+    throw new NotFoundException('Documento no encontrado');
+  }
+
+  // Construir URL pública (accesible directamente desde Nginx)
+  const publicUrl = documento.file.startsWith('/') 
+    ? documento.file 
+    : `/${documento.file}`;
+
+  return {
+    id: documento.id,
+    url: publicUrl, // Ejemplo: /uploads/documentos/archivo_123456.pdf
+    titulo: documento.titulo,
+    version: documento.version,
+    created_at: documento.created_at
+  };
+}
+
+// Optimizar método existente (eliminar verificaciones innecesarias de filesystem)
+async getDoc(id: number) {
+  if (!id || isNaN(id) || id <= 0) {
+    throw new BadRequestException('El ID del documento debe ser un número positivo');
+  }
+
+  const documento = await this.prisma.documento.findUnique({
+    where: { id },
+    select: {
+      file: true,
+    }
+  });
+
+  if (!documento) {
+    throw new NotFoundException('Documento no encontrado en la base de datos');
+  }
+
+  const relativePath = documento.file;
+  const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
+  const absolutePath = path.join(process.cwd(), 'public', cleanPath);
+
+  // ⚠️ ELIMINAR validación de existencia física - deja que Nginx lo maneje
+  // Esta validación causa latencia innecesaria
+  
+  return {
+    filePath: absolutePath,
+    mimeType: 'application/pdf', // Simplificado
+  };
+}
+
   async getTeacherObservations(
   docenteId: number,
   estudianteId: number,
@@ -488,50 +554,6 @@ async getActivityDocs(actividadId: number) {
     }));
   }
 
-  async getDoc(id: number) {
-    // Validar que id sea un número válido
-    if (!id || isNaN(id) || id <= 0) {
-      throw new BadRequestException(`El ID del documento debe ser un número positivo pero es ${id}`);
-    }
-
-    const documento = await this.prisma.documento.findUnique({
-      where: { id },
-      select: {
-        file: true,
-      }
-    });
-
-
-    const relativePath = documento.file;
-    const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
-    const absolutePath = path.join(process.cwd(), 'public', cleanPath);
-
-    console.log('🔍 Ruta en BD:', relativePath);
-    console.log('🔍 Ruta absoluta construida:', absolutePath);
-
-    if (!fs.existsSync(absolutePath)) {
-      console.error('❌ Archivo no encontrado físicamente:', absolutePath);
-
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'documentos');
-      console.log('📂 Contenido de uploads/documentos:');
-      try {
-        const files = fs.readdirSync(uploadsDir);
-        files.forEach(file => console.log(`   - ${file}`));
-      } catch (err) {
-        console.log('   📂 Carpeta no existe o está vacía');
-      }
-
-      throw new NotFoundException('El archivo no existe en el servidor');
-    }
-
-    console.log('✅ Archivo encontrado:', absolutePath);
-
-    return {
-      filePath: absolutePath,
-      mimeType: this.getMimeType(relativePath),
-    };
-  }
-
   async getDocInfo(id: number) {
     // Validar que id sea un número válido
     if (!id || isNaN(id) || id <= 0) {
@@ -750,135 +772,119 @@ async getActivityDocs(actividadId: number) {
   }
 
 async uploadDocumento(
-    file: MulterFile,
-    proyectoId: string,
-    actividadId: string,
-    titulo: string,
-    res: Response
-  ) {
-    try {
-      console.log('📁 Archivo recibido:', file?.originalname);
-
-      if (!file) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'No se ha subido ningún archivo' 
-        });
-      }
-
-      if (!proyectoId || !actividadId || !titulo) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Faltan datos requeridos: proyectoId, actividadId o titulo' 
-        });
-      }
-
-      const proyectoIdNum = parseInt(proyectoId);
-      const actividadIdNum = parseInt(actividadId);
-
-      if (isNaN(proyectoIdNum) || isNaN(actividadIdNum)) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'proyectoId y actividadId deben ser números válidos' 
-        });
-      }
-
-      // 🔍 Verificar existencia de proyecto y actividad
-      const proyectoExiste = await this.verificarProyecto(proyectoIdNum);
-      if (!proyectoExiste) {
-        return res.status(404).json({ 
-          success: false, 
-          error: 'Proyecto no encontrado' 
-        });
-      }
-
-      const actividadExiste = await this.verificarActividad(actividadIdNum);
-      if (!actividadExiste) {
-        return res.status(404).json({ 
-          success: false, 
-          error: 'Actividad no encontrada' 
-        });
-      }
-
-      // 🔍 Obtener información de la actividad para verificar la fase
-      const actividad = await this.prisma.actividad.findUnique({
-        where: { id: actividadIdNum },
-        select: {
-          id: true,
-          fase: true,
-          es_final: true
-        }
-      });
-
-      if (!actividad) {
-        return res.status(404).json({ 
-          success: false, 
-          error: 'No se pudo obtener la información de la actividad' 
-        });
-      }
-
-      // 🧠 Verificar si ya existe un documento pendiente o aprobado
-      const estadoActual = await this.verificarEstadoDocumentos(proyectoIdNum, actividadIdNum);
-
-      if (estadoActual === 'pendiente' && actividad.fase !== 'tema') {
-        if (file && fs.existsSync(file.path)) fs.unlinkSync(file.path);
-        return res.status(400).json({
-          success: false,
-          error: 'Ya tienes un documento pendiente de revisión, espera a que tu docente lo revise para subir una corrección.'
-        });
-      }
-
-      // ✅ Verificar aprobación solo si NO es fase "tema"
-      if (estadoActual === 'aprobado' && actividad.fase !== 'tema') {
-        if (file && fs.existsSync(file.path)) fs.unlinkSync(file.path);
-        return res.status(400).json({
-          success: false,
-          error: 'Ya has aprobado esta actividad, ya no puedes subir documentos.'
-        });
-      }
-
-      // ✅ Guardar documento
-      const relativePath = `/uploads/documentos/${file.filename}`;
-      console.log('💾 Guardando en BD con ruta:', relativePath);
-
-      const nuevoDocumento = await this.crearDocumento({
-        titulo,
-        version: 0, // placeholder, el service lo calcula
-        file: relativePath,
-        proyecto_id: proyectoIdNum,
-        actividad_id: actividadIdNum,
-        estado: 'pendiente'
-      });
-
-      console.log('✅ Documento creado en BD:', nuevoDocumento.id);
-
-      return res.status(201).json({
-        success: true,
-        id: nuevoDocumento.id,
-        message: 'PDF subido correctamente',
-        fileName: file.filename,
-        filePath: relativePath,
-        version: nuevoDocumento.version
-      });
-
-    } catch (error) {
-      console.error('❌ Error subiendo documento:', error);
-
-      if (file && file.path && fs.existsSync(file.path)) {
-        try {
-          fs.unlinkSync(file.path);
-          console.log('🗑️ Archivo eliminado tras error:', file.path);
-        } catch (unlinkError) {
-          console.error('❌ Error eliminando archivo tras fallo:', unlinkError);
-        }
-      }
-
-      return res.status(500).json({
-        success: false,
-        error: 'Error interno del servidor al procesar el PDF'
+  file: MulterFile,
+  proyectoId: string,
+  actividadId: string,
+  titulo: string,
+  res: Response
+) {
+  try {
+    if (!file) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'No se ha subido ningún archivo' 
       });
     }
-  }
 
+    if (!proyectoId || !actividadId || !titulo) {
+      // 🔥 Limpiar archivo inmediatamente si faltan datos
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Faltan datos requeridos: proyectoId, actividadId o titulo' 
+      });
+    }
+
+    const proyectoIdNum = parseInt(proyectoId);
+    const actividadIdNum = parseInt(actividadId);
+
+    if (isNaN(proyectoIdNum) || isNaN(actividadIdNum)) {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(400).json({ 
+        success: false, 
+        error: 'proyectoId y actividadId deben ser números válidos' 
+      });
+    }
+
+    // 🔥 OPTIMIZACIÓN: Ejecutar validaciones en paralelo
+    const [proyectoExiste, actividadInfo, estadoActual] = await Promise.all([
+      this.verificarProyecto(proyectoIdNum),
+      this.prisma.actividad.findUnique({
+        where: { id: actividadIdNum },
+        select: { id: true, fase: true, es_final: true }
+      }),
+      this.verificarEstadoDocumentos(proyectoIdNum, actividadIdNum)
+    ]);
+
+    if (!proyectoExiste) {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Proyecto no encontrado' 
+      });
+    }
+
+    if (!actividadInfo) {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Actividad no encontrada' 
+      });
+    }
+
+    // Validaciones de estado
+    if (estadoActual === 'pendiente' && actividadInfo.fase !== 'tema') {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(400).json({
+        success: false,
+        error: 'Ya tienes un documento pendiente de revisión'
+      });
+    }
+
+    if (estadoActual === 'aprobado' && actividadInfo.fase !== 'tema') {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(400).json({
+        success: false,
+        error: 'Ya has aprobado esta actividad'
+      });
+    }
+
+    // Guardar en BD
+    const relativePath = `/uploads/documentos/${file.filename}`;
+    
+    const nuevoDocumento = await this.crearDocumento({
+      titulo,
+      version: 0,
+      file: relativePath,
+      proyecto_id: proyectoIdNum,
+      actividad_id: actividadIdNum,
+      estado: 'pendiente'
+    });
+
+    return res.status(201).json({
+      success: true,
+      id: nuevoDocumento.id,
+      url: relativePath, // 🔥 NUEVO: Retornar URL directa
+      message: 'PDF subido correctamente',
+      version: nuevoDocumento.version
+    });
+
+  } catch (error) {
+    console.error('❌ Error subiendo documento:', error);
+
+    if (file?.path && fs.existsSync(file.path)) {
+      try {
+        fs.unlinkSync(file.path);
+      } catch (unlinkError) {
+        console.error('❌ Error eliminando archivo:', unlinkError);
+      }
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor'
+    });
+  }
+}
 
 }
