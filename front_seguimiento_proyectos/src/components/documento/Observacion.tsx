@@ -26,7 +26,7 @@ export function Observacion({
 }: ObservacionProps) {
   const [showModal, setShowModal] = useState(false);
 
-  const MAX_COMMENT_LENGTH = 150;
+  const MAX_COMMENT_LENGTH = 70;
   
   // Determinar qué campo usar para el comentario según la variante
   const commentText = observacion.comment?.text || observacion.comment_text;
