@@ -1,0 +1,219 @@
+/* Observacion Card */
+.observacion {
+  background-color: #F6F9FF;
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 4px solid #1F2937;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.observacion:hover {
+  background-color: #e8eef7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.observacionSeleccionada {
+  border-left: 4px solid #1E396C !important;
+  background-color: #e8eef7 !important;
+}
+
+.observacionHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.observacionDoc {
+  font-size: 12px;
+  font-weight: 600;
+  color: #272D3A;
+}
+
+.observacionPagina {
+  font-size: 12px;
+  color: #1F2937;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.observacionTexto {
+  font-size: 14px;
+  font-style: italic;
+  color: #1F2937;
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.observacionComentario {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #171717;
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.verMasBtn {
+  background: none;
+  border: none;
+  color: #1E396C;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+  align-self: flex-start;
+  transition: opacity 0.2s ease;
+}
+
+.verMasBtn:hover {
+  opacity: 0.7;
+}
+
+.observacionActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.observacionEstado {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.corregirBtn {
+  background: #1E396C;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.corregirBtn:hover {
+  background: #162a52;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #272D3A;
+  color: #fff;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.closeBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modalBody {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modalSection {
+  margin-bottom: 20px;
+}
+
+.modalSection:last-child {
+  margin-bottom: 0;
+}
+
+.modalSectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #272D3A;
+  margin: 0 0 8px 0;
+}
+
+.modalComment {
+  font-size: 15px;
+  color: #171717;
+  line-height: 1.6;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.modalText {
+  font-size: 15px;
+  font-style: italic;
+  color: #1F2937;
+  line-height: 1.6;
+  margin: 0;
+  padding: 12px;
+  background-color: #F6F9FF;
+  border-radius: 4px;
+  border-left: 3px solid #1E396C;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { IHighlight } from "./react-pdf-highlighter";
+import { Observacion } from './Observacion';
 import styles from './style/Sidebar.module.css';
 
 interface Props {
@@ -136,42 +137,18 @@ export function Sidebar({
               </h3>
               <div className={styles.observacionesLista}>
                 {observacionesPendientes.map((observacion, index) => (
-                  <div
+                  <Observacion
                     key={observacion.id || index}
-                    className={`${styles.observacion} ${observacionSeleccionada?.id === observacion.id ? styles.observacionSeleccionada : ''}`}
+                    observacion={observacion}
+                    isSeleccionada={observacionSeleccionada?.id === observacion.id}
                     onClick={() => onIniciarModoSeleccion?.(observacion)}
-                  >
-                    <div className={styles.observacionHeader}>
-                      <span className={styles.observacionDoc}>Observación #{observacion.id}</span>
-                      <span className={styles.observacionPagina}>
-                        Pág. {observacion.position?.pageNumber || observacion.bounding_page || 'N/A'}
-                      </span>
-                    </div>
-                    {observacion.content_text && (
-                      <div className={styles.observacionTexto}>
-                        "{observacion.content_text.slice(0, 120).trim()}{observacion.content_text.length > 120 ? '...' : ''}"
-                      </div>
-                    )}
-                    {observacion.comment_text && (
-                      <div className={styles.observacionComentario}>
-                        <b>{observacion.comment_text}</b>
-                      </div>
-                    )}
-                    <div className={styles.observacionActions}>
-                      <span className={`${styles.observacionEstado} ${getEstadoClass(observacion.estado)}`}>
-                        {observacion.estado || 'Pendiente'}
-                      </span>
-                      <button 
-                        className={styles.corregirBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onIniciarModoSeleccion?.(observacion);
-                        }}
-                      >
-                        Corregir
-                      </button>
-                    </div>
-                  </div>
+                    onCorregirClick={(e) => {
+                      e.stopPropagation();
+                      onIniciarModoSeleccion?.(observacion);
+                    }}
+                    getEstadoClass={getEstadoClass}
+                    showCorregirBtn={true}
+                  />
                 ))}
               </div>
             </div>
