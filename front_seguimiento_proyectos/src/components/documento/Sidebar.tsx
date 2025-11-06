@@ -148,6 +148,7 @@ export function Sidebar({
                     }}
                     getEstadoClass={getEstadoClass}
                     showCorregirBtn={true}
+                    variant="correccion-list"
                   />
                 ))}
               </div>
@@ -168,42 +169,14 @@ export function Sidebar({
                   );
                   
                   return (
-                    <div
+                    <Observacion
                       key={observacion.id || index}
-                      className={`${styles.observacion} ${styles.observacionCorregida}`}
-                    >
-                      <div className={styles.observacionHeader}>
-                        <span className={styles.observacionDoc}>Observación #{observacion.id}</span>
-                        <span className={styles.observacionPagina}>
-                          Pág. {observacion.position?.pageNumber || observacion.bounding_page || 'N/A'}
-                        </span>
-                      </div>
-                      {observacion.content_text && (
-                        <div className={styles.observacionTexto}>
-                          "{observacion.content_text.slice(0, 80).trim()}{observacion.content_text.length > 80 ? '...' : ''}"
-                        </div>
-                      )}
-                      
-                      {correccion && (
-                        <div className={styles.correccionPreview}>
-                          <div className={styles.correccionHeader}>
-                            <span className={styles.correccionBadge}>✓ Corregido</span>
-                            <span className={styles.correccionPagina}>
-                              Pág. {correccion.position.pageNumber}
-                            </span>
-                          </div>
-                          {correccion.content.text && (
-                            <div className={styles.correccionTexto}>
-                              "{correccion.content.text.slice(0, 100).trim()}{correccion.content.text.length > 100 ? '...' : ''}"
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      
-                      <span className={`${styles.observacionEstado} ${getEstadoClass(observacion.estado)}`}>
-                        {observacion.estado || 'Corregida'}
-                      </span>
-                    </div>
+                      observacion={observacion}
+                      getEstadoClass={getEstadoClass}
+                      variant="corregida"
+                      correccion={correccion}
+                      labelDoc={`Observación #${observacion.id}`}
+                    />
                   );
                 })}
               </div>
@@ -311,29 +284,14 @@ export function Sidebar({
             </h3>
             <div className={styles.observacionesLista}>
               {observacionesHighlights.map((highlight, index) => (
-                <div
+                <Observacion
                   key={index}
-                  className={styles.observacion}
+                  observacion={highlight}
                   onClick={() => handleHighlightClick(highlight)}
-                >
-                  <div className={styles.observacionHeader}>
-                    <span className={styles.observacionDoc}>Este documento</span>
-                    <span className={styles.observacionPagina}>
-                      Pág. {highlight.position.pageNumber}
-                    </span>
-                  </div>
-                  <div className={styles.observacionComentario}>
-                    <b>{highlight.comment.text}</b>
-                  </div>
-                  {highlight.content.text && (
-                    <div className={styles.observacionTexto}>
-                      "{highlight.content.text.slice(0, 120).trim()}..."
-                    </div>
-                  )}
-                  <span className={`${styles.observacionEstado} ${getEstadoClass(highlight.estado)}`}>
-                    {highlight.estado || 'Pendiente'}
-                  </span>
-                </div>
+                  getEstadoClass={getEstadoClass}
+                  variant="actual"
+                  labelDoc="Este documento"
+                />
               ))}
             </div>
           </div>
@@ -347,29 +305,14 @@ export function Sidebar({
             </h3>
             <div className={styles.observacionesLista}>
               {correccionesHighlights.map((highlight, index) => (
-                <div
+                <Observacion
                   key={index}
-                  className={styles.observacion}
+                  observacion={highlight}
                   onClick={() => handleHighlightClick(highlight)}
-                >
-                  <div className={styles.observacionHeader}>
-                    <span className={styles.observacionDoc}>Este documento</span>
-                    <span className={styles.observacionPagina}>
-                      Pág. {highlight.position.pageNumber}
-                    </span>
-                  </div>
-                  <div className={styles.observacionComentario}>
-                    <b>{highlight.comment.text}</b>
-                  </div>
-                  {highlight.content.text && (
-                    <div className={styles.observacionTexto}>
-                      "{highlight.content.text.slice(0, 120).trim()}..."
-                    </div>
-                  )}
-                  <span className={`${styles.observacionEstado} ${getEstadoClass(highlight.estado)}`}>
-                    {highlight.estado || 'Pendiente'}
-                  </span>
-                </div>
+                  getEstadoClass={getEstadoClass}
+                  variant="actual"
+                  labelDoc="Este documento"
+                />
               ))}
             </div>
           </div>
@@ -383,31 +326,14 @@ export function Sidebar({
             </h3>
             <div className={styles.observacionesLista}>
               {observacionesPendientesOtrasVersiones.map((observacion, index) => (
-                <div
+                <Observacion
                   key={index}
-                  className={`${styles.observacion} ${styles.externa}`}
+                  observacion={observacion}
                   onClick={() => handleObservationClick(observacion)}
-                >
-                  <div className={styles.observacionHeader}>
-                    <span className={styles.observacionDoc}>Versión anterior</span>
-                    <span className={styles.observacionPagina}>
-                      Pág. {observacion.position?.pageNumber || observacion.bounding_page || 'N/A'}
-                    </span>
-                  </div>
-                  {observacion.content_text && (
-                    <div className={styles.observacionTexto}>
-                      "{observacion.content_text.slice(0, 120).trim()}..."
-                    </div>
-                  )}
-                  {observacion.comment_text && (
-                    <div className={styles.observacionComentario}>
-                      {observacion.comment_text}
-                    </div>
-                  )}
-                  <span className={`${styles.observacionEstado} ${getEstadoClass(observacion.estado)}`}>
-                    {observacion.estado}
-                  </span>
-                </div>
+                  getEstadoClass={getEstadoClass}
+                  variant="externa"
+                  labelDoc="Versión anterior"
+                />
               ))}
             </div>
           </div>

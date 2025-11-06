@@ -18,6 +18,15 @@
   background-color: #e8eef7 !important;
 }
 
+.externa {
+  border-left-color: #2D4A3E;
+}
+
+.observacionCorregida {
+  border-left: 4px solid #2D4A3E !important;
+  opacity: 0.8;
+}
+
 .observacionHeader {
   display: flex;
   justify-content: space-between;
@@ -108,6 +117,44 @@
 
 .corregirBtn:hover {
   background: #162a52;
+}
+
+.correccionPreview {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+.correccionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.correccionBadge {
+  background: #2D4A3E;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.correccionPagina {
+  font-size: 11px;
+  color: #1F2937;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.correccionTexto {
+  font-size: 13px;
+  font-style: italic;
+  color: #1F2937;
+  line-height: 1.3;
 }
 
 /* Modal */

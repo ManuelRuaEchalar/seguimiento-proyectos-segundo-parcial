@@ -314,72 +314,7 @@
   gap: 12px;
 }
 
-/* Estilos de observación inline (para las secciones que no usan el componente) */
-.observacion {
-  background-color: var(--casi-blanco);
-  border-radius: 6px;
-  padding: 12px;
-  border-left: 4px solid var(--carbon);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.observacion:hover {
-  background-color: #e8eef7;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.observacion.externa {
-  border-left-color: var(--bosque);
-}
-
-.observacionHeader {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.observacionDoc {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--azul-oscuro);
-}
-
-.observacionPagina {
-  font-size: 12px;
-  color: var(--carbon);
-  background-color: rgba(0, 0, 0, 0.05);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.observacionTexto {
-  font-size: 14px;
-  font-style: italic;
-  color: var(--carbon);
-  margin-bottom: 8px;
-  padding: 8px;
-  background-color: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-  line-height: 1.4;
-}
-
-.observacionComentario {
-  font-size: 14px;
-  margin-bottom: 8px;
-  color: var(--casi-negro);
-  line-height: 1.5;
-}
-
-.observacionEstado {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--blanco);
-}
-
+/* Clases de estado para el componente Observacion */
 .estadoPendiente {
   background-color: var(--carbon);
 }
@@ -612,47 +547,4 @@
 
 .cancelarSeleccionBtn:hover {
   background: var(--casi-blanco);
-}
-
-.observacionCorregida {
-  border-left: 4px solid var(--bosque) !important;
-  opacity: 0.8;
-}
-
-.correccionPreview {
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-  padding: 8px;
-  margin: 8px 0;
-}
-
-.correccionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.correccionBadge {
-  background: var(--bosque);
-  color: var(--blanco);
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.correccionPagina {
-  font-size: 11px;
-  color: var(--carbon);
-  background-color: rgba(0, 0, 0, 0.05);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.correccionTexto {
-  font-size: 13px;
-  font-style: italic;
-  color: var(--carbon);
-  line-height: 1.3;
 }
