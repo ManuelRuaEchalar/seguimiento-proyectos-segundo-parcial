@@ -1,0 +1,172 @@
+/* NavbarRepositorio.module.css */
+
+/* Variables de color */
+.navbar {
+  --azul-oscuro: #272D3A;
+  --blanco: #fff;
+  --casi-negro: #171717;
+  --plata: #BDB3AB;
+  --casi-blanco: #F6F9FF;
+  --azul: #1E396C;
+  --celeste: #9BC7E8;
+  --carbon: #1F2937;
+  --bosque: #2D4A3E;
+  --rechazado: #902a2a;
+  --background: #ffffff;
+  --foreground: #171717;
+  --columbia-blue: #ccdae6ff;
+  --silver: #bdb3abff;
+  --delft-blue: #1a3260ff;
+  --white: #fefefeff;
+  --ghost-white: #f3f6fbff;
+  --gunmetal: #272d3aff;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--white);
+  color: var(--foreground);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid var(--columbia-blue);
+  box-shadow: 0 2px 8px rgba(26, 50, 96, 0.08);
+  min-height: 64px;
+  animation: slideDown 0.3s ease-out;
+  margin-bottom: 5px;
+}
+
+.navbarLeft,
+.navbarCenter,
+.navbarRight {
+  display: flex;
+  align-items: center;
+}
+
+.navbarCenter {
+  flex-direction: column;
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.navbarRight {
+  min-width: 120px; /* Espacio para mantener la simetría */
+}
+
+/* Botón Atrás */
+.backButton {
+  background-color: transparent;
+  border: 1px solid var(--columbia-blue);
+  color: var(--delft-blue);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backButton:hover {
+  background-color: var(--ghost-white);
+  border-color: var(--delft-blue);
+  transform: translateX(-2px);
+}
+
+.backButton:active {
+  transform: translateX(0);
+}
+
+/* Título de la actividad */
+.activityTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gunmetal);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Meta info */
+.activityMeta {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  opacity: 0.7;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.activityDate {
+  display: inline-block;
+}
+
+/* Tags */
+.tag {
+  background-color: var(--ghost-white);
+  color: var(--gunmetal);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  border: 1px solid var(--columbia-blue);
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .navbarLeft,
+  .navbarRight {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .navbarRight {
+    min-width: auto;
+  }
+
+  .navbarCenter {
+    width: 100%;
+  }
+
+  .activityMeta {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .navbar {
+    animation: none;
+  }
+
+  .backButton:hover {
+    transform: none;
+  }
+}

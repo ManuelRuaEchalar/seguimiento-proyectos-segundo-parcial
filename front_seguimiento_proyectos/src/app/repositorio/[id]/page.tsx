@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchFinal } from '@/services/finales';
 import { VisualizadorPDFFinal } from '@/components/documento/VisualizadorPDFFinal';
+import { NavbarRepositorio } from '@/components/general/NavbarRepositorio';
 import styles from './documento.module.css';
 
 export default function RepositorioDocumentoPage() {
@@ -14,11 +15,17 @@ export default function RepositorioDocumentoPage() {
   const [state, setState] = useState<{
     blob: Blob | null;
     contentType: string;
+    titulo: string;
+    carrera: string;
+    estudiantes: string[];
     isLoading: boolean;
     error: string | null;
   }>({
     blob: null,
     contentType: 'application/pdf',
+    titulo: '',
+    carrera: '',
+    estudiantes: [],
     isLoading: true,
     error: null,
   });
@@ -44,6 +51,9 @@ export default function RepositorioDocumentoPage() {
         setState({
           blob: documentoData.blob,
           contentType: documentoData.contentType,
+          titulo: documentoData.titulo,
+          carrera: documentoData.carrera,
+          estudiantes: documentoData.estudiantes,
           isLoading: false,
           error: null,
         });
@@ -52,6 +62,9 @@ export default function RepositorioDocumentoPage() {
         setState({
           blob: null,
           contentType: 'application/pdf',
+          titulo: '',
+          carrera: '',
+          estudiantes: [],
           isLoading: false,
           error: error instanceof Error ? error.message : 'Error al cargar el documento',
         });
@@ -109,30 +122,12 @@ export default function RepositorioDocumentoPage() {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <button 
-          onClick={() => router.push('/')} 
-          className={styles.backBtn}
-          aria-label="Volver"
-        >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          Atrás
-        </button>
-        <h1 className={styles.headerTitle}>Repositorio de Proyectos USFX</h1>
-      </header>
+      {/* Usar NavbarRepositorio en lugar del header original */}
+      <NavbarRepositorio 
+        titulo={state.titulo || "Proyecto de Investigación"}
+        carrera={state.carrera || "Carrera no especificada"}
+        estudiantes={state.estudiantes}
+      />
 
       {/* Visualizador de PDF */}
       <div className={styles.viewerContainer}>

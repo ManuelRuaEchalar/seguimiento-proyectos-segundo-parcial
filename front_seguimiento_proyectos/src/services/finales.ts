@@ -207,6 +207,13 @@ export async function fetchFinal(id: number) {
     throw new Error(`Error al cargar el documento final: ${response.status}`);
   }
 
+  // ✅ Obtener metadatos de los headers
+  const titulo = decodeURIComponent(response.headers.get('X-Document-Title') || '');
+  const carrera = decodeURIComponent(response.headers.get('X-Document-Career') || '');
+  const estudiantesHeader = response.headers.get('X-Document-Students');
+  const estudiantes = estudiantesHeader ? 
+    JSON.parse(decodeURIComponent(estudiantesHeader)) : [];
+
   // ✅ USAR ARRAYBUFFER PARA GARANTIZAR DESCARGA COMPLETA
   const arrayBuffer = await response.arrayBuffer();
   const contentType = response.headers.get('Content-Type') || 'application/pdf';
@@ -215,6 +222,13 @@ export async function fetchFinal(id: number) {
   const blob = new Blob([arrayBuffer], { type: contentType });
   
   console.log('✅ Documento final descargado:', blob.size, 'bytes, tipo:', contentType);
+  console.log('📋 Metadatos:', { titulo, carrera, estudiantes });
 
-  return { blob, contentType };
+  return { 
+    blob, 
+    contentType,
+    titulo,
+    carrera,
+    estudiantes
+  };
 }

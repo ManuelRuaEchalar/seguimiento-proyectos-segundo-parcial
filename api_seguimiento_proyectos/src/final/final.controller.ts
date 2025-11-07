@@ -221,51 +221,55 @@ async upload(
   }
 
   @Post('get-doc')
-  async getDoc(@Body('id') id: number, @Res() res: Response) {
-    try {
-      const { filePath, mimeType } = await this.finalService.getDoc(id);
+async getDoc(@Body('id') id: number, @Res() res: Response) {
+  try {
+    const { filePath, mimeType, titulo, carrera, estudiantes } = await this.finalService.getDoc(id);
 
-      console.log('📄 Enviando archivo final:', filePath);
-      console.log('📄 Tipo MIME:', mimeType);
+    console.log('📄 Enviando archivo final:', filePath);
+    console.log('📄 Tipo MIME:', mimeType);
 
-      if (!fs.existsSync(filePath)) {
-        console.error('❌ Archivo final no encontrado:', filePath);
-        return res.status(404).json({
-          success: false,
-          error: 'Archivo no encontrado en el servidor'
-        });
-      }
-
-      res.setHeader('Content-Type', mimeType);
-      res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
-
-      if (path.isAbsolute(filePath)) {
-        return res.sendFile(filePath);
-      } else {
-        return res.sendFile(filePath, { root: process.cwd() });
-      }
-
-    } catch (error) {
-      console.error('❌ Error en getDoc (Final):', error);
-
-      if (error instanceof NotFoundException) {
-        return res.status(404).json({
-          success: false,
-          error: error.message
-        });
-      }
-
-      if (error instanceof BadRequestException) {
-        return res.status(400).json({
-          success: false,
-          error: error.message
-        });
-      }
-
-      return res.status(500).json({
+    if (!fs.existsSync(filePath)) {
+      console.error('❌ Archivo final no encontrado:', filePath);
+      return res.status(404).json({
         success: false,
-        error: 'Error interno del servidor'
+        error: 'Archivo no encontrado en el servidor'
       });
     }
+
+    // Enviar metadatos en headers
+    res.setHeader('X-Document-Title', encodeURIComponent(titulo));
+    res.setHeader('X-Document-Career', encodeURIComponent(carrera));
+    res.setHeader('X-Document-Students', encodeURIComponent(JSON.stringify(estudiantes)));
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
+
+    if (path.isAbsolute(filePath)) {
+      return res.sendFile(filePath);
+    } else {
+      return res.sendFile(filePath, { root: process.cwd() });
+    }
+
+  } catch (error) {
+    console.error('❌ Error en getDoc (Final):', error);
+
+    if (error instanceof NotFoundException) {
+      return res.status(404).json({
+        success: false,
+        error: error.message
+      });
+    }
+
+    if (error instanceof BadRequestException) {
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor'
+    });
   }
+}
 }
