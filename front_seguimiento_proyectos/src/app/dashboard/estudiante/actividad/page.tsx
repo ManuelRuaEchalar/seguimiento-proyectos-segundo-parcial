@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/general/Navbar';
 import ListaMisEntregas from '@/components/estudiante/ListaMisEntregas';
 import FormularioEntrega from '@/components/estudiante/FormularioEntrega';
+import HistorialObservaciones from '@/components/estudiante/HistorialObservaciones';
 import { fetchStudentDocuments } from '@/services/estudiantes';
 import styles from './ActividadPage.module.css';
 
@@ -29,6 +30,8 @@ interface Documento {
   justificacion?: string;
   motivo_rechazo?: string;
   es_final?: boolean;
+  observaciones?: any[];
+  correcciones?: any[];
 }
 
 export default function ActividadPage() {
@@ -208,7 +211,11 @@ export default function ActividadPage() {
         {vistaActual === 'observaciones' && (
           <div className={styles.observacionesContainer}>
             <h2 className={styles.sectionTitle}>Historial de observaciones</h2>
-            <p className={styles.placeholder}>Esta funcionalidad estará disponible próximamente.</p>
+            {loading ? (
+              <p>Cargando historial...</p>
+            ) : (
+              <HistorialObservaciones documentos={documentos} />
+            )}
           </div>
         )}
       </div>

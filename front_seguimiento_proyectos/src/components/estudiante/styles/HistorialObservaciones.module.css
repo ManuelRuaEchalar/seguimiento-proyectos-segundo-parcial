@@ -1,0 +1,180 @@
+.container {
+  width: 100%;
+}
+
+.hiloCompleto {
+  margin-bottom: 32px;
+  background: var(--white, #fefefe);
+  border-radius: 8px;
+  border: 1px solid var(--columbia-blue, #ccdae6);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.item {
+  padding: 16px;
+  border-bottom: 1px solid var(--columbia-blue, #ccdae6);
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  position: relative;
+}
+
+.item:hover {
+  background-color: var(--ghost-white, #f3f6fb);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+/* Borde izquierdo distintivo */
+.item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.item.docente::before {
+  background-color: var(--gunmetal, #272d3a);
+}
+
+.item.estudiante::before {
+  background-color: var(--celeste, #9bc7e8);
+}
+
+.contenido {
+  flex: 1;
+  min-width: 0;
+}
+
+.headerLinea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+
+.tipoDoc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tipoDoc .tipo {
+  font-weight: 700;
+  color: var(--gunmetal, #272d3a);
+}
+
+.item.estudiante .tipoDoc .tipo {
+  color: var(--casi-negro, #171717);
+}
+
+.docBadge {
+  background: var(--ghost-white, #f3f6fb);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--gunmetal, #272d3a);
+}
+
+.estadoChip {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.estadoChip.pendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.estadoChip.aprobado {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.estadoChip.rechazado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.textoPrincipal {
+  font-size: 14px;
+  color: var(--casi-negro, #171717);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.comentario {
+  font-size: 13px;
+  color: #6b7280;
+  padding: 8px 12px;
+  background: var(--ghost-white, #f3f6fb);
+  border-radius: 6px;
+  border-left: 3px solid var(--columbia-blue, #ccdae6);
+  margin-top: 8px;
+}
+
+.toggleBtn {
+  margin: 12px 16px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--columbia-blue, #ccdae6);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gunmetal, #272d3a);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.toggleBtn:hover {
+  background: var(--ghost-white, #f3f6fb);
+  border-color: var(--gunmetal, #272d3a);
+}
+
+.toggleIcon {
+  transition: transform 0.2s;
+  font-size: 10px;
+}
+
+.toggleIcon.rotado {
+  transform: rotate(90deg);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--silver, #bdb3ab);
+  font-size: 16px;
+}
+
+.nivel-1 {
+  padding-left: 44px;
+  background: #fafafa;
+}
+
+.nivel-2 {
+  padding-left: 88px;
+  background: #f5f5f5;
+}
+
+.nivel-3 {
+  padding-left: 132px;
+  background: #f0f0f0;
+}
