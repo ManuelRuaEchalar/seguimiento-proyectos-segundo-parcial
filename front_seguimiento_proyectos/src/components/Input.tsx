@@ -1,16 +1,17 @@
 'use client';
 
-import { ChangeEvent, InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
+  label?: string;
+  hideLabel?: boolean;
 }
 
-export default function Input({ label, ...props }: InputProps) {
+export default function Input({ label, hideLabel = false, ...props }: InputProps) {
   return (
-    <div>
-      <label>{label}</label>
+    <>
+      {label && !hideLabel && <label style={{ display: 'none' }}>{label}</label>}
       <input {...props} />
-    </div>
+    </>
   );
 }

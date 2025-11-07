@@ -72,10 +72,12 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className={styles.form}>
             {error && <p className={styles.error}>{error}</p>}
 
+            <label className={styles.label}>Correo</label>
             <div className={styles.inputGroup}>
               <Image src="/profile.svg" alt="Correo" width={20} height={20} />
               <Input
                 label="Correo"
+                hideLabel={true}
                 type="email"
                 placeholder="Ingresa tu correo"
                 value={email}
@@ -85,10 +87,12 @@ export default function LoginPage() {
               />
             </div>
 
+            <label className={styles.label}>Contraseña</label>
             <div className={styles.inputGroup}>
               <Image src="/lock.svg" alt="Contraseña" width={20} height={20} />
               <Input
                 label="Contraseña"
+                hideLabel={true}
                 type="password"
                 placeholder="Ingresa tu contraseña"
                 value={password}
