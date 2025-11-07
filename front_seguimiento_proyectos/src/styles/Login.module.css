@@ -1,218 +1,168 @@
-/* === Layout general === */
 .container {
   display: flex;
-  height: 100vh;
-  font-family: "Rubik", sans-serif;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  font-family: Inter, sans-serif;
 }
 
-/* === Sección izquierda: branding === */
+/* Left Section */
 .leftSection {
   flex: 1;
-  background: #f6f9ff;
+  background-color: var(--white);
+  padding: 48px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  border-right: 1px solid var(--color-muted);
   text-align: center;
-  padding: 3rem 2rem;
-  gap: 1.5rem;
+}
+.leftTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-dark);
+  margin-top: 16px;
+  margin-bottom: 12px;
+  line-height: 1.1;
+  max-width: 420px;
+}
+.university {
+  font-size: 16px;
+  color: var(--color-primary);
+  margin-top: 12px;
+  max-width: 420px;
 }
 
-/* 🆕 Estilos mejorados para la imagen */
-.leftSection img {
-  width: 500px;
-  height: 500px;
-  object-fit: contain;
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 4px 12px rgba(30, 57, 108, 0.15));
-  transition: transform 0.3s ease;
-}
-
-.leftSection h2 {
-  font-size: 1.75rem;
-  color: #1e396c;
-  margin: 0;
-  font-weight: 700;
-  line-height: 1.3;
-  max-width: 500px;
-}
-
-.leftSection p {
-  font-size: 1.15rem;
-  color: #445a85;
-  margin: 0;
-  line-height: 1.5;
-  max-width: 450px;
-}
-
-/* === Sección derecha: contenedor del formulario === */
+/* Right Section */
 .rightSection {
   flex: 1;
-  background: #9bc7e8;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 48px 40px;
 }
 
-/* === Tarjeta del formulario === */
-.formCard {
-  background: #f6f9ff;
+/* Login Card */
+.card {
+  background-color: var(--white);
+  border: 1px solid rgba(16, 24, 40, 0.06);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  padding: 3rem 2.5rem;
+  padding: 48px 44px 36px;
   width: 100%;
   max-width: 480px;
-  text-align: left;
-  font-family: "Rubik", sans-serif;
-}
-
-/* === Título del formulario === */
-.formCard h1 {
-  font-size: 1.8rem;
-  color: #1e396c;
-  margin-bottom: 1.5rem;
-  font-weight: 700;
+  box-shadow: 0 12px 36px rgba(16, 24, 40, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   text-align: center;
+  align-items: center;
+}
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-dark);
+  margin: 0;
+}
+.subtitle {
+  font-size: 16px;
+  color: var(--color-primary);
+  margin: 0;
 }
 
-/* === Etiquetas y campos === */
-.formCard label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #0e0f14;
+.cardIcon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 8px;
 }
 
-.formCard input,
-.formCard textarea,
-.formCard select {
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1.2rem;
-  border: 1px solid #445a85;
+}
+.label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 6px;
+  margin-left: 4px;
+  text-align: left;
+}
+.inputGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--white);
+  border: 1px solid #e6e9ee;
   border-radius: 8px;
-  font-size: 1rem;
-  color: #0e0f14;
-  background-color: white;
-  transition: border-color 0.3s ease;
+  padding: 12px 14px;
 }
-
-.formCard input::placeholder,
-.formCard textarea::placeholder {
-  color: #445a85;
+.inputGroup > div {
+  flex: 1; /* make the Input component wrapper fill remaining space */
 }
-
-.formCard input:focus,
-.formCard textarea:focus,
-.formCard select:focus {
-  border-color: #1e396c;
-  outline: none;
+.inputGroup > div > input {
+  width: 100%;
 }
-
-/* === Botón === */
-.formCard button {
-  background-color: #1e396c;
-  color: #f6f9ff;
-  padding: 0.75rem 1.5rem;
+.input {
+  flex: 1;
+  font-size: 16px;
+  width: 100%;
+  background: transparent;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  outline: none;
+  color: var(--color-dark);
+}
+.input::placeholder {
+  color: var(--color-muted);
+}
+.showPassword {
+  font-size: 14px;
+  color: var(--color-primary);
+  text-align: left;
+  margin-top: -8px;
+  margin-bottom: 4px;
   cursor: pointer;
+}
+
+/* Button */
+.button {
+  background-color: var(--color-dark);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 800;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, transform 0.06s ease;
   width: 100%;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
-
-.formCard button:hover:not(:disabled) {
-  background-color: #445a85;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.formCard button:disabled {
+.button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* === Texto adicional y enlaces === */
-.formCard p {
-  font-size: 0.95rem;
-  margin-top: 1.5rem;
-  color: #445a85;
-  text-align: center;
-}
-
-.formCard a {
-  color: #1e396c;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.formCard a:hover {
-  text-decoration: underline;
-}
-
-/* === Mensaje de error === */
+/* Error */
 .error {
-  color: #ec4040;
-  background: #ffe5e5;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-  border-left: 3px solid #ec4040;
+  background-color: #fee2e2;
+  color: #991b1b;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+  text-align: left;
 }
 
-/* === Responsividad === */
-@media (max-width: 968px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .leftSection {
-    min-height: 40vh;
-    padding: 2rem 1rem;
-  }
-
-  .leftSection img {
-    width: 200px;
-    height: 200px;
-  }
-
-  .leftSection h2 {
-    font-size: 1.4rem;
-  }
-
-  .leftSection p {
-    font-size: 1rem;
-  }
-
-  .rightSection {
-    background: #9bc7e8;
-    padding: 2rem 1rem;
-  }
-
-  .formCard {
-    padding: 2rem;
-    max-width: 90%;
-  }
+/* Register */
+.register {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin-top: 12px;
 }
-
-@media (max-width: 640px) {
-  .leftSection {
-    min-height: 35vh;
-  }
-
-  .leftSection img {
-    width: 160px;
-    height: 160px;
-  }
-
-  .formCard {
-    padding: 1.5rem;
-  }
-
-  .formCard h1 {
-    font-size: 1.5rem;
-  }
+.register a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: 600;
 }

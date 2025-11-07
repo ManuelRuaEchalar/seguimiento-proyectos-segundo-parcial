@@ -1,9 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --azul-oscuro: #272d3a;
-  --blanco: #fff;
-  --casi-negro: #171717;
+  /* Principales (reorganizado) */
+  /* Variables principales/acentos según tu tabla */
+  --color-primary: #63708b; /* Azul grisáceo */
+  --color-bg: #f4f4f2; /* Fondo claro, casi blanco */
+  --color-muted: #d9d9d9; /* Texto secundario / bordes */
+  --color-dark: #272d3a; /* Texto principal / encabezados (Azul oscuro casi negro) */
+  --color-accent: #f3d884; /* Indicador / estado pendiente (Amarillo pastel) */
+  --color-success: #7cca81; /* Indicador / estado exitoso (Verde claro) */
+  --white: #ffffff; /* Blanco puro */
+  --color-danger: #de5457; /* Indicador / estado de error (Rojo) */
+
+  /* Variables antiguas mapeadas a las nuevas para compatibilidad */
+  --azul-oscuro: var(--color-dark);
+  --blanco: var(--white);
+  --casi-negro: var(--color-dark);
   --plata: #bdb3ab;
   --casi-blanco: #f6f9ff;
   --azul: #1e396c;
@@ -11,32 +23,15 @@
   --carbon: #1f2937;
   --bosque: #2d4a3e;
   --rechazado: #7c3a3a;
-  --foreground: #171717;
   --columbia-blue: #ccdae6ff;
   --silver: #bdb3abff;
   --delft-blue: #1a3260ff;
-  --white: #fefefeff;
   --ghost-white: #f3f6fbff;
   --gunmetal: #272d3aff;
 
-  /* Paleta personalizada (variables solicitadas) */
-  --color-primary: #63708b;
-  /* azul grisáceo */
-  --color-bg: #f4f4f2;
-  /* fondo claro */
-  --color-muted: #d9d9d9;
-  /* gris claro */
-  --color-dark: #272d3a;
-  /* texto / header oscuro */
-  --color-accent: #f3d884;
-  /* amarillo */
-  --color-success: #7cca81;
-  /* verde */
-
-  /* Mantener algunas variables legacy para compatibilidad */
+  /* Backwards-compatible aliases */
   --foreground: var(--color-dark);
   --background: var(--color-bg);
-  --white: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -46,10 +41,8 @@
   }
 }
 
-
-
 body {
-  background-color: var(--casi-blanco);
+  background-color: var(--color-bg);
   color: var(--casi-negro);
   min-height: 100vh;
 }

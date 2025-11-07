@@ -1,8 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getUsers, getGroups, getDocentes, logout, getEstudiantes } from '@/services/api';
+import {
+  getUsers,
+  getGroups,
+  getDocentes,
+  logout,
+  getEstudiantes,
+} from '@/services/api';
 import { User, Group } from '@/types';
 import { useAuthGuard } from '@/hooks/userAuthGuard';
 import UsersSection from '@/components/admin/UsersSection';
@@ -22,33 +29,45 @@ export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('users');
   const [fetchError, setFetchError] = useState('');
 
+  // Load all datasets once when user is available and expose individual refreshers
   useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user, activeSection]);
-
-  async function fetchData() {
-    try {
-      setFetchError('');
-      if (activeSection === 'users') {
-        const data = await getUsers();
-        setUsers(data);
-      } else if (activeSection === 'groups') {
-        const data = await getGroups();
-        setGroups(data);
-      } else if (activeSection === 'docentes') {
-        const data = await getDocentes();
-        setDocentes(data);
-      } else if (activeSection === 'estudiantes') {
-        const data = await getEstudiantes();
-        setEstudiantes(data);
+    if (!user) return;
+    (async function loadAll() {
+      try {
+        setFetchError('');
+        const [u, g, d, e] = await Promise.all([
+          getUsers(),
+          getGroups(),
+          getDocentes(),
+          getEstudiantes(),
+        ]);
+        setUsers(u);
+        setGroups(g);
+        setDocentes(d);
+        setEstudiantes(e);
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : String(err));
       }
+    })();
+  }, [user]);
 
-    } catch (err) {
-      setFetchError(err instanceof Error ? err.message : String(err));
-    }
-  }
+  // Individual refresh functions to pass to children
+  const refreshUsers = async () => {
+    const u = await getUsers();
+    setUsers(u);
+  };
+  const refreshGroups = async () => {
+    const g = await getGroups();
+    setGroups(g);
+  };
+  const refreshDocentes = async () => {
+    const d = await getDocentes();
+    setDocentes(d);
+  };
+  const refreshEstudiantes = async () => {
+    const e = await getEstudiantes();
+    setEstudiantes(e);
+  };
 
   const handleLogout = async () => {
     try {
@@ -74,84 +93,78 @@ export default function AdminDashboard() {
   }
 
   return (
-      <div className="flex min-h-screen">
-        {/* Sidebar */}
-        <div className="sidebar w-64 bg-gray-100 text-gray-800 p-6 fixed h-full flex flex-col justify-between shadow-md">
-          {/* Bienvenida */}
-          <div>
-            <p className="text-base font-bold mb-6 text-f6f9ff">
-              BIENVENIDO {user?.email} ({user?.rol})
-            </p>
-            <ul className="flex flex-col gap-2">
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebarTop">
+          <div className="sidebarHeader">
+            <Image src="/logo_blanco.svg" alt="logo" width={36} height={36} />
+            <h2 className="adminTitle">Admin</h2>
+          </div>
+
+          <nav className="navContainer">
+            <ul className="sidebarNav">
               <li>
                 <button
-                  className={`w-full text-left py-2 px-4 rounded-md font-medium ${
-                    activeSection === 'users'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'hover:bg-gray-200'
-                  }`}
+                  className={`navButton ${activeSection === 'users' ? 'active' : ''}`}
                   onClick={() => setActiveSection('users')}
                 >
-                  Usuarios
+                  <Image src="/usuarios.svg" alt="Usuarios" width={20} height={20} className="navIcon" />
+                  <span>Usuarios</span>
                 </button>
               </li>
               <li>
                 <button
-                  className={`w-full text-left py-2 px-4 rounded-md font-medium ${
-                    activeSection === 'estudiantes'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'hover:bg-gray-200'
-                  }`}
-                  onClick={() => setActiveSection('estudiantes')}
-                >
-                  Estudiantes
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`w-full text-left py-2 px-4 rounded-md font-medium ${
-                    activeSection === 'docentes'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'hover:bg-gray-200'
-                  }`}
-                  onClick={() => setActiveSection('docentes')}
-                >
-                  Docentes
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`w-full text-left py-2 px-4 rounded-md font-medium ${
-                    activeSection === 'groups'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'hover:bg-gray-200'
-                  }`}
+                  className={`navButton ${activeSection === 'groups' ? 'active' : ''}`}
                   onClick={() => setActiveSection('groups')}
                 >
-                  Grupos
+                  <Image src="/grupos.svg" alt="Grupos" width={20} height={20} className="navIcon" />
+                  <span>Grupos</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`navButton ${activeSection === 'docentes' ? 'active' : ''}`}
+                  onClick={() => setActiveSection('docentes')}
+                >
+                  <Image src="/docentes.svg" alt="Docentes" width={20} height={20} className="navIcon" />
+                  <span>Docentes</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`navButton ${activeSection === 'estudiantes' ? 'active' : ''}`}
+                  onClick={() => setActiveSection('estudiantes')}
+                >
+                  <Image src="/estudiantes.svg" alt="Estudiantes" width={20} height={20} className="navIcon" />
+                  <span>Estudiantes</span>
                 </button>
               </li>
             </ul>
-          </div>
-
-          {/* Logout */}
-          <button className="logout"
-            onClick={handleLogout}
-          >
-            Cerrar Sesión
-          </button>
+          </nav>
         </div>
-  
+
+        <button className="logout" onClick={handleLogout}>
+          Cerrar Sesión
+        </button>
+      </aside>
+
       {/* Main Content */}
-      <div className="ml-64 p-6 w-full bg-white min-h-screen text-gray-800">
-        <h1 className="text-3xl text-1e396c font-bold mb-6">Panel de Administración</h1>
+  <main className="ml-64 p-6 w-full min-h-screen text-gray-800" style={{ backgroundColor: 'var(--color-bg)' }}>
+        <h1 className="text-3xl font-bold text-[#1e396c] mb-6">Panel de Administración</h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         {fetchError && <p className="text-red-500 mb-4">{fetchError}</p>}
         {activeSection === 'users' && (
           <UsersSection
             users={users}
-            refreshUsers={fetchData}
+            refreshUsers={refreshUsers}
+            refreshDocentes={refreshDocentes}
+            refreshEstudiantes={refreshEstudiantes}
             setError={setFetchError}
+            docentesCount={docentes.length}
+            estudiantesCount={estudiantes.length}
+            groupsCount={groups.length}
+            proyectosCount={0}
           />
         )}
         {activeSection === 'estudiantes' && (
@@ -159,6 +172,8 @@ export default function AdminDashboard() {
             estudiantes={estudiantes}
             groups={groups}
             setError={setFetchError}
+            refreshEstudiantes={refreshEstudiantes}
+            refreshGroups={refreshGroups}
           />
         )}
         {activeSection === 'docentes' && (
@@ -166,16 +181,20 @@ export default function AdminDashboard() {
             docentes={docentes}
             groups={groups}
             setError={setFetchError}
+            refreshDocentes={refreshDocentes}
+            refreshGroups={refreshGroups}
           />
         )}
         {activeSection === 'groups' && (
           <GroupsSection
             groups={groups}
-            refreshGroups={fetchData}
+            refreshGroups={refreshGroups}
+            refreshDocentes={refreshDocentes}
+            refreshEstudiantes={refreshEstudiantes}
             setError={setFetchError}
           />
         )}
-      </div>
+      </main>
     </div>
   );
 }

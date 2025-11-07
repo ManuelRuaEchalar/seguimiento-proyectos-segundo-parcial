@@ -1,312 +1,416 @@
-'use client';
-
-import { useState } from 'react';
-import { User } from '@/types';
-import { createUser, updateUser, deleteUser } from '@/services/api';
-import '@/styles/admin/users-section.css';
+"use client";
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { User } from "@/types";
+import { createUser, updateUser, deleteUser } from "@/services/api";
+import "@/styles/admin/section.css";
 
 const CARRERAS = [
-  'Ingeniería en Ciencias de la Computación',
-  'Ingeniería de Sistemas',
-  'Diseño y Animación Digital'
+  "Ingeniería en Ciencias de la Computación",
+  "Ingeniería de Sistemas",
+  "Diseño y Animación Digital",
 ];
 
-interface UsersSectionProps {
+interface SectionProps {
   users: User[];
   refreshUsers: () => Promise<void>;
+  refreshDocentes?: () => Promise<void>;
+  refreshEstudiantes?: () => Promise<void>;
   setError: (error: string) => void;
+  docentesCount?: number;
+  estudiantesCount?: number;
+  groupsCount?: number;
+  proyectosCount?: number;
 }
 
-export default function UsersSection({ users, refreshUsers, setError }: UsersSectionProps) {
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [form, setForm] = useState({ nombre: '', apellido: '', email: '', password: '', rol: 'estudiante', cu: '', carrera: '', especialidad: '' });
-  const [editUserId, setEditUserId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ nombre: '', apellido: '', email: '', password: '', rol: 'estudiante', cu: '', carrera: '', especialidad: '' });
+export default function Section({
+  users,
+  refreshUsers,
+  refreshDocentes,
+  refreshEstudiantes,
+  setError,
+  docentesCount,
+  estudiantesCount,
+  groupsCount,
+  proyectosCount,
+}: SectionProps) {
+  const [query, setQuery] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [activeUser, setActiveUser] = useState<User | null>(null);
+  const [menuOpenFor, setMenuOpenFor] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
+  const [form, setForm] = useState({
+    nombre: "",
+    apellido: "",
+    email: "",
+    password: "",
+    rol: "estudiante",
+    cu: "",
+    carrera: "",
+    especialidad: "",
+  });
 
-  const handleCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (!showModal) {
+      setForm({
+        nombre: "",
+        apellido: "",
+        email: "",
+        password: "",
+        rol: "estudiante",
+        cu: "",
+        carrera: "",
+        especialidad: "",
+      });
+      setActiveUser(null);
+    }
+  }, [showModal]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter(
+      (u) =>
+        `${u.nombre || ""} ${u.apellido || ""}`.toLowerCase().includes(q) ||
+        (u.email || "").toLowerCase().includes(q) ||
+        String(u.id) === q
+    );
+  }, [query, users]);
+
+  const openCreateModal = () => {
+    setModalMode("create");
+    setShowModal(true);
+  };
+
+  const openEditModal = (user: User) => {
+    setModalMode("edit");
+    setActiveUser(user);
+    setForm({
+      nombre: user.nombre || "",
+      apellido: user.apellido || "",
+      email: user.email || "",
+      password: "",
+      rol: user.rol || "estudiante",
+      cu: user.estudiante?.cu || "",
+      carrera: user.estudiante?.carrera || "",
+      especialidad: user.docente?.especialidad || "",
+    });
+    setShowModal(true);
+  };
+
+  const toggleMenu = (id: number) => {
+    setMenuOpenFor((prev) => (prev === id ? null : id));
+  };
+
+  const handleCreate = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     try {
-      setError('');
+      setError("");
+      const createdRole = form.rol;
       await createUser({
         ...form,
-        ...(form.rol === 'estudiante' ? { cu: form.cu, carrera: form.carrera } : {}),
-        ...(form.rol === 'docente' ? { especialidad: form.especialidad } : {}),
+        ...(form.rol === "estudiante" ? { cu: form.cu, carrera: form.carrera } : {}),
+        ...(form.rol === "docente" ? { especialidad: form.especialidad } : {}),
       });
-      setForm({ nombre: '', apellido: '', email: '', password: '', rol: 'estudiante', cu: '', carrera: '', especialidad: '' });
-      setShowCreateForm(false);
+      setShowModal(false);
       await refreshUsers();
+      if (createdRole === "docente" && typeof refreshDocentes === "function") await refreshDocentes();
+      if (createdRole === "estudiante" && typeof refreshEstudiantes === "function") await refreshEstudiantes();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
   };
 
-  const handleEditClick = (user: User) => {
-    setEditUserId(user.id);
-    setEditForm({
-      nombre: user.nombre || '',
-      apellido: user.apellido || '',
-      email: user.email || '',
-      password: '',
-      rol: user.rol || 'estudiante',
-      cu: user.estudiante?.cu || '',
-      carrera: user.estudiante?.carrera || '',
-      especialidad: user.docente?.especialidad || '',
-    });
-  };
-
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEdit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!activeUser) return;
     try {
-      setError('');
-      await updateUser(editUserId!, {
-        ...editForm,
-        ...(editForm.rol === 'estudiante' ? { cu: editForm.cu, carrera: editForm.carrera } : {}),
-        ...(editForm.rol === 'docente' ? { especialidad: editForm.especialidad } : {}),
-        ...(editForm.password ? { password: editForm.password } : {}),
+      setError("");
+      await updateUser(activeUser.id, {
+        ...form,
+        ...(form.rol === "estudiante" ? { cu: form.cu, carrera: form.carrera } : {}),
+        ...(form.rol === "docente" ? { especialidad: form.especialidad } : {}),
+        ...(form.password ? { password: form.password } : {}),
       });
-      setEditUserId(null);
-      setEditForm({ nombre: '', apellido: '', email: '', password: '', rol: 'estudiante', cu: '', carrera: '', especialidad: '' });
+      setShowModal(false);
       await refreshUsers();
+      if (typeof refreshDocentes === "function") await refreshDocentes();
+      if (typeof refreshEstudiantes === "function") await refreshEstudiantes();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
-  };
-
-  const handleCancelEdit = () => {
-    setEditUserId(null);
-    setEditForm({ nombre: '', apellido: '', email: '', password: '', rol: 'estudiante', cu: '', carrera: '', especialidad: '' });
   };
 
   const handleDelete = async (userId: number) => {
     try {
-      setError('');
+      setError("");
       await deleteUser(userId);
       setShowDeleteConfirm(null);
       await refreshUsers();
+      if (typeof refreshDocentes === "function") await refreshDocentes();
+      if (typeof refreshEstudiantes === "function") await refreshEstudiantes();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
   };
 
   return (
-    <div className="users-section">
-      <h2 className="users-section__title">Usuarios</h2>
-
-      <div className="users-section__create-toggle">
-        <button 
-          onClick={() => setShowCreateForm(!showCreateForm)} 
-          className="users-section__button"
-        >
-          {showCreateForm ? 'Cerrar Formulario' : 'Crear Usuario'}
-        </button>
+    <div className="section">
+      {/* KPI Row */}
+      <div className="section__kpi-row">
+        <div className="kpi-card">
+          <div className="kpi-icon">
+            <Image src="/estudiantes.svg" alt="Estudiantes" width={28} height={28} />
+          </div>
+          <div>
+            <div className="kpi-title">Estudiantes</div>
+            <div className="kpi-value">
+              {typeof estudiantesCount === "number" ? estudiantesCount : users.filter((u) => u.rol === "estudiante").length}
+            </div>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon">
+            <Image src="/docentes.svg" alt="Docentes" width={28} height={28} />
+          </div>
+          <div>
+            <div className="kpi-title">Docentes</div>
+            <div className="kpi-value">
+              {typeof docentesCount === "number" ? docentesCount : users.filter((u) => u.rol === "docente").length}
+            </div>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon">
+            <Image src="/grupos.svg" alt="Grupos" width={28} height={28} />
+          </div>
+          <div>
+            <div className="kpi-title">Grupos</div>
+            <div className="kpi-value">{typeof groupsCount === "number" ? groupsCount : "—"}</div>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon">
+            <Image src="/usuarios.svg" alt="Proyectos" width={28} height={28} />
+          </div>
+          <div>
+            <div className="kpi-title">Proyectos activos</div>
+            <div className="kpi-value">{typeof proyectosCount === "number" ? proyectosCount : "—"}</div>
+          </div>
+        </div>
       </div>
 
-      {showCreateForm && (
-        <div className="users-section__form-wrapper">
-          <h3 className="users-section__form-title">Crear Usuario</h3>
-          <form onSubmit={handleCreateSubmit} className="users-form">
-            <input 
-              type="text" 
-              placeholder="Nombre" 
-              value={form.nombre} 
-              onChange={(e) => setForm({ ...form, nombre: e.target.value })} 
-              className="input-field" 
+      <div className="section__header">
+        <h2 className="section__title">Gestor de usuarios</h2>
+        <div className="section__controls">
+          <div className="section__search">
+            <input
+              placeholder="Buscar usuario"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="section__search-input"
             />
-            <input 
-              type="text" 
-              placeholder="Apellido" 
-              value={form.apellido} 
-              onChange={(e) => setForm({ ...form, apellido: e.target.value })} 
-              className="input-field" 
-            />
-            <input 
-              type="email" 
-              placeholder="Email" 
-              value={form.email} 
-              onChange={(e) => setForm({ ...form, email: e.target.value })} 
-              className="input-field" 
-            />
-            <input 
-              type="password" 
-              placeholder="Contraseña" 
-              value={form.password} 
-              onChange={(e) => setForm({ ...form, password: e.target.value })} 
-              className="input-field" 
-            />
-            <select 
-              value={form.rol} 
-              onChange={(e) => setForm({ ...form, rol: e.target.value })} 
-              className="input-field"
-            >
-              <option value="estudiante">Estudiante</option>
-              <option value="docente">Docente</option>
-              <option value="admin">Admin</option>
-            </select>
-            {form.rol === 'estudiante' && (
-              <>
-                <input 
-                  type="text" 
-                  placeholder="CU" 
-                  value={form.cu} 
-                  onChange={(e) => setForm({ ...form, cu: e.target.value })} 
-                  className="input-field" 
-                />
-                {/* 🆕 SELECT DE CARRERAS */}
-                <select
-                  value={form.carrera}
-                  onChange={(e) => setForm({ ...form, carrera: e.target.value })}
-                  className="input-field"
-                  required
-                >
-                  <option value="">Selecciona una carrera</option>
-                  {CARRERAS.map((carrera) => (
-                    <option key={carrera} value={carrera}>
-                      {carrera}
-                    </option>
-                  ))}
-                </select>
-              </>
-            )}
-            {form.rol === 'docente' && (
-              <input 
-                type="text" 
-                placeholder="Especialidad" 
-                value={form.especialidad} 
-                onChange={(e) => setForm({ ...form, especialidad: e.target.value })} 
-                className="input-field" 
-              />
-            )}
-            <div className="users-section__form-actions">
-              <button type="submit" className="users-section__button">Crear Usuario</button>
-              <button type="button" onClick={() => setShowCreateForm(false)} className="users-section__button users-section__button--cancel">Cancelar</button>
-            </div>
-          </form>
+          </div>
+          <button className="section__add-button" onClick={openCreateModal}>
+            <Image src="/usuarios.svg" alt="Añadir" width={16} height={16} />
+            <span>Añadir usuario</span>
+          </button>
         </div>
-      )}
+      </div>
 
-      {editUserId !== null && (
-        <div className="users-section__form-wrapper">
-          <h3 className="users-section__form-title">Editar Usuario (ID: {editUserId})</h3>
-          <form onSubmit={handleEditSubmit} className="users-form">
-            <input 
-              type="text" 
-              placeholder="Nombre" 
-              value={editForm.nombre} 
-              onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })} 
-              className="input-field" 
-            />
-            <input 
-              type="text" 
-              placeholder="Apellido" 
-              value={editForm.apellido} 
-              onChange={(e) => setEditForm({ ...editForm, apellido: e.target.value })} 
-              className="input-field" 
-            />
-            <input 
-              type="email" 
-              placeholder="Email" 
-              value={editForm.email} 
-              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} 
-              className="input-field" 
-            />
-            <input 
-              type="password" 
-              placeholder="Nueva Contraseña (opcional)" 
-              value={editForm.password} 
-              onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} 
-              className="input-field" 
-            />
-            <select 
-              value={editForm.rol} 
-              onChange={(e) => setEditForm({ ...editForm, rol: e.target.value })} 
-              className="input-field"
-            >
-              <option value="estudiante">Estudiante</option>
-              <option value="docente">Docente</option>
-              <option value="admin">Admin</option>
-            </select>
-            {editForm.rol === 'estudiante' && (
-              <>
-                <input 
-                  type="text" 
-                  placeholder="CU" 
-                  value={editForm.cu} 
-                  onChange={(e) => setEditForm({ ...editForm, cu: e.target.value })} 
-                  className="input-field" 
-                />
-                {/* 🆕 SELECT DE CARRERAS */}
-                <select
-                  value={editForm.carrera}
-                  onChange={(e) => setEditForm({ ...editForm, carrera: e.target.value })}
-                  className="input-field"
+  <div className="section__table-wrapper" style={{ overflow: 'visible' }}>
+        <table className="section-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre completo</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((user) => (
+              <tr key={user.id}>
+                <td>{user.id}</td>
+                <td>
+                  {user.nombre} {user.apellido}
+                </td>
+                <td>{user.email}</td>
+                <td>{user.rol}</td>
+                <td>{(user as any).estado ?? "Activo"}</td>
+                <td>
+                  <div className="action-menu">
+                    <button className="action-menu-button" onClick={() => toggleMenu(user.id)}>
+                      <Image src="/menu.svg" alt="menu" width={20} height={20} />
+                    </button>
+                    {menuOpenFor === user.id && (
+                      <ul className="action-menu-list" style={{ zIndex: 120 }}>
+                        <li>
+                          <button
+                            onClick={() => {
+                              toggleMenu(user.id);
+                              openEditModal(user);
+                            }}
+                            className="action-menu-item"
+                          >
+                            Editar
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => {
+                              toggleMenu(user.id);
+                              setShowDeleteConfirm(user.id);
+                            }}
+                            className="action-menu-item action-menu-item--danger"
+                          >
+                            Eliminar
+                          </button>
+                        </li>
+                      </ul>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal: Create / Edit */}
+      {showModal && (
+        <div className="section__modal">
+          <div className="section__modal-content">
+            <h3 className="section__modal-title">
+              {modalMode === "create" ? "Añadir usuario" : `Editar usuario (ID: ${activeUser?.id ?? ""})`}
+            </h3>
+            <form onSubmit={modalMode === "create" ? handleCreate : handleEdit} className="section-form">
+              <div className="section-form__row">
+                <input
+                  type="text"
+                  placeholder="Nombre"
+                  value={form.nombre}
+                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                  className="section-form__input"
                   required
+                />
+                <input
+                  type="text"
+                  placeholder="Apellido"
+                  value={form.apellido}
+                  onChange={(e) => setForm({ ...form, apellido: e.target.value })}
+                  className="section-form__input"
+                  required
+                />
+              </div>
+              <div className="section-form__row">
+                <input
+                  type="email"
+                  placeholder="Correo"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="section-form__input"
+                  required
+                />
+                <select
+                  value={form.rol}
+                  onChange={(e) => setForm({ ...form, rol: e.target.value })}
+                  className="section-form__input"
                 >
-                  <option value="">Selecciona una carrera</option>
-                  {CARRERAS.map((carrera) => (
-                    <option key={carrera} value={carrera}>
-                      {carrera}
-                    </option>
-                  ))}
+                  <option value="estudiante">Estudiante</option>
+                  <option value="docente">Docente</option>
+                  <option value="admin">Admin</option>
                 </select>
-              </>
-            )}
-            {editForm.rol === 'docente' && (
-              <input 
-                type="text" 
-                placeholder="Especialidad" 
-                value={editForm.especialidad} 
-                onChange={(e) => setEditForm({ ...editForm, especialidad: e.target.value })} 
-                className="input-field" 
-              />
-            )}
-            <div className="users-section__form-actions">
-              <button type="submit" className="users-section__button">Guardar Cambios</button>
-              <button type="button" onClick={handleCancelEdit} className="users-section__button users-section__button--cancel">Cancelar</button>
-            </div>
-          </form>
-        </div>
-      )}
+              </div>
+              {/* Password input for editing any role (docente already has its own password field in the docente block) */}
+              {modalMode === "edit" && form.rol !== "docente" && (
+                <div className="section-form__row">
+                  <input
+                    type="password"
+                    placeholder="Contraseña (dejar vacío para no cambiar)"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className="section-form__input"
+                  />
+                </div>
+              )}
 
-      {showDeleteConfirm !== null && (
-        <div className="users-section__modal">
-          <div className="users-section__modal-content">
-            <h3>Confirmar Eliminación</h3>
-            <p>¿Estás seguro de que deseas eliminar este usuario (ID: {showDeleteConfirm})?</p>
-            <div className="users-section__modal-actions">
-              <button onClick={() => handleDelete(showDeleteConfirm)} className="users-section__button--danger users-section__button">Eliminar</button>
-              <button onClick={() => setShowDeleteConfirm(null)} className="users-section__button--cancel users-section__button">Cancelar</button>
-            </div>
+              {form.rol === "estudiante" && (
+                <div className="section-form__row">
+                  <input
+                    type="text"
+                    placeholder="CU"
+                    value={form.cu}
+                    onChange={(e) => setForm({ ...form, cu: e.target.value })}
+                    className="section-form__input"
+                  />
+                  <select
+                    value={form.carrera}
+                    onChange={(e) => setForm({ ...form, carrera: e.target.value })}
+                    className="section-form__input"
+                  >
+                    <option value="">Selecciona una carrera</option>
+                    {CARRERAS.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {form.rol === "docente" && (
+                <div className="section-form__row">
+                  <input
+                    type="text"
+                    placeholder="Especialidad"
+                    value={form.especialidad}
+                    onChange={(e) => setForm({ ...form, especialidad: e.target.value })}
+                    className="section-form__input"
+                  />
+                  <input
+                    type="password"
+                    placeholder="Contraseña"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className="section-form__input"
+                  />
+                </div>
+              )}
+
+              <div className="section__modal-actions">
+                <button type="submit" className="section__button">
+                  {modalMode === "create" ? "Crear Usuario" : "Guardar Cambios"}
+                </button>
+                <button type="button" onClick={() => setShowModal(false)} className="section__button section__button--cancel">
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      <h3 className="users-section__list-title">Lista de Usuarios</h3>
-      <table className="users-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.nombre} {user.apellido}</td>
-              <td>{user.email}</td>
-              <td>{user.rol}</td>
-              <td>
-                <button onClick={() => handleEditClick(user)} className="users-section__button">Editar</button>
-                <button onClick={() => setShowDeleteConfirm(user.id)} className="users-section__button users-section__button--danger">Eliminar</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Delete Confirm Modal */}
+      {showDeleteConfirm !== null && (
+        <div className="section__modal">
+          <div className="section__modal-content">
+            <h3>Confirmar Eliminación</h3>
+            <p>¿Estás seguro de que deseas eliminar este usuario (ID: {showDeleteConfirm})?</p>
+            <div className="section__modal-actions">
+              <button onClick={() => handleDelete(showDeleteConfirm)} className="section__button section__button--danger">
+                Eliminar
+              </button>
+              <button onClick={() => setShowDeleteConfirm(null)} className="section__button section__button--cancel">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

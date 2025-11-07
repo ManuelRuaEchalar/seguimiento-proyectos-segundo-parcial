@@ -28,7 +28,7 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      const data = await register(form);
+      await register(form);
       router.push('/auth/login');
     } catch (err: any) {
       setError(err.message || 'Error al registrarse');
@@ -43,98 +43,104 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.leftSection}>
-        <h2>SEGUIMIENTO DE PROYECTOS DE GRADO</h2>
-        <Image
-          src="/images/EscudoUSFX (2).png"
-          alt="Escudo USFX"
-          width={800}
-          height={800}
-          priority
-        />
-        <p>Universidad San Francisco Xavier de Chuquisaca</p>
-      </div>
+      <div className={styles.centerCard}>
+        <div className={styles.formCard}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+            <Image
+              src="/logo_general.svg"
+              alt="logo"
+              width={56}
+              height={56}
+              priority
+            />
+            <h1 className={styles.mainTitle}>Registra tu cuenta de estudiante</h1>
+            {error && <p className={styles.error}>{error}</p>}
+          </div>
 
-      <div className={styles.rightSection}>
-        <form onSubmit={handleRegister} className={styles.formCard}>
-          <h1>Registrarse</h1>
-          {error && <p className={styles.error}>{error}</p>}
+          <form onSubmit={handleRegister} className={styles.formInner}>
+          <div className={styles.rowTwo}>
+            <Input
+              label="Nombres"
+              type="text"
+              name="nombre"
+              placeholder="Ingresa tu nombre"
+              value={form.nombre}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              label="Apellidos"
+              type="text"
+              name="apellido"
+              placeholder="Ingresa tu apellido"
+              value={form.apellido}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-          <Input
-            label="Nombre"
-            type="text"
-            name="nombre"
-            placeholder="Nombre"
-            value={form.nombre}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            label="Apellido"
-            type="text"
-            name="apellido"
-            placeholder="Apellido"
-            value={form.apellido}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            label="Email"
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            label="Contraseña"
-            type="password"
-            name="password"
-            placeholder="Contraseña"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            label="Carnet universitario"
-            type="text"
-            name="cu"
-            placeholder="CU"
-            value={form.cu}
-            onChange={handleChange}
-            required
-          />
+          <div className={styles.rowTwo}>
+            <Input
+              label="Carnet Universitario"
+              type="text"
+              name="cu"
+              placeholder="Ingresa tu CU"
+              value={form.cu}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              label="Correo"
+              type="email"
+              name="email"
+              placeholder="Ingresa tu correo"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-          <label htmlFor="carrera">Carrera</label>
-          <select
-            id="carrera"
-            name="carrera"
-            value={form.carrera}
-            onChange={handleChange}
-            required
-            className={styles.select}
-          >
-            <option value="">Selecciona una carrera</option>
-            <option value="Ingeniería en Ciencias de la Computación">
-              Ingeniería en Ciencias de la Computación
-            </option>
-            <option value="Ingeniería de Sistemas">
-              Ingeniería de Sistemas
-            </option>
-            <option value="Diseño y Animación Digital">
-              Diseño y Animación Digital
-            </option>
-          </select>
+          <div className={styles.rowTwo}>
+            <div style={{ flex: 1 }}>
+              <label htmlFor="carrera" className={styles.label}>Carrera</label>
+              <select
+                id="carrera"
+                name="carrera"
+                value={form.carrera}
+                onChange={handleChange}
+                required
+                className={styles.select}
+              >
+                <option value="">Selecciona una carrera</option>
+                <option value="Ingeniería en Ciencias de la Computación">
+                  Ingeniería en Ciencias de la Computación
+                </option>
+                <option value="Ingeniería de Sistemas">Ingeniería de Sistemas</option>
+                <option value="Diseño y Animación Digital">Diseño y Animación Digital</option>
+              </select>
+            </div>
+
+            <Input
+              label="Contraseña"
+              type="password"
+              name="password"
+              placeholder="Ingresa tu contraseña"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
           <Button type="submit" disabled={loading}>
-            {loading ? 'Registrando...' : 'Registrarse'}
+            {loading ? 'Registrando...' : 'CREAR CUENTA'}
           </Button>
 
-          <p>
-            ¿Ya tienes cuenta? <a href="/auth/login">Inicia sesión</a>
+          </form>
+
+          <p style={{ textAlign: 'center', marginTop: 12 }}>
+            <a className={styles.loginLink} href="/auth/login">Iniciar sesión...</a>
           </p>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,350 @@
+.section {
+  background-color: #f9f9fb;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 2.5rem; /* increased spacing between sections */
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* KPI Row */
+.section__kpi-row {
+  display: flex;
+  gap: 1.25rem; /* slightly larger gap */
+  margin-bottom: 1.5rem; /* more space before the header */
+  flex-wrap: wrap;
+}
+
+.kpi-card {
+  background: var(--white);
+  padding: 1.05rem 1.05rem;
+  border-radius: 12px;
+  min-width: 180px;
+  min-height: 110px; /* taller for big number */
+  box-shadow: 0 6px 18px rgba(14, 20, 30, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative; /* for absolute icon */
+  flex: 1 1 200px;
+}
+
+.kpi-title {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0;
+}
+
+.kpi-value {
+  font-size: 2rem; /* larger number */
+  font-weight: 900;
+  color: #111;
+  margin: 0.25rem 0 0 0;
+}
+
+.kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 12px;
+  top: 12px; /* icon sits top-right like the reference image */
+}
+.kpi-icon img,
+.kpi-icon svg {
+  display: block;
+  filter: brightness(0) invert(1); /* try to make svg icon appear white if possible */
+}
+
+/* Header */
+.section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.section__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+.section__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section__search-input {
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-muted);
+  background: var(--white);
+  color: var(--color-dark);
+  min-width: 420px;
+  font-size: 0.95rem;
+}
+
+.section__add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  background: #222;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Table */
+.section__table-wrapper {
+  background: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.section-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.section-table thead th {
+  background: #f1f1f1;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  color: #444;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.9rem;
+}
+
+.section-table tbody td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.section-table tbody tr:hover {
+  background-color: #f9f9fb;
+}
+
+/* Action Menu */
+.action-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.action-menu-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.action-menu-list {
+  position: absolute;
+  right: 0;
+  top: 28px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  list-style: none;
+  padding: 0.25rem 0;
+  margin: 0;
+  min-width: 120px;
+  z-index: 40;
+}
+
+.action-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.action-menu-item--danger {
+  color: #d32f2f;
+}
+
+.action-menu-item:hover {
+  background: #f5f5f5;
+}
+
+/* Modal */
+.section__modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  padding: 1rem;
+}
+
+.section__modal-content {
+  background: var(--white);
+  padding: 1.25rem;
+  border-radius: 10px;
+  width: 420px;
+  max-width: 100%;
+  box-shadow: 0 12px 36px rgba(14, 20, 30, 0.08);
+}
+
+.section__modal-title {
+  margin: 0 0 1rem 0;
+  color: #222;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.section-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-form__row {
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column; /* force vertical stacking in modal forms */
+}
+
+.section-form__input {
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.section-form__input:focus {
+  outline: none;
+  border-color: #222;
+}
+
+/* narrower select used in the Assign Group column */
+.section__assign-select {
+  max-width: 250px;
+  padding: 0.5rem 0.6rem;
+}
+
+.section__modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.section__button {
+  background: #222;
+  color: white;
+  padding: 0.6rem 0.95rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.section__button--cancel {
+  background: transparent;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.section__button--danger {
+  background: transparent;
+  color: #d32f2f;
+  border: 1px solid transparent;
+}
+
+.section__button--danger:hover {
+  background: #ffebee;
+}
+
+/* Small helpers for group detail view */
+.group-detail-card {
+  background: transparent; /* outer wrapper uses .section background */
+  padding: 0;
+  border-radius: 0.5rem;
+}
+.group-detail-card > h3 {
+  margin-bottom: 0.5rem;
+}
+
+.group-details__person-name {
+  font-weight: 700;
+}
+
+/* Badges used in group summary */
+.group-badge {
+  background: #eef6fb;
+  color: #1e396c;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.group-badge.badge-active {
+  background: #e6f6ee;
+  color: #1b7a43;
+}
+.group-badge.badge-inactive {
+  background: #fff0f2;
+  color: #b02a37;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section__kpi-row {
+    flex-direction: column;
+  }
+
+  .kpi-card {
+    min-width: auto;
+  }
+
+  .section__search-input {
+    min-width: 180px;
+  }
+
+  .section__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .section__controls {
+    width: 100%;
+  }
+
+  .section__add-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .section-form__row {
+    flex-direction: column;
+  }
+}

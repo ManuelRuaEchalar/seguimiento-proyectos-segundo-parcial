@@ -1,130 +1,126 @@
-/* === Layout general === */
+/* === Register layout (single centered card) === */
 .container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
   font-family: "Rubik", sans-serif;
+  padding: 48px 20px;
+  background: var(--color-bg);
 }
 
-/* === Sección izquierda: branding === */
-.leftSection {
-  flex: 1;
-  background: #f6f9ff;
+/* Centered card (single column) */
+.centerCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 3rem 2rem;
-  gap: 1.5rem;
-}
-
-/* Estilos para la imagen */
-.leftSection img {
-  width: 500px;
-  height: 500px;
-  object-fit: contain;
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 4px 12px rgba(30, 57, 108, 0.15));
-  transition: transform 0.3s ease;
-}
-
-.leftSection h2 {
-  font-size: 1.75rem;
-  color: #1e396c;
-  margin: 0;
-  font-weight: 700;
-  line-height: 1.3;
-  max-width: 500px;
-}
-
-.leftSection p {
-  font-size: 1.15rem;
-  color: #445a85;
-  margin: 0;
-  line-height: 1.5;
-  max-width: 450px;
-}
-
-/* === Sección derecha: contenedor del formulario === */
-.rightSection {
-  flex: 1;
-  background: #9bc7e8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-
-/* === Tarjeta del formulario === */
-.formCard {
-  background: #f6f9ff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  padding: 3rem 2.5rem;
+  gap: 12px;
+  max-width: 720px;
   width: 100%;
-  max-width: 480px;
-  text-align: left;
-  font-family: "Rubik", sans-serif;
 }
 
-/* === Título del formulario === */
+.formCard {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(16, 24, 40, 0.06);
+  padding: 36px 40px;
+  width: 100%;
+  max-width: 640px;
+  text-align: left;
+}
+
 .formCard h1 {
-  font-size: 1.8rem;
-  color: #1e396c;
-  margin-bottom: 1.5rem;
-  font-weight: 700;
+  font-size: 28px;
+  color: var(--color-dark);
+  margin: 0 0 12px 0;
+  font-weight: 800;
   text-align: center;
 }
 
-/* === Etiquetas y campos === */
-.formCard label {
+.mainTitle {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--color-dark);
+  margin: 0;
+  text-align: center;
+}
+
+.rowTwo {
+  display: flex;
+  gap: 16px;
+}
+
+.rowTwo > * {
+  flex: 1;
+}
+
+/* Labels & inputs */
+.label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #0e0f14;
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: var(--color-dark);
 }
 
 .formCard input,
-.formCard textarea {
+.formCard textarea,
+.select {
   width: 100%;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1.2rem;
-  border: 1px solid #445a85;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #e6e9ee;
   border-radius: 8px;
-  font-size: 1rem;
-  color: #0e0f14;
+  font-size: 16px;
+  color: var(--color-dark);
   background-color: white;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.2s ease;
 }
 
 .formCard input::placeholder,
 .formCard textarea::placeholder {
-  color: #445a85;
+  color: var(--color-muted);
 }
 
 .formCard input:focus,
-.formCard textarea:focus {
-  border-color: #1e396c;
+.formCard textarea:focus,
+.select:focus {
+  border-color: var(--color-primary);
   outline: none;
 }
 
-/* === Botón === */
+/* Button */
 .formCard button {
-  background-color: #1e396c;
-  color: #f6f9ff;
-  padding: 0.75rem 1.5rem;
+  background-color: var(--color-dark);
+  color: var(--white);
+  padding: 0.9rem 1.25rem;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
   cursor: pointer;
   width: 100%;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .formCard button:hover:not(:disabled) {
-  background-color: #445a85;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+}
+
+.formInner {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+.loginLink {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  text-decoration: underline;
 }
 
 .formCard button:disabled {
@@ -132,101 +128,38 @@
   cursor: not-allowed;
 }
 
-/* === Texto adicional y enlaces === */
 .formCard p {
-  font-size: 0.95rem;
-  margin-top: 1.5rem;
-  color: #445a85;
+  font-size: 14px;
+  margin-top: 8px;
+  color: var(--color-muted);
   text-align: center;
 }
 
-.formCard a {
-  color: #1e396c;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.formCard a:hover {
-  text-decoration: underline;
-}
-
-/* === Mensaje de error === */
 .error {
   color: #ec4040;
   background: #ffe5e5;
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 0.95rem;
   border-left: 3px solid #ec4040;
 }
 
-/* === Responsividad === */
 @media (max-width: 968px) {
-  .container {
+  .rowTwo {
     flex-direction: column;
   }
-
-  .leftSection {
-    min-height: 40vh;
-    padding: 2rem 1rem;
-  }
-
-  .leftSection img {
-    width: 200px;
-    height: 200px;
-  }
-
-  .leftSection h2 {
-    font-size: 1.4rem;
-  }
-
-  .leftSection p {
-    font-size: 1rem;
-  }
-
-  .rightSection {
-    background: #9bc7e8;
-    padding: 2rem 1rem;
-  }
-
   .formCard {
-    padding: 2rem;
-    max-width: 90%;
+    padding: 24px;
+    max-width: 92%;
   }
 }
 
 @media (max-width: 640px) {
-  .leftSection {
-    min-height: 35vh;
-  }
-
-  .leftSection img {
-    width: 160px;
-    height: 160px;
-  }
-
   .formCard {
-    padding: 1.5rem;
+    padding: 18px;
   }
-
   .formCard h1 {
-    font-size: 1.5rem;
+    font-size: 22px;
   }
-}
-.select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1.2rem;
-  border: 1px solid #445a85;
-  border-radius: 8px;
-  font-size: 1rem;
-  color: #0e0f14;
-  background-color: white;
-  transition: border-color 0.3s ease;
-}
-
-.select:focus {
-  border-color: #1e396c;
-  outline: none;
 }
