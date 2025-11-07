@@ -22,6 +22,7 @@ interface Correccion {
 
 interface Documento {
   id: number;
+  titulo: string;
   observaciones: Observacion[];
   correcciones: Correccion[];
 }
@@ -31,6 +32,7 @@ interface HiloItem {
   data: Observacion | Correccion;
   nivel: number;
   hijos?: HiloItem[];
+  tituloDocumento: string;
 }
 
 interface Props {
@@ -40,47 +42,57 @@ interface Props {
 export default function HistorialObservaciones({ documentos }: Props) {
   const [hilosExpandidos, setHilosExpandidos] = useState<Set<number>>(new Set());
 
-  // Extraer todas las observaciones y correcciones
-  const { observaciones, correcciones } = useMemo(() => {
-    const obs: Observacion[] = [];
-    const corr: Correccion[] = [];
+  // Extraer todas las observaciones y correcciones con su documento
+  const { observacionesConDoc, correccionesConDoc } = useMemo(() => {
+    const obsConDoc: Array<Observacion & { tituloDocumento: string }> = [];
+    const corrConDoc: Array<Correccion & { tituloDocumento: string }> = [];
 
     documentos.forEach(doc => {
-      if (doc.observaciones) obs.push(...doc.observaciones);
-      if (doc.correcciones) corr.push(...doc.correcciones);
+      if (doc.observaciones) {
+        doc.observaciones.forEach(obs => {
+          obsConDoc.push({ ...obs, tituloDocumento: doc.titulo });
+        });
+      }
+      if (doc.correcciones) {
+        doc.correcciones.forEach(corr => {
+          corrConDoc.push({ ...corr, tituloDocumento: doc.titulo });
+        });
+      }
     });
 
-    return { observaciones: obs, correcciones: corr };
+    return { observacionesConDoc: obsConDoc, correccionesConDoc: corrConDoc };
   }, [documentos]);
 
   // Construir hilos desde observaciones raíz
   const hilos = useMemo(() => {
     // Encontrar observaciones raíz (sin correccion_id)
-    const observacionesRaiz = observaciones.filter(obs => !obs.correccion_id);
+    const observacionesRaiz = observacionesConDoc.filter(obs => !obs.correccion_id);
 
     // Construir cada hilo recursivamente
-    const construirHilo = (obs: Observacion, nivel: number = 0): HiloItem => {
+    const construirHilo = (obs: Observacion & { tituloDocumento: string }, nivel: number = 0): HiloItem => {
       const item: HiloItem = {
         tipo: 'observacion',
         data: obs,
         nivel,
-        hijos: []
+        hijos: [],
+        tituloDocumento: obs.tituloDocumento
       };
 
       // Buscar corrección para esta observación
-      const correccion = correcciones.find(c => c.observacion_id === obs.id);
+      const correccion = correccionesConDoc.find(c => c.observacion_id === obs.id);
       
       if (correccion) {
         const correccionItem: HiloItem = {
           tipo: 'correccion',
           data: correccion,
           nivel: nivel + 1,
-          hijos: []
+          hijos: [],
+          tituloDocumento: correccion.tituloDocumento
         };
 
         // Si la corrección fue rechazada, buscar la observación de rechazo
         if (correccion.estado === 'rechazado') {
-          const obsRechazo = observaciones.find(o => o.correccion_id === correccion.id);
+          const obsRechazo = observacionesConDoc.find(o => o.correccion_id === correccion.id);
           
           if (obsRechazo) {
             // Recursión: construir el resto del hilo
@@ -95,7 +107,7 @@ export default function HistorialObservaciones({ documentos }: Props) {
     };
 
     return observacionesRaiz.map(obs => construirHilo(obs));
-  }, [observaciones, correcciones]);
+  }, [observacionesConDoc, correccionesConDoc]);
 
   const toggleHilo = (hiloId: number) => {
     setHilosExpandidos(prev => {
@@ -117,6 +129,11 @@ export default function HistorialObservaciones({ documentos }: Props) {
     return count;
   };
 
+  const truncarTexto = (texto: string, maxLength: number = 300): string => {
+    if (texto.length <= maxLength) return texto;
+    return texto.substring(0, maxLength) + '...';
+  };
+
   const renderItem = (item: HiloItem, hiloRaizId: number, itemId: string) => {
     const esObservacion = item.tipo === 'observacion';
     const data = item.data;
@@ -135,6 +152,9 @@ export default function HistorialObservaciones({ documentos }: Props) {
               <div className={styles.tipoDoc}>
                 <span className={styles.tipo}>{tipoTexto}</span>
                 <span className={styles.docBadge}>
+                  {item.tituloDocumento}
+                </span>
+                <span className={styles.docBadge}>
                   ID {data.id} • Pág {data.bounding_page}
                 </span>
               </div>
@@ -142,12 +162,14 @@ export default function HistorialObservaciones({ documentos }: Props) {
                 {data.estado.charAt(0).toUpperCase() + data.estado.slice(1)}
               </span>
             </div>
-            <div className={styles.textoPrincipal}>{data.content_text}</div>
             {data.comment_text && (
-              <div className={styles.comentario}>
-                <span>{data.comment_text}</span>
+              <div className={styles.textoPrincipal}>
+                <strong>{truncarTexto(data.comment_text)}</strong>
               </div>
             )}
+            <div className={styles.comentario}>
+              <span>{data.content_text}</span>
+            </div>
           </div>
         </div>
 
@@ -157,9 +179,6 @@ export default function HistorialObservaciones({ documentos }: Props) {
               className={styles.toggleBtn}
               onClick={() => toggleHilo(parseInt(itemId))}
             >
-              <span className={`${styles.toggleIcon} ${estaExpandido ? styles.rotado : ''}`}>
-                ▶
-              </span>
               <span>
                 {estaExpandido 
                   ? 'Ocultar respuestas' 
