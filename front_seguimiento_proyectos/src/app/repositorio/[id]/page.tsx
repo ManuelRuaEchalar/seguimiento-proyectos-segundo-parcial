@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchFinal } from '@/services/finales';
 import { VisualizadorPDFFinal } from '@/components/documento/VisualizadorPDFFinal';
-import { NavbarRepositorio } from '@/components/general/NavbarRepositorio';
+import NavbarRepositorio from '@/components/general/NavbarRepositorio';
 import styles from './documento.module.css';
 
 export default function RepositorioDocumentoPage() {
