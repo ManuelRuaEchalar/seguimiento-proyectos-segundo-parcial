@@ -215,11 +215,23 @@ export async function createGroup(data: {
   docente_id?: number;
 }) {
   try {
+    // Sanitizar el valor de grado: eliminar espacios y convertir a minúsculas
+    let gradoSanitizado = data.grado.toLowerCase().replace(/\s+/g, '');
+    
+    // Validar que sea uno de los valores permitidos
+    if (!['grado1', 'grado2'].includes(gradoSanitizado)) {
+      throw new Error('El grado debe ser "grado1" o "grado2"');
+    }
+    
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/grupos`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        nombre: data.nombre,
+        grado: gradoSanitizado, // Enviar el valor sanitizado
+        docente_id: data.docente_id,
+      }),
     });
     const response = await res.json();
     if (!res.ok) throw new Error(response.message || "Error al crear grupo");
