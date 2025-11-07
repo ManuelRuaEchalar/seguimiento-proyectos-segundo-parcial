@@ -18,7 +18,7 @@ const NavbarRepositorio: React.FC<NavbarRepositorioProps> = ({
 
   const handleGoBack = () => {
     console.log('Botón Atrás presionado - Regresando a raíz');
-    router.push('');
+    router.back();
   };
 
   return (
