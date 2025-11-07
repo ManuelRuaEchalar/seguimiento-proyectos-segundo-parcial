@@ -20,6 +20,25 @@ interface Actividad {
   es_final?: boolean;
 }
 
+interface Observacion {
+  id: number;
+  content_text: string;
+  comment_text: string | null;
+  estado: 'pendiente' | 'aprobado' | 'rechazado';
+  bounding_page: number;
+  correccion_id?: number;
+  observacion_id?: number;
+}
+
+interface Correccion {
+  id: number;
+  content_text: string;
+  comment_text: string | null;
+  estado: 'pendiente' | 'aprobado' | 'rechazado';
+  bounding_page: number;
+  observacion_id: number;
+}
+
 interface Documento {
   id: number;
   titulo: string;
@@ -30,8 +49,8 @@ interface Documento {
   justificacion?: string;
   motivo_rechazo?: string;
   es_final?: boolean;
-  observaciones?: any[];
-  correcciones?: any[];
+  observaciones: Observacion[];
+  correcciones: Correccion[];
 }
 
 export default function ActividadPage() {
@@ -81,10 +100,18 @@ export default function ActividadPage() {
 
           // Si la respuesta indica que es final, usar finales; si no, usar documentos
           if (response.es_final && response.finales) {
-            setDocumentos(response.finales);
+            setDocumentos(response.finales.map((doc: any) => ({
+              ...doc,
+              observaciones: doc.observaciones || [],
+              correcciones: doc.correcciones || []
+            })));
             setEsFinal(true);
           } else {
-            setDocumentos(response.documentos || []);
+            setDocumentos((response.documentos || []).map((doc: any) => ({
+              ...doc,
+              observaciones: doc.observaciones || [],
+              correcciones: doc.correcciones || []
+            })));
             setEsFinal(false);
           }
         } catch (error) {
@@ -117,9 +144,17 @@ export default function ActividadPage() {
       const response = await fetchStudentDocuments(actividad.id);
 
       if (response.es_final && response.finales) {
-        setDocumentos(response.finales);
+        setDocumentos(response.finales.map((doc: any) => ({
+          ...doc,
+          observaciones: doc.observaciones || [],
+          correcciones: doc.correcciones || []
+        })));
       } else {
-        setDocumentos(response.documentos || []);
+        setDocumentos((response.documentos || []).map((doc: any) => ({
+          ...doc,
+          observaciones: doc.observaciones || [],
+          correcciones: doc.correcciones || []
+        })));
       }
     } catch (error) {
       console.error('❌ Error al actualizar documentos:', error);
