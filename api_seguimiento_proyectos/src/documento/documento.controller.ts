@@ -34,124 +34,124 @@ export class DocumentoController {
   constructor(private documentoService: DocumentoService) { }
 
   // 🔥 NUEVO: Endpoint optimizado que solo retorna la URL
-@Post('doc-url')
-async getDocUrl(@Body() body: { id: number }) {
-  try {
-    const { id } = body;
+  @Post('doc-url')
+  async getDocUrl(@Body() body: { id: number }) {
+    try {
+      const { id } = body;
 
-    if (!id || typeof id !== 'number') {
-      throw new BadRequestException('Código de documento inválido');
+      if (!id || typeof id !== 'number') {
+        throw new BadRequestException('Código de documento inválido');
+      }
+
+      // Solo obtener la ruta del archivo, no el archivo físico
+      const documento = await this.documentoService.getDocUrl(id);
+
+      return {
+        success: true,
+        url: documento.url, // URL pública para acceso directo desde Nginx
+        ...documento
+      };
+    } catch (error) {
+      console.error('Error en getDocUrl:', error);
+      throw new HttpException(
+        error.message || 'Error al obtener URL del documento',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  // Mantener este endpoint solo para casos legacy o descarga forzada
+  @Post('get-doc')
+  async getDoc(@Body('id') id: number, @Res() res: Response) {
+    try {
+      // Simplificado: solo validar y retornar info básica
+      const docInfo = await this.documentoService.getDocUrl(id);
+
+      // Redirigir a la URL estática de Nginx
+      return res.redirect(docInfo.url);
+    } catch (error) {
+      console.error('❌ Error en getDoc:', error);
+      return res.status(error.status || 500).json({
+        success: false,
+        error: error.message || 'Error interno del servidor'
+      });
+    }
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('teacher-observations')
+  async getTeacherObservations(
+    @Req() req: Request,
+    @Query('estudiante_id') estudianteId: string,
+    @Query('actividad_id') actividadId: string,
+  ) {
+    const user = req.user as { id: number; email: string; rol: string };
+
+    if (!estudianteId || !actividadId) {
+      throw new BadRequestException('El ID de estudiante y actividad son requeridos');
     }
 
-    // Solo obtener la ruta del archivo, no el archivo físico
-    const documento = await this.documentoService.getDocUrl(id);
+    const estudianteIdNum = parseInt(estudianteId, 10);
+    const actividadIdNum = parseInt(actividadId, 10);
 
-    return {
-      success: true,
-      url: documento.url, // URL pública para acceso directo desde Nginx
-      ...documento
-    };
-  } catch (error) {
-    console.error('Error en getDocUrl:', error);
-    throw new HttpException(
-      error.message || 'Error al obtener URL del documento',
-      error.status || HttpStatus.INTERNAL_SERVER_ERROR
+    if (isNaN(estudianteIdNum) || isNaN(actividadIdNum)) {
+      throw new BadRequestException('Los IDs deben ser números válidos');
+    }
+
+    return this.documentoService.getTeacherObservations(
+      user.id,
+      estudianteIdNum,
+      actividadIdNum
     );
   }
-}
-
-// Mantener este endpoint solo para casos legacy o descarga forzada
-@Post('get-doc')
-async getDoc(@Body('id') id: number, @Res() res: Response) {
-  try {
-    // Simplificado: solo validar y retornar info básica
-    const docInfo = await this.documentoService.getDocUrl(id);
-    
-    // Redirigir a la URL estática de Nginx
-    return res.redirect(docInfo.url);
-  } catch (error) {
-    console.error('❌ Error en getDoc:', error);
-    return res.status(error.status || 500).json({
-      success: false,
-      error: error.message || 'Error interno del servidor'
-    });
-  }
-}
 
   @UseGuards(JwtGuard)
-@Get('teacher-observations')
-async getTeacherObservations(
-  @Req() req: Request,
-  @Query('estudiante_id') estudianteId: string,
-  @Query('actividad_id') actividadId: string,
-) {
-  const user = req.user as { id: number; email: string; rol: string };
+  @Get('student-docs')
+  async getStudentDocs(
+    @Req() req: Request,
+    @Query('actividad_id') actividadId: string,
+  ) {
+    const user = req.user as { id: number; email: string; rol: string };
 
-  if (!estudianteId || !actividadId) {
-    throw new BadRequestException('El ID de estudiante y actividad son requeridos');
+    if (user.rol !== 'estudiante') {
+      throw new BadRequestException('El usuario no es un estudiante');
+    }
+
+    if (!actividadId) {
+      throw new BadRequestException('El ID de actividad es requerido');
+    }
+
+    const actividadIdNum = parseInt(actividadId, 10);
+    if (isNaN(actividadIdNum)) {
+      throw new BadRequestException('El ID de actividad debe ser un número válido');
+    }
+
+    return this.documentoService.getStudentDocuments(user.id, actividadIdNum);
   }
-
-  const estudianteIdNum = parseInt(estudianteId, 10);
-  const actividadIdNum = parseInt(actividadId, 10);
-
-  if (isNaN(estudianteIdNum) || isNaN(actividadIdNum)) {
-    throw new BadRequestException('Los IDs deben ser números válidos');
-  }
-
-  return this.documentoService.getTeacherObservations(
-    user.id,
-    estudianteIdNum,
-    actividadIdNum
-  );
-}
-
-  @UseGuards(JwtGuard)
-@Get('student-docs')
-async getStudentDocs(
-  @Req() req: Request,
-  @Query('actividad_id') actividadId: string,
-) {
-  const user = req.user as { id: number; email: string; rol: string };
-
-  if (user.rol !== 'estudiante') {
-    throw new BadRequestException('El usuario no es un estudiante');
-  }
-
-  if (!actividadId) {
-    throw new BadRequestException('El ID de actividad es requerido');
-  }
-
-  const actividadIdNum = parseInt(actividadId, 10);
-  if (isNaN(actividadIdNum)) {
-    throw new BadRequestException('El ID de actividad debe ser un número válido');
-  }
-
-  return this.documentoService.getStudentDocuments(user.id, actividadIdNum);
-}
 
   @Get('get-activity-docs/:actividadId')
-@UseGuards(JwtGuard)
-async getActivityDocs(@Param('actividadId') actividadId: string) {
-  try {
-    const idNum = parseInt(actividadId);
-    if (isNaN(idNum) || idNum <= 0) {
-      throw new BadRequestException('El ID de la actividad debe ser un número positivo');
+  @UseGuards(JwtGuard)
+  async getActivityDocs(@Param('actividadId') actividadId: string) {
+    try {
+      const idNum = parseInt(actividadId);
+      if (isNaN(idNum) || idNum <= 0) {
+        throw new BadRequestException('El ID de la actividad debe ser un número positivo');
+      }
+
+      const documentos = await this.documentoService.getActivityDocs(idNum);
+
+      return {
+        success: true,
+        data: documentos,
+      };
+    } catch (error) {
+      console.error('❌ Error en getActivityDocs:', error);
+      throw new HttpException(
+        error.message || 'Error al obtener documentos de la actividad',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-
-    const documentos = await this.documentoService.getActivityDocs(idNum);
-
-    return {
-      success: true,
-      data: documentos,
-    };
-  } catch (error) {
-    console.error('❌ Error en getActivityDocs:', error);
-    throw new HttpException(
-      error.message || 'Error al obtener documentos de la actividad',
-      error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-    );
   }
-}
 
 
   @Get('get-pendientes')
@@ -200,43 +200,43 @@ async getActivityDocs(@Param('actividadId') actividadId: string) {
     }
   }
 
-@Post('upload')
-@UseInterceptors(FileInterceptor('documento', {
-  storage: diskStorage({
-    destination: (req, file, callback) => {
-      const uploadPath = './public/uploads/documentos';
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath, { recursive: true });
-        console.log(`✅ Carpeta creada: ${uploadPath}`);
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('documento', {
+    storage: diskStorage({
+      destination: (req, file, callback) => {
+        const uploadPath = './public/uploads/documentos';
+        if (!fs.existsSync(uploadPath)) {
+          fs.mkdirSync(uploadPath, { recursive: true });
+          console.log(`✅ Carpeta creada: ${uploadPath}`);
+        }
+        callback(null, uploadPath);
+      },
+      filename: (req, file, callback) => {
+        const timestamp = Date.now();
+        const cleanTitle = (req.body.titulo || 'documento').replace(/[^a-z0-9]/gi, '_');
+        const filename = `${cleanTitle}_${timestamp}${extname(file.originalname)}`;
+        callback(null, filename);
       }
-      callback(null, uploadPath);
+    }),
+    fileFilter: (req, file, callback) => {
+      if (file.mimetype !== 'application/pdf') {
+        return callback(new BadRequestException('Solo se permiten archivos PDF'), false);
+      }
+      callback(null, true);
     },
-    filename: (req, file, callback) => {
-      const timestamp = Date.now();
-      const cleanTitle = (req.body.titulo || 'documento').replace(/[^a-z0-9]/gi, '_');
-      const filename = `${cleanTitle}_${timestamp}${extname(file.originalname)}`;
-      callback(null, filename);
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB
     }
-  }),
-  fileFilter: (req, file, callback) => {
-    if (file.mimetype !== 'application/pdf') {
-      return callback(new BadRequestException('Solo se permiten archivos PDF'), false);
-    }
-    callback(null, true);
-  },
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
+  }))
+  async upload(
+    @UploadedFile() file: MulterFile,
+    @Body('proyectoId') proyectoId: string,
+    @Body('actividadId') actividadId: string,
+    @Body('titulo') titulo: string,
+    @Res() res: Response
+  ) {
+    return this.documentoService.uploadDocumento(file, proyectoId, actividadId, titulo, res);
   }
-}))
-async upload(
-  @UploadedFile() file: MulterFile,
-  @Body('proyectoId') proyectoId: string,
-  @Body('actividadId') actividadId: string,
-  @Body('titulo') titulo: string,
-  @Res() res: Response
-) {
-  return this.documentoService.uploadDocumento(file, proyectoId, actividadId, titulo, res);
-}
 
   @Get(':proyectoId')
   async getDocumentsByProyecto(
@@ -348,42 +348,77 @@ async upload(
   }
 
   @Post('rechazar')
-async rechazarDocumento(
-  @Body() body: { documentoId: number; motivo: string; proyectoId: number },
-  @Res() res: Response
-) {
-  try {
-    const { documentoId, motivo, proyectoId } = body;
+  async rechazarDocumento(
+    @Body() body: { documentoId: number; motivo: string; proyectoId: number },
+    @Res() res: Response
+  ) {
+    try {
+      const { documentoId, motivo, proyectoId } = body;
 
-    if (!documentoId || !motivo || !proyectoId) {
-      return res.status(400).json({
+      if (!documentoId || !motivo || !proyectoId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Faltan datos requeridos: documentoId, motivo o proyectoId'
+        });
+      }
+
+      // Cambiar estado del documento a "rechazado"
+      await this.documentoService.cambiarEstadoDocumento(
+        documentoId,
+        'rechazado' as $Enums.EstadoDocumento
+      );
+
+      // Aquí puedes crear una observación general con el motivo del rechazo
+      // o guardarlo en una nueva tabla "RechazosDocumento"
+      console.log(`📝 Documento ${documentoId} rechazado. Motivo: ${motivo}`);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Documento rechazado exitosamente',
+        motivo
+      });
+    } catch (error) {
+      console.error('❌ Error al rechazar documento:', error);
+      return res.status(500).json({
         success: false,
-        error: 'Faltan datos requeridos: documentoId, motivo o proyectoId'
+        error: 'Error interno del servidor al rechazar el documento'
       });
     }
+  }
 
-    // Cambiar estado del documento a "rechazado"
-    await this.documentoService.cambiarEstadoDocumento(
-      documentoId,
-      'rechazado' as $Enums.EstadoDocumento
+// ✅ NUEVO - Usando path params
+@Get('by-proyecto-grupo/:proyectoId/:grupoId')
+@UseGuards(JwtGuard)
+async getDocsByProyectoYGrupo(
+  @Param('proyectoId') proyectoId: string,
+  @Param('grupoId') grupoId: string,
+) {
+  try {
+    const proyectoIdNum = parseInt(proyectoId, 10);
+    const grupoIdNum = parseInt(grupoId, 10);
+
+    if (isNaN(proyectoIdNum) || proyectoIdNum <= 0) {
+      throw new BadRequestException('proyecto_id debe ser un número válido');
+    }
+
+    if (isNaN(grupoIdNum) || grupoIdNum <= 0) {
+      throw new BadRequestException('grupo_id debe ser un número válido');
+    }
+
+    const documentos = await this.documentoService.getDocsByProyectoYGrupo(
+      proyectoIdNum,
+      grupoIdNum,
     );
 
-    // Aquí puedes crear una observación general con el motivo del rechazo
-    // o guardarlo en una nueva tabla "RechazosDocumento"
-    console.log(`📝 Documento ${documentoId} rechazado. Motivo: ${motivo}`);
-
-    return res.status(200).json({
+    return {
       success: true,
-      message: 'Documento rechazado exitosamente',
-      motivo
-    });
+      data: documentos,
+    };
   } catch (error) {
-    console.error('❌ Error al rechazar documento:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Error interno del servidor al rechazar el documento'
-    });
+    throw new HttpException(
+      error.message || 'Error al obtener documentos por proyecto y grupo',
+      error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 }
-  
 }

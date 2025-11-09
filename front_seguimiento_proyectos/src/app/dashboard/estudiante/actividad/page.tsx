@@ -183,6 +183,7 @@ export default function ActividadPage() {
     estado: actividad.estado || 'activo',
     fecha: actividad.fecha_creacion || new Date().toISOString(),
     tags: actividad.elementos || [],
+    descripcion: actividad.descripcion
   };
 
   return (

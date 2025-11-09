@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--fondo);
+  background-color: var(--casi-blanco);
 }
 
 .main {
@@ -20,4 +20,17 @@
   min-height: 400px;
   font-size: 18px;
   color: var(--carbon);
+}
+
+/* Contenedor de contenido principal */
+.contentWrapper {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Sección de entregas */
+.entregasSection {
+  flex: 1;
+  min-width: 0;
 }

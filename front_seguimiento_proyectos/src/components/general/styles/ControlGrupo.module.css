@@ -1,8 +1,18 @@
 /* Group Info */
 .groupInfo {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
   margin-bottom: 24px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: var(--blanco);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(30, 57, 108, 0.1);
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid var(--celeste);
 }
 
 .groupCard {
@@ -10,14 +20,9 @@
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-  background-color: var(--blanco);
   color: var(--azul-oscuro);
-  border-radius: 8px;
   padding: 0.75rem 1.25rem;
-  box-shadow: 0 2px 6px rgba(30, 57, 108, 0.1);
-  max-width: 400px;
   width: 100%;
-  border: 1px solid var(--celeste);
 }
 
 .groupItem {
@@ -90,4 +95,30 @@
 .phaseOption.active {
   background-color: var(--celeste);
   color: var(--azul-oscuro);
+}
+
+/* Toggle Switch */
+.toggleContainer {
+  display: flex;
+  width: 100%;
+  padding: 0.5rem 1rem 0.75rem;
+  gap: 0.5rem;
+}
+
+.toggleOption {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--carbon);
+  font-size: 0.8rem;
+}
+
+.toggleOption.active {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
 }

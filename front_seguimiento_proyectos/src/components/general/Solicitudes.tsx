@@ -144,7 +144,8 @@ const Solicitudes: React.FC<SolicitudesProps> = ({
             <div className={styles.requestMessage}>
               {solicitud.tipo === 'invitar' 
                 ? `Invitación a ${solicitud.receptor?.usuario.nombre} ${solicitud.receptor?.usuario.apellido} para unirse a mi proyecto`
-                : `Solicitud para unirme al proyecto ${solicitud.proyecto.titulo}`
+                : `Solicitud para unirme al proyecto ${solicitud.proyecto.titulo ?? 'Sin título'}`
+
               }
             </div>
             <div className={styles.requestStatus}>

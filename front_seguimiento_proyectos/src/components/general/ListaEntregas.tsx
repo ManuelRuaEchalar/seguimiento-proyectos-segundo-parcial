@@ -21,6 +21,7 @@ interface Documento {
   justificacion: string | null;
   created_at: string;
   file: string;
+  tipo?: string;
   proyecto: {
     id: number;
     titulo: string;
@@ -104,6 +105,7 @@ export default function ListaEntregas({ documentos, fase, onRevisar }: ListaEntr
             fechaEntrega={doc.created_at}
             estudiantes={doc.proyecto.estudiantes}
             file={doc.file}
+            tipo={doc.tipo}
             onRevisar={onRevisar}
           />
         ))
@@ -129,6 +131,7 @@ export default function ListaEntregas({ documentos, fase, onRevisar }: ListaEntr
                 fechaEntrega={doc.created_at}
                 estudiantes={doc.proyecto.estudiantes}
                 file={doc.file}
+                tipo={doc.tipo}
                 onRevisar={onRevisar}
               />
             ))}

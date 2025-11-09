@@ -71,7 +71,7 @@ export class SolicitudService {
           proyecto_id: data.proyecto_id,
           emisor_id: data.emisor_id,
           receptor_id: data.receptor_id,
-          titulo: proyecto.titulo  // ← Agregar el título del proyecto
+          titulo: proyecto.titulo ?? 'Sin título'  // ← Agregar el título del proyecto
         },
         include: {
           proyecto: {

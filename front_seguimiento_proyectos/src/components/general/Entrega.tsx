@@ -20,6 +20,7 @@ interface EntregaProps {
   estado: string;
   fechaEntrega: string;
   estudiantes: Estudiante[];
+  tipo?: string;
   file: string;
   onRevisar: (entregaId: number) => void;
   fase?: string;

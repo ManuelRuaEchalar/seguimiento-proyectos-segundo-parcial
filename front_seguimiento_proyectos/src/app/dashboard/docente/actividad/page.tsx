@@ -114,7 +114,8 @@ const actividadInfo = {
   estado: actividad.estado || 'activo',
   fase: actividad.fase,
   fecha: actividad.fecha_creacion || new Date().toISOString(),
-  tags: actividad.elementos || [], // Los elementos son como "tags" (Conclusiones, Bibliografía, etc.)
+  descripcion: actividad.descripcion,
+  tags: actividad.elementos
 };
 
   return (

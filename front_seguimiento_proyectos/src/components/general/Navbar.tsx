@@ -24,7 +24,8 @@ interface ActividadInfo {
   nombre: string;
   estado: string;
   fecha: string;
-  tags: string[];
+  descripcion?: string; // Añadir esta línea
+  tags: string[]
 }
 
 interface NavbarProps {
@@ -52,6 +53,7 @@ export default function Navbar({
   const [mostrarCronograma, setMostrarCronograma] = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [cerrando, setCerrando] = useState(false);
+  const [mostrarDescripcion, setMostrarDescripcion] = useState(false);
 
   const handleBack = () => {
     if (onBack) {
@@ -102,10 +104,10 @@ export default function Navbar({
       <div className={styles.teacherInfo}>
         <div className={styles.teacherContent}>
           <div className={styles.teacherName}>{docenteInfo.nombre}</div>
-          <div className={styles.teacherEmail}>{docenteInfo.email}</div>
+          <div className={styles.teacherEmail}>{role}</div>
         </div>
-        <button 
-          className={styles.logoutButton} 
+        <button
+          className={styles.logoutButton}
           title="Cerrar sesión"
           onClick={handleLogout}
         >
@@ -121,12 +123,10 @@ export default function Navbar({
       <div className={styles.studentInfo}>
         <div className={styles.studentContent}>
           <div className={styles.studentName}>{estudianteInfo.nombre}</div>
-          <div className={styles.studentDetails}>{estudianteInfo.carrera}</div>
-          <div className={styles.studentDetails}>CU: {estudianteInfo.cu}</div>
-          <div className={styles.studentDetails}>{estudianteInfo.email}</div>
+          <div className={styles.studentDetails}>{role}</div>
         </div>
-        <button 
-          className={styles.logoutButton} 
+        <button
+          className={styles.logoutButton}
           title="Cerrar sesión"
           onClick={handleLogout}
         >
@@ -137,27 +137,71 @@ export default function Navbar({
   };
 
   const renderActividadInfo = () => {
-    if (!actividadInfo) return null;
-    return (
+  if (!actividadInfo) return null;
+  
+  const hayInformacion = (actividadInfo.tags && actividadInfo.tags.length > 0) || actividadInfo.descripcion;
+
+  return (
+    <>
       <div className={styles.navbarCenterActividad}>
-        <div className={styles.activityHeader}>
-          <div className={styles.activityTitle}>
-            {actividadInfo.nombre}
+        <div className={styles.activityMainInfo}>
+          <div className={styles.activityTitleSection}>
+            <span className={styles.activityTitle}>{actividadInfo.nombre}</span>
             <span className={`${styles.activityStatus} ${styles[actividadInfo.estado.toLowerCase()]}`}>
               {actividadInfo.estado}
             </span>
           </div>
-        </div>
-        <div className={styles.activityTags}>
-          {actividadInfo.tags.map((tag, index) => (
-            <span key={index} className={styles.tag}>
-              {tag}
-            </span>
-          ))}
+          {hayInformacion && (
+            <button 
+              className={styles.infoBtn}
+              onClick={() => setMostrarDescripcion(true)}
+            >
+              Más información
+            </button>
+          )}
         </div>
       </div>
-    );
-  };
+
+      {/* Modal de información completa */}
+      {mostrarDescripcion && (
+        <div className={styles.modalOverlay} onClick={() => setMostrarDescripcion(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>{actividadInfo.nombre}</h3>
+            
+            {actividadInfo.tags && actividadInfo.tags.length > 0 && (
+              <div className={styles.modalSection}>
+                <h4 className={styles.modalSectionTitle}>Apartados a trabajar:</h4>
+                <div className={styles.modalTagsList}>
+                  {actividadInfo.tags.map((tag, index) => (
+                    <span key={index} className={styles.modalTag}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {actividadInfo.descripcion && (
+              <div className={styles.modalSection}>
+                <h4 className={styles.modalSectionTitle}>Descripción:</h4>
+                <p className={styles.modalDescriptionText}>{actividadInfo.descripcion}</p>
+              </div>
+            )}
+            
+            <div className={styles.modalButtons}>
+              <button 
+                className={styles.modalCancelBtn}
+                onClick={() => setMostrarDescripcion(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
   // Navbar para docente
   if (role === 'docente') {
@@ -171,10 +215,12 @@ export default function Navbar({
           )}
           <div className={styles.navbarCenter}>
             <div className={styles.buttonsGroup}>
-              <button className={styles.iconButton} onClick={onPerfil}>
+              <button className={styles.iconButton} onClick={() => { if (onPerfil) onPerfil(); window.dispatchEvent(new CustomEvent('open-profile')); }}>
                 <img src="/profile.svg" alt="Perfil" className={styles.buttonIcon} />
                 Perfil
               </button>
+              {/* dispatch global event so PerfilUsuario modal can open without wiring prop */}
+              <button style={{display: 'none'}} onClick={() => window.dispatchEvent(new CustomEvent('open-profile'))} aria-hidden />
               <button className={styles.iconButton} onClick={handleRepositorio}>
                 <img src="/repository.svg" alt="Repositorio" className={styles.buttonIcon} />
                 Repositorio
@@ -199,7 +245,7 @@ export default function Navbar({
           )}
           <div className={styles.navbarCenter}>
             <div className={styles.buttonsGroup}>
-              <button className={styles.iconButton} onClick={onPerfil}>
+              <button className={styles.iconButton} onClick={() => { if (onPerfil) onPerfil(); window.dispatchEvent(new CustomEvent('open-profile')); }}>
                 <img src="/profile.svg" alt="Perfil" className={styles.buttonIcon} />
                 Perfil
               </button>

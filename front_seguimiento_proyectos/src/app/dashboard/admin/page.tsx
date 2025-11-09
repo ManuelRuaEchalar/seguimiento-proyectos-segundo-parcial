@@ -78,6 +78,22 @@ export default function AdminDashboard() {
     }
   };
 
+  // Refresh all datasets (called when switching sections)
+  const refreshAll = async () => {
+    try {
+      setFetchError('');
+      await Promise.all([refreshUsers(), refreshGroups(), refreshDocentes(), refreshEstudiantes()]);
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const handleChangeSection = async (section: string) => {
+    setActiveSection(section);
+    // Always refresh everything when changing section
+    await refreshAll();
+  };
+
   if (isLoading) {
     return <p className="text-center text-gray-500">Cargando...</p>;
   }
@@ -107,7 +123,7 @@ export default function AdminDashboard() {
               <li>
                 <button
                   className={`navButton ${activeSection === 'users' ? 'active' : ''}`}
-                  onClick={() => setActiveSection('users')}
+                  onClick={() => void handleChangeSection('users')}
                 >
                   <Image src="/usuarios.svg" alt="Usuarios" width={20} height={20} className="navIcon" />
                   <span>Usuarios</span>
@@ -116,7 +132,7 @@ export default function AdminDashboard() {
               <li>
                 <button
                   className={`navButton ${activeSection === 'groups' ? 'active' : ''}`}
-                  onClick={() => setActiveSection('groups')}
+                  onClick={() => void handleChangeSection('groups')}
                 >
                   <Image src="/grupos.svg" alt="Grupos" width={20} height={20} className="navIcon" />
                   <span>Grupos</span>
@@ -125,7 +141,7 @@ export default function AdminDashboard() {
               <li>
                 <button
                   className={`navButton ${activeSection === 'docentes' ? 'active' : ''}`}
-                  onClick={() => setActiveSection('docentes')}
+                  onClick={() => void handleChangeSection('docentes')}
                 >
                   <Image src="/docentes.svg" alt="Docentes" width={20} height={20} className="navIcon" />
                   <span>Docentes</span>
@@ -134,7 +150,7 @@ export default function AdminDashboard() {
               <li>
                 <button
                   className={`navButton ${activeSection === 'estudiantes' ? 'active' : ''}`}
-                  onClick={() => setActiveSection('estudiantes')}
+                  onClick={() => void handleChangeSection('estudiantes')}
                 >
                   <Image src="/estudiantes.svg" alt="Estudiantes" width={20} height={20} className="navIcon" />
                   <span>Estudiantes</span>

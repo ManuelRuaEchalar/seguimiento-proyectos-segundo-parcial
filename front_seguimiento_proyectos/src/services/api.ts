@@ -94,6 +94,28 @@ export async function getUser() {
   }
 }
 
+// Update current user's profile (nombre, email, password)
+export async function updateMyProfile(
+  data: Partial<{ nombre: string; email: string; password: string }>
+) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const response = await res.json();
+    if (!res.ok)
+      throw new Error(response.message || "Error al actualizar perfil");
+    return response;
+  } catch (err) {
+    if (err instanceof Error)
+      throw new Error(err.message || "Error de conexión con el servidor");
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
 export async function getUsers() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users`, {
@@ -216,13 +238,13 @@ export async function createGroup(data: {
 }) {
   try {
     // Sanitizar el valor de grado: eliminar espacios y convertir a minúsculas
-    let gradoSanitizado = data.grado.toLowerCase().replace(/\s+/g, '');
-    
+    let gradoSanitizado = data.grado.toLowerCase().replace(/\s+/g, "");
+
     // Validar que sea uno de los valores permitidos
-    if (!['grado1', 'grado2'].includes(gradoSanitizado)) {
+    if (!["grado1", "grado2"].includes(gradoSanitizado)) {
       throw new Error('El grado debe ser "grado1" o "grado2"');
     }
-    
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/grupos`, {
       method: "POST",
       credentials: "include",
@@ -267,6 +289,51 @@ export async function assignDocenteToGroup(groupId: number, docenteId: number) {
     );
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Error al asignar docente");
+    return data;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
+export async function removeDocenteFromGroup(groupId: number) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/grupos/${groupId}/docente`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      }
+    );
+    const data = await res.json();
+    if (!res.ok)
+      throw new Error(data.message || "Error al eliminar docente del grupo");
+    return data;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
+export async function removeEstudianteFromGroup(
+  groupId: number,
+  estudianteId: number
+) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/grupos/${groupId}/estudiantes/${estudianteId}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      }
+    );
+    const data = await res.json();
+    if (!res.ok)
+      throw new Error(data.message || "Error al eliminar estudiante del grupo");
     return data;
   } catch (err) {
     if (err instanceof Error) {
@@ -451,6 +518,25 @@ export async function getDocenteWithGroups() {
     };
   } catch (err) {
     console.error("Error in getDocenteWithGroups:", err);
+    if (err instanceof Error) {
+      throw new Error(err.message || "Error de conexión con el servidor");
+    }
+    throw new Error("Error de conexión con el servidor");
+  }
+}
+
+export async function getEstudianteMe() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/estudiante/me`,
+      {
+        credentials: "include",
+      }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Error al obtener estudiante");
+    return data;
+  } catch (err) {
     if (err instanceof Error) {
       throw new Error(err.message || "Error de conexión con el servidor");
     }

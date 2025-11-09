@@ -9,8 +9,60 @@ import * as argon from 'argon2';
 export class AdminService {
   constructor(private prisma: PrismaService) {}
   async deleteGroup(id: number) {
-    // Elimina el grupo y sus relaciones
-    return this.prisma.grupo.delete({ where: { id } });
+    // Delete related records safely and then delete the group
+    return this.prisma.$transaction(async (prisma) => {
+      // 1) Disconnect students that reference this group (both grupo_id and grupo_dos_id)
+      await prisma.estudiante.updateMany({
+        where: { grupo_id: id },
+        data: { grupo_id: null },
+      });
+      await prisma.estudiante.updateMany({
+        where: { grupo_dos_id: id },
+        data: { grupo_dos_id: null },
+      });
+
+      // 2) Find actividades for this group
+      const actividades = await prisma.actividad.findMany({
+        where: { grupo_id: id },
+        select: { id: true },
+      });
+      const actividadIds = actividades.map((a) => a.id);
+
+      if (actividadIds.length > 0) {
+        // 3) Find documentos for these actividades
+        const documentos = await prisma.documento.findMany({
+          where: { actividad_id: { in: actividadIds } },
+          select: { id: true },
+        });
+        const documentoIds = documentos.map((d) => d.id);
+
+        if (documentoIds.length > 0) {
+          // 4) Delete correcciones and observaciones related to those documentos
+          await prisma.correccion.deleteMany({
+            where: { documento_id: { in: documentoIds } },
+          });
+          await prisma.observacion.deleteMany({
+            where: { documento_id: { in: documentoIds } },
+          });
+        }
+
+        // 5) Delete documentos
+        await prisma.documento.deleteMany({
+          where: { actividad_id: { in: actividadIds } },
+        });
+
+        // 6) Delete finales related to actividades
+        await prisma.final.deleteMany({
+          where: { actividad_id: { in: actividadIds } },
+        });
+
+        // 7) Finally delete actividades
+        await prisma.actividad.deleteMany({ where: { grupo_id: id } });
+      }
+
+      // 8) Delete the group itself
+      return prisma.grupo.delete({ where: { id } });
+    });
   }
 
   async createUser(createUserDto: CreateUserDto) {
@@ -100,50 +152,49 @@ export class AdminService {
     return this.prisma.usuario.delete({ where: { id } });
   }
 
-async createGroup(createGroupDto: CreateGroupDto) {
-  // Validar docente si se envía el ID
-  if (createGroupDto.docente_id) {
-    const docente = await this.prisma.docente.findUnique({
-      where: { id: +createGroupDto.docente_id },
-    });
-    if (!docente) throw new BadRequestException('Docente no encontrado');
-  }
+  async createGroup(createGroupDto: CreateGroupDto) {
+    // Validar docente si se envía el ID
+    if (createGroupDto.docente_id) {
+      const docente = await this.prisma.docente.findUnique({
+        where: { id: +createGroupDto.docente_id },
+      });
+      if (!docente) throw new BadRequestException('Docente no encontrado');
+    }
 
-  // Determinar fase según el grado
-  let fase: 'tema' | 'proyecto' = 'tema';
-  if (createGroupDto.grado === 'grado2') {
-    fase = 'proyecto';
-  }
+    // Determinar fase según el grado
+    let fase: 'tema' | 'proyecto' = 'tema';
+    if (createGroupDto.grado === 'grado2') {
+      fase = 'proyecto';
+    }
 
-  // Crear el grupo
-  const nuevoGrupo = await this.prisma.grupo.create({
-    data: {
-      nombre: createGroupDto.nombre,
-      grado: createGroupDto.grado,
-      docente_id: createGroupDto.docente_id
-        ? +createGroupDto.docente_id
-        : null,
-      fase, // fase dinámica
-    },
-  });
-
-  // 👇 Crear actividad inicial automáticamente si es grado1 (fase tema)
-  if (createGroupDto.grado === 'grado1' && fase === 'tema') {
-    await this.prisma.actividad.create({
+    // Crear el grupo
+    const nuevoGrupo = await this.prisma.grupo.create({
       data: {
-        nombre: 'Propuesta de tema',
-        descripcion:
-          'En este apartado el estudiante puede subir sus propuestas de temas',
-        fase: 'tema',
-        grupo_id: nuevoGrupo.id,
-        elementos: [], // puedes poner [] o elementos requeridos por defecto
+        nombre: createGroupDto.nombre,
+        grado: createGroupDto.grado,
+        docente_id: createGroupDto.docente_id
+          ? +createGroupDto.docente_id
+          : null,
+        fase, // fase dinámica
       },
     });
+
+    // 👇 Crear actividad inicial automáticamente si es grado1 (fase tema)
+    if (createGroupDto.grado === 'grado1' && fase === 'tema') {
+      await this.prisma.actividad.create({
+        data: {
+          nombre: 'Propuesta de tema',
+          descripcion:
+            'En este apartado el estudiante puede subir sus propuestas de temas',
+          fase: 'tema',
+          grupo_id: nuevoGrupo.id,
+          elementos: [], // puedes poner [] o elementos requeridos por defecto
+        },
+      });
+    }
+
+    return nuevoGrupo;
   }
-
-  return nuevoGrupo;
-}
-
 
   async getUsers() {
     return this.prisma.usuario.findMany({
@@ -199,6 +250,18 @@ async createGroup(createGroupDto: CreateGroupDto) {
     return this.prisma.grupo.update({
       where: { id: groupId },
       data: { docente_id: docenteId },
+      include: {
+        docente: {
+          include: {
+            usuario: true,
+          },
+        },
+        estudiantes: {
+          include: {
+            usuario: true,
+          },
+        },
+      },
     });
   }
 
@@ -243,6 +306,104 @@ async createGroup(createGroupDto: CreateGroupDto) {
       },
       include: {
         estudiantes: true,
+      },
+    });
+  }
+
+  // Update an existing group: nombre, grado, docente_id (all optional)
+  async updateGroup(id: number, updateGroupDto: any) {
+    // Validate docente if provided
+    if (updateGroupDto.docente_id) {
+      const docente = await this.prisma.docente.findUnique({
+        where: { id: +updateGroupDto.docente_id },
+      });
+      if (!docente) throw new BadRequestException('Docente no encontrado');
+    }
+
+    // Determine fase if grado provided
+    let fase: 'tema' | 'proyecto' | undefined = undefined;
+    if (updateGroupDto.grado) {
+      fase = updateGroupDto.grado === 'grado2' ? 'proyecto' : 'tema';
+    }
+
+    const dataToUpdate: any = {};
+    if (updateGroupDto.nombre !== undefined)
+      dataToUpdate.nombre = updateGroupDto.nombre;
+    if (updateGroupDto.grado !== undefined)
+      dataToUpdate.grado = updateGroupDto.grado;
+    if (updateGroupDto.docente_id !== undefined)
+      dataToUpdate.docente_id = updateGroupDto.docente_id;
+    if (fase) dataToUpdate.fase = fase;
+
+    const updated = await this.prisma.grupo.update({
+      where: { id },
+      data: dataToUpdate,
+    });
+
+    // If updated to grado1 (fase tema), ensure initial activity exists
+    if (updateGroupDto.grado === 'grado1') {
+      const actividades = await this.prisma.actividad.findMany({
+        where: { grupo_id: updated.id },
+      });
+      if (!actividades || actividades.length === 0) {
+        await this.prisma.actividad.create({
+          data: {
+            nombre: 'Propuesta de tema',
+            descripcion:
+              'En este apartado el estudiante puede subir sus propuestas de temas',
+            fase: 'tema',
+            grupo_id: updated.id,
+            elementos: [],
+          },
+        });
+      }
+    }
+
+    return updated;
+  }
+
+  // Remove docente (unset docente_id) from a group
+  async removeDocenteFromGroup(groupId: number) {
+    return this.prisma.grupo.update({
+      where: { id: groupId },
+      data: { docente_id: null },
+      include: {
+        docente: {
+          include: {
+            usuario: true,
+          },
+        },
+        estudiantes: {
+          include: {
+            usuario: true,
+          },
+        },
+      },
+    });
+  }
+
+  // Remove estudiante from a group (disconnect)
+  async removeEstudianteFromGroup(groupId: number, estudianteId: number) {
+    // confirm estudiante exists
+    const estudiante = await this.prisma.estudiante.findUnique({
+      where: { id: estudianteId },
+    });
+    if (!estudiante) throw new BadRequestException('Estudiante no encontrado');
+
+    return this.prisma.grupo.update({
+      where: { id: groupId },
+      data: {
+        estudiantes: {
+          disconnect: { id: estudianteId },
+        },
+      },
+      include: {
+        docente: {
+          include: { usuario: true },
+        },
+        estudiantes: {
+          include: { usuario: true },
+        },
       },
     });
   }

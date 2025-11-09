@@ -315,6 +315,29 @@ export default function Section({
                   className="section-form__input"
                   required
                 />
+                {/* Password moved here so email+password appear before the role selector
+                    Required on create for any role; optional on edit (leave empty to not change) */}
+                {modalMode === "create" ? (
+                  <input
+                    type="password"
+                    placeholder="Contraseña"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className="section-form__input"
+                    required
+                  />
+                ) : (
+                  <input
+                    type="password"
+                    placeholder="Contraseña (dejar vacío para no cambiar)"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className="section-form__input"
+                  />
+                )}
+              </div>
+
+              <div className="section-form__row">
                 <select
                   value={form.rol}
                   onChange={(e) => setForm({ ...form, rol: e.target.value })}
@@ -325,18 +348,8 @@ export default function Section({
                   <option value="admin">Admin</option>
                 </select>
               </div>
-              {/* Password input for editing any role (docente already has its own password field in the docente block) */}
-              {modalMode === "edit" && form.rol !== "docente" && (
-                <div className="section-form__row">
-                  <input
-                    type="password"
-                    placeholder="Contraseña (dejar vacío para no cambiar)"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="section-form__input"
-                  />
-                </div>
-              )}
+              {/* NOTE: single password input is now shown above the role selector.
+                  Removed duplicate conditional password inputs for estudiante/admin. */}
 
               {form.rol === "estudiante" && (
                 <div className="section-form__row">
@@ -369,13 +382,6 @@ export default function Section({
                     placeholder="Especialidad"
                     value={form.especialidad}
                     onChange={(e) => setForm({ ...form, especialidad: e.target.value })}
-                    className="section-form__input"
-                  />
-                  <input
-                    type="password"
-                    placeholder="Contraseña"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
                     className="section-form__input"
                   />
                 </div>

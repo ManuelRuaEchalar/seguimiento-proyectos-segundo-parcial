@@ -68,8 +68,6 @@ export const subirDocumento = async (
     formData.append('actividadId', actividadId.toString());
     formData.append('titulo', titulo);
 
-    console.log('📤 Enviando a:', `${apiUrl}/documento/upload`);
-
     const response = await fetch(`${apiUrl}/documento/upload`, {
       method: 'POST',
       body: formData,
@@ -77,7 +75,6 @@ export const subirDocumento = async (
       // ✅ NO incluyas Content-Type, el navegador lo establece automáticamente
     });
 
-    console.log('📡 Response status:', response.status);
 
     // ✅ Verifica si la respuesta es JSON antes de parsear
     const contentType = response.headers.get('content-type');
@@ -91,10 +88,8 @@ export const subirDocumento = async (
     }
 
     const data = await response.json();
-    console.log('📡 Response data:', data);
     
-    if (data.success) {
-      console.log('✅ PDF subido exitosamente:', data.id);
+    if (data.success) {;
       return { 
         success: true,
         version: data.version, 
@@ -162,7 +157,6 @@ export const obtenerDocumentoInfo = async (id: number): Promise<Document> => {
  */
 export const obtenerDocumentos = async (proyectoId: number, fase: string): Promise<Document[]> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  console.log('Obteniendo documentos para proyectoId:', proyectoId, 'y fase:', fase);
   
   if (!apiUrl) {
     throw new Error('NEXT_PUBLIC_API_URL no está configurada');
@@ -486,7 +480,6 @@ export const obtenerDocumentosPorActividad = async (actividadId: number) => {
     });
 
     const data = await response.json();
-    console.log('documentos o finales: ', data);
 
     if (!response.ok) {
       throw new Error(data.error || `Error ${response.status}: ${response.statusText}`);
@@ -499,3 +492,40 @@ export const obtenerDocumentosPorActividad = async (actividadId: number) => {
   }
 };
 
+export const obtenerDocumentosPorProyectoYGrupo = async (proyectoId: number, grupoId: number) => {
+
+  if (!proyectoId || isNaN(proyectoId) || proyectoId <= 0) {
+    throw new Error('El ID del proyecto debe ser un número positivo');
+  }
+
+  if (!grupoId || isNaN(grupoId) || grupoId <= 0) {
+    throw new Error('El ID del grupo debe ser un número positivo');
+  }
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+  }
+
+  // ✅ CAMBIO: Usa path params en lugar de query params
+  const url = `${apiUrl}/documento/by-proyecto-grupo/${proyectoId}/${grupoId}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return data.data;
+  } catch (error) {
+    console.error('❌ Error completo:', error);
+    throw error;
+  }
+};

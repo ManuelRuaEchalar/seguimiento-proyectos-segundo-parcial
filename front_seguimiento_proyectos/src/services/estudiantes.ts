@@ -3,7 +3,6 @@ export async function fetchEstudianteInfo() {
   if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
 
   const endpoint = `${apiUrl}/estudiante/info`;
-  console.log('📡 Solicitando info del estudiante a:', endpoint);
 
   const response = await fetch(endpoint, {
     method: 'GET',
@@ -11,9 +10,7 @@ export async function fetchEstudianteInfo() {
   });
 
   if (!response.ok) {
-    console.error('❌ Error en la respuesta del servidor:', response.status, response.statusText);
     const errorData = await response.text();
-    console.error('🧩 Detalle del error:', errorData);
 
     if (response.status === 401) {
       throw new Error('Sesión no autenticada. Por favor, inicia sesión nuevamente.');
@@ -27,7 +24,6 @@ export async function fetchEstudianteInfo() {
   }
 
   const data = await response.json();
-  console.log('✅ Respuesta del servidor:', data);
   return data;
 }
 
@@ -36,7 +32,6 @@ export async function fetchStudentDocuments(actividadId: number) {
   if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
 
   const endpoint = `${apiUrl}/documento/student-docs?actividad_id=${actividadId}`;
-  console.log('📡 Solicitando documentos del estudiante:', endpoint);
 
   const response = await fetch(endpoint, {
     method: 'GET',
@@ -44,9 +39,7 @@ export async function fetchStudentDocuments(actividadId: number) {
   });
 
   if (!response.ok) {
-    console.error('❌ Error en la respuesta del servidor:', response.status, response.statusText);
     const errorData = await response.text();
-    console.error('🧩 Detalle del error:', errorData);
 
     if (response.status === 401) {
       throw new Error('Sesión no autenticada. Por favor, inicia sesión nuevamente.');
@@ -62,7 +55,7 @@ export async function fetchStudentDocuments(actividadId: number) {
   }
 
   const data = await response.json();
-  console.log('✅ Documentos obtenidos:', data);
+
   return data;
 }
 
@@ -72,7 +65,6 @@ export async function getConfiguracionProyecto() {
   if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
 
   const endpoint = `${apiUrl}/estudiante/configuracion-proyecto`;
-  console.log('📡 Obteniendo configuración del proyecto en:', endpoint);
 
   const response = await fetch(endpoint, {
     method: 'GET',
@@ -83,12 +75,10 @@ export async function getConfiguracionProyecto() {
   });
 
   if (!response.ok) {
-    console.error('❌ Error en la respuesta del servidor:', response.status, response.statusText);
     throw new Error('Error al obtener la configuración del proyecto');
   }
 
   const data = await response.json();
-  console.log('✅ Configuración obtenida:', data);
   return data;
 }
 
@@ -97,7 +87,6 @@ export async function actualizarTituloProyecto(proyectoId: number, titulo: strin
   if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
 
   const endpoint = `${apiUrl}/estudiante/proyecto/${proyectoId}/titulo`;
-  console.log('📡 Actualizando título del proyecto:', endpoint);
 
   const response = await fetch(endpoint, {
     method: 'PUT',
@@ -109,9 +98,7 @@ export async function actualizarTituloProyecto(proyectoId: number, titulo: strin
   });
 
   if (!response.ok) {
-    console.error('❌ Error al actualizar título:', response.status, response.statusText);
     const errorData = await response.text();
-    console.error('🧩 Detalle del error:', errorData);
 
     if (response.status === 401) {
       throw new Error('Sesión no autenticada. Por favor, inicia sesión nuevamente.');
@@ -125,6 +112,5 @@ export async function actualizarTituloProyecto(proyectoId: number, titulo: strin
   }
 
   const data = await response.json();
-  console.log('✅ Título actualizado:', data);
   return data;
 }

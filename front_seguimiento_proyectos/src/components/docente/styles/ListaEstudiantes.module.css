@@ -1,0 +1,203 @@
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    color: #272D3A;
+    font-size: 28px;
+    margin: 0;
+}
+
+.sortButton {
+    padding: 10px 20px;
+    background-color: #9bc7e8;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.sortButton:hover {
+    color: rgb(54, 54, 54);
+}
+
+.sortButton:active {
+    transform: translateY(0);
+}
+
+/* Botón de volver */
+.backButton {
+    padding: 10px 20px;
+    background-color: var(--color-primary);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.backButton:hover {
+    background-color: var(--color-dark);
+    transform: translateX(-2px);
+}
+
+.backButton:active {
+    transform: translateX(0);
+}
+
+.studentsContainer {
+    margin-top: 16px;
+}
+
+.studentsTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.studentsTable th,
+.studentsTable td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #BDB3AB;
+}
+
+.studentsTable th {
+    background-color: #272D3A;
+    color: white;
+    font-weight: 600;
+}
+
+.studentsTable tr:last-child td {
+    border-bottom: none;
+}
+
+.studentsTable tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.studentsTable tbody tr:hover {
+    background-color: #F6F9FF;
+}
+
+/* Fila clickable para proyectos */
+.clickableRow {
+    cursor: pointer;
+}
+
+.clickableRow:hover {
+    background-color: var(--casi-blanco) !important;
+}
+
+.clickableRow:active {
+    background-color: var(--color-muted) !important;
+}
+
+/* Project cell styling */
+.projectCell {
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+.groupHighlight {
+    border-left: 3px solid;
+    padding-left: 13px !important;
+}
+
+.projectName {
+    font-weight: 500;
+    color: #374151;
+}
+
+.projectGroupIndicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.groupBadge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #374151;
+}
+
+.groupIcon {
+    font-size: 14px;
+}
+
+.noProject {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Loading and error states */
+.loading,
+.error,
+.emptyState {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    font-size: 16px;
+}
+
+.error {
+    color: #dc2626;
+    background-color: #fee2e2;
+    border-radius: 8px;
+}
+
+.emptyState {
+    background-color: #f9fafb;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+    }
+
+    .studentsTable {
+        font-size: 14px;
+    }
+
+    .studentsTable th,
+    .studentsTable td {
+        padding: 8px 12px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}

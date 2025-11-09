@@ -130,3 +130,39 @@ export async function asignarFechasGrupo(
   console.log('✅ Fechas asignadas correctamente:', data);
   return data;
 }
+
+export async function obtenerEstudiantesDeGrupo(grupoId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
+
+  const endpoint = `${apiUrl}/grupos/${grupoId}/estudiantes`;
+  console.log('📡 Solicitando estudiantes del grupo:', endpoint);
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    credentials: 'include', // ✅ Cookies con JWT
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    console.error('❌ Error al obtener estudiantes:', response.status, response.statusText);
+    const errorText = await response.text();
+    console.error('🧩 Detalle del error:', errorText);
+
+    if (response.status === 401) {
+      throw new Error('Sesión no autenticada. Por favor, inicia sesión nuevamente.');
+    }
+    if (response.status === 403) {
+      throw new Error('No tienes permisos para ver los estudiantes.');
+    }
+
+    throw new Error('Error al obtener estudiantes del grupo.');
+  }
+
+  const data = await response.json();
+  console.log('✅ Estudiantes del grupo obtenidos:', data);
+  return data;
+}
+

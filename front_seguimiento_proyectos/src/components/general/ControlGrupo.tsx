@@ -4,6 +4,7 @@ import { useState } from 'react';
 import styles from './styles/ControlGrupo.module.css';
 
 type Fase = 'tema' | 'perfil' | 'proyecto';
+type VistaGrupo = 'actividades' | 'estudiantes';
 
 interface ControlGrupoProps {
   nombreGrupo: string;
@@ -11,6 +12,8 @@ interface ControlGrupoProps {
   faseActual: Fase;
   onFaseChange: (fase: Fase) => void;
   rol?: 'docente' | 'estudiante';
+  vistaActual?: VistaGrupo;
+  onVistaChange?: (vista: VistaGrupo) => void;
 }
 
 export default function ControlGrupo({
@@ -19,6 +22,8 @@ export default function ControlGrupo({
   faseActual,
   onFaseChange,
   rol = 'estudiante',
+  vistaActual = 'actividades',
+  onVistaChange,
 }: ControlGrupoProps) {
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -102,6 +107,24 @@ export default function ControlGrupo({
           </div>
         </div>
       </div>
+
+      {/* Toggle para docentes */}
+      {rol === 'docente' && onVistaChange && (
+        <div className={styles.toggleContainer}>
+          <button
+            className={`${styles.toggleOption} ${vistaActual === 'actividades' ? styles.active : ''}`}
+            onClick={() => onVistaChange('actividades')}
+          >
+            Actividades
+          </button>
+          <button
+            className={`${styles.toggleOption} ${vistaActual === 'estudiantes' ? styles.active : ''}`}
+            onClick={() => onVistaChange('estudiantes')}
+          >
+            Mis estudiantes
+          </button>
+        </div>
+      )}
     </div>
   );
 }

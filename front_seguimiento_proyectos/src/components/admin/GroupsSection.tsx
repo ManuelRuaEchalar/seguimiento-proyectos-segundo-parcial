@@ -127,8 +127,8 @@ export default function GroupsSection({ groups, refreshGroups, refreshDocentes, 
                 required={modalMode === 'create'}
               >
                 <option value="">Seleccionar Grado</option>
-                <option value="Grado 1">Grado 1</option>
-                <option value="Grado 2">Grado 2</option>
+                <option value="grado1">Grado 1</option>
+                <option value="grado2">Grado 2</option>
               </select>
               <div className="groups-section__modal-actions" style={{ marginTop: 12 }}>
                 <button type="submit" className="groups-section__button">{modalMode === 'create' ? 'Crear Grupo' : 'Guardar cambios'}</button>

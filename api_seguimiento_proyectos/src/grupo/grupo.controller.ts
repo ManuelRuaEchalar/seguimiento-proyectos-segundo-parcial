@@ -24,11 +24,11 @@ export class GrupoController {
     return this.grupoService.findAll();
   }
 
-@Patch('asignar-fechas')
-@UseGuards(JwtGuard)
-asignarFechasGrupo(@Body() body: any) {
-  return this.grupoService.asignarFechasGrupo(body);
-}
+  @Patch('asignar-fechas')
+  @UseGuards(JwtGuard)
+  asignarFechasGrupo(@Body() body: any) {
+    return this.grupoService.asignarFechasGrupo(body);
+  }
 
   @Get('grupo-final')
   @UseGuards(JwtGuard)
@@ -52,14 +52,14 @@ asignarFechasGrupo(@Body() body: any) {
   actualizarElementos(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { elementos: any }
+    @Body() body: { elementos: any },
   ) {
     const user = req.user as { id: number; email: string; rol: string };
 
     if (user.rol !== 'docente') {
       throw new HttpException(
         'Solo los docentes pueden actualizar elementos del grupo',
-        HttpStatus.FORBIDDEN
+        HttpStatus.FORBIDDEN,
       );
     }
 
@@ -67,22 +67,43 @@ asignarFechasGrupo(@Body() body: any) {
   }
 
   @Post(':id/unirse-grado2')
+  @UseGuards(JwtGuard)
+  async unirseAGrupoGrado2(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) grupoId: number,
+  ) {
+    const user = req.user as { id: number; email: string; rol: string };
+
+    // Verificar rol
+    if (user.rol !== 'estudiante') {
+      throw new HttpException(
+        'Solo los estudiantes pueden unirse a un segundo grupo',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return this.grupoService.unirseAGrupoGrado2(user.id, grupoId);
+  }
+}
+
+// ✅ Obtener estudiantes de un grupo
+@Get(':id/estudiantes')
 @UseGuards(JwtGuard)
-async unirseAGrupoGrado2(
+async obtenerEstudiantesDeGrupo(
   @Req() req: Request,
   @Param('id', ParseIntPipe) grupoId: number,
 ) {
   const user = req.user as { id: number; email: string; rol: string };
 
-  // Verificar rol
-  if (user.rol !== 'estudiante') {
+  if (user.rol !== 'docente') {
     throw new HttpException(
-      'Solo los estudiantes pueden unirse a un segundo grupo',
+      'Solo los docentes pueden ver los estudiantes del grupo',
       HttpStatus.FORBIDDEN,
     );
   }
 
-  return this.grupoService.unirseAGrupoGrado2(user.id, grupoId);
+  return this.grupoService.obtenerEstudiantesDeGrupo(grupoId);
 }
+
 
 }

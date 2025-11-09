@@ -73,6 +73,7 @@ export default function RevisionDocentePage() {
   
   // Estado para observaciones del proyecto
   const [observacionesProyectoState, setObservacionesProyectoState] = useState<any[]>([]);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   // Determinar si es un documento final (tiene tags)
   const esDocumentoFinal = useMemo(() => {
@@ -155,6 +156,7 @@ export default function RevisionDocentePage() {
         }
       } catch (error) {
         console.error('❌ Error al obtener el documento o las observaciones:', error);
+        setErrorCarga('No se pudo cargar el documento. Por favor, intente nuevamente.');
       }
     };
 
@@ -372,7 +374,7 @@ export default function RevisionDocentePage() {
     return { total, aprobadas, rechazadas, pendientes };
   }, [correccionesLocales]);
 
-  if (!documento || !documentoBlob) {
+  if (!documento) {
     return null; // O un loading spinner
   }
 
@@ -415,7 +417,26 @@ export default function RevisionDocentePage() {
       />
       
       <div className={styles.documentoBody}>
-        {esFinal ? (
+        {errorCarga ? (
+          // Mostrar mensaje de error si la carga falló
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            color: '#d32f2f',
+            fontSize: '1.1rem'
+          }}>
+            <p> {errorCarga}</p>
+          </div>
+        ) : !documentoBlob ? (
+          // Mostrar loading mientras carga
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontSize: '1.1rem'
+          }}>
+            <p>Cargando documento...</p>
+          </div>
+        ) : esFinal ? (
           // Visualizador final simple para revisión de tema o final
           <div className={styles.pdfContainerFinal}>
             <VisualizadorPDFFinal
