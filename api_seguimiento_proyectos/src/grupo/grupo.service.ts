@@ -253,53 +253,45 @@ export class GrupoService {
           },
         },
       },
-    },
-  });
-
-  return {
-    message: `Te has unido correctamente al grupo ${actualizado.grupo_dos.nombre}`,
-    grupo: actualizado.grupo_dos,
-  };
-}
-
-async obtenerEstudiantesDeGrupo(grupoId: number) {
-  const estudiantes = await this.prisma.estudiante.findMany({
-    where: { grupo_id: grupoId },
-    select: {
-      id: true,
-      cu: true,
-      carrera: true,
-      proyecto_id: true,
-      proyecto: {
-        select: {
-          titulo: true,
-        },
-      },
-      usuario: {
-        select: {
-          nombre: true,
-          apellido: true,
-          email: true,
-        },
-      },
-    },
-  });
-
-  return estudiantes.map(est => ({
-    id: est.id,
-    nombre_completo: `${est.usuario.nombre} ${est.usuario.apellido}`,
-    carrera: est.carrera,
-    cu: est.cu,
-    correo: est.usuario.email,
-    proyecto_id: est.proyecto_id,
-    titulo_proyecto: est.proyecto?.titulo || null,
-  }));
-}
-
+    });
 
     return {
       message: `Te has unido correctamente al grupo ${actualizado.grupo_dos.nombre}`,
       grupo: actualizado.grupo_dos,
     };
+  }
+
+  async obtenerEstudiantesDeGrupo(grupoId: number) {
+    const estudiantes = await this.prisma.estudiante.findMany({
+      where: { grupo_id: grupoId },
+      select: {
+        id: true,
+        cu: true,
+        carrera: true,
+        proyecto_id: true,
+        proyecto: {
+          select: {
+            titulo: true,
+          },
+        },
+        usuario: {
+          select: {
+            nombre: true,
+            apellido: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return estudiantes.map(est => ({
+      id: est.id,
+      nombre_completo: `${est.usuario.nombre} ${est.usuario.apellido}`,
+      carrera: est.carrera,
+      cu: est.cu,
+      correo: est.usuario.email,
+      proyecto_id: est.proyecto_id,
+      titulo_proyecto: est.proyecto?.titulo || null,
+    }));
   }
 }

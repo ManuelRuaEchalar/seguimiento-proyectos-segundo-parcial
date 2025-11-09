@@ -84,26 +84,23 @@ export class GrupoController {
 
     return this.grupoService.unirseAGrupoGrado2(user.id, grupoId);
   }
-}
 
-// ✅ Obtener estudiantes de un grupo
-@Get(':id/estudiantes')
-@UseGuards(JwtGuard)
-async obtenerEstudiantesDeGrupo(
-  @Req() req: Request,
-  @Param('id', ParseIntPipe) grupoId: number,
-) {
-  const user = req.user as { id: number; email: string; rol: string };
+  // ✅ Obtener estudiantes de un grupo
+  @Get(':id/estudiantes')
+  @UseGuards(JwtGuard)
+  async obtenerEstudiantesDeGrupo(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) grupoId: number,
+  ) {
+    const user = req.user as { id: number; email: string; rol: string };
 
-  if (user.rol !== 'docente') {
-    throw new HttpException(
-      'Solo los docentes pueden ver los estudiantes del grupo',
-      HttpStatus.FORBIDDEN,
-    );
+    if (user.rol !== 'docente') {
+      throw new HttpException(
+        'Solo los docentes pueden ver los estudiantes del grupo',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return this.grupoService.obtenerEstudiantesDeGrupo(grupoId);
   }
-
-  return this.grupoService.obtenerEstudiantesDeGrupo(grupoId);
-}
-
-
 }
