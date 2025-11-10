@@ -625,3 +625,260 @@
   cursor: not-allowed;
   background-color: #ccc;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .finalCard {
+    margin-bottom: 20px;
+  }
+  
+  .finalLeft,
+  .finalRight {
+    padding: 20px;
+  }
+  
+  .finalTitle {
+    font-size: 18px;
+  }
+  
+  .finalNote {
+    font-size: 13px;
+    padding: 10px;
+  }
+  
+  .viewBtn,
+  .toggleEstadoBtn,
+  .uploadFinalBtn {
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+  
+  .estadoAviso {
+    font-size: 12px;
+  }
+  
+  .tag {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  
+  .finalMeta {
+    font-size: 14px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .finalCard {
+    margin-bottom: 16px;
+    border-radius: 6px;
+  }
+  
+  .finalLeft,
+  .finalRight {
+    padding: 16px;
+  }
+  
+  .finalHeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .finalTitle {
+    font-size: 16px;
+  }
+  
+  .finalNote {
+    font-size: 12px;
+    padding: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .finalButtons {
+    gap: 8px;
+    flex-direction: column;
+  }
+  
+  .viewBtn,
+  .toggleEstadoBtn,
+  .uploadFinalBtn {
+    padding: 6px 16px;
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .estadoAviso {
+    font-size: 11px;
+    text-align: center;
+  }
+  
+  .tag {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+  
+  .finalMeta {
+    font-size: 13px;
+  }
+  
+  /* Modal mobile */
+  .modalContent {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modalHeader {
+    padding: 16px 20px;
+  }
+  
+  .modalHeader h2 {
+    font-size: 18px;
+  }
+  
+  .closeModal {
+    font-size: 24px;
+  }
+  
+  .submissionForm {
+    padding: 16px;
+  }
+  
+  .formGroup {
+    margin-bottom: 16px;
+  }
+  
+  .formGroup label {
+    font-size: 13px;
+  }
+  
+  .formGroup input[type="text"] {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .fileInputWrapper {
+    padding: 16px;
+  }
+  
+  .fileName {
+    font-size: 13px;
+  }
+  
+  .tagsContainer {
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .tagCheckbox {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .addTagBtn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  
+  .crearTagForm {
+    padding: 14px;
+  }
+  
+  .crearTagInput {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .crearTagButtons {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .crearTagCancelBtn,
+  .crearTagSubmitBtn {
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .modalFooter {
+    margin-top: 20px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .cancelBtn,
+  .submitBtn {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .errorMessage {
+    font-size: 13px;
+    padding: 10px;
+  }
+  
+  /* Confirmation modal mobile */
+  .modalContent.confirmation {
+    padding: 30px 20px;
+  }
+  
+  .successIcon {
+    width: 60px;
+    height: 60px;
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+  
+  .modalContent.confirmation h2 {
+    font-size: 20px;
+  }
+  
+  .modalContent.confirmation p {
+    font-size: 14px;
+  }
+  
+  .okBtn {
+    padding: 10px 24px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .finalLeft,
+  .finalRight {
+    padding: 12px;
+  }
+  
+  .finalTitle {
+    font-size: 15px;
+  }
+  
+  .viewBtn,
+  .toggleEstadoBtn,
+  .uploadFinalBtn {
+    padding: 5px 12px;
+    font-size: 11px;
+  }
+  
+  .modalContent {
+    margin: 5px;
+  }
+  
+  .modalHeader {
+    padding: 14px 16px;
+  }
+  
+  .modalHeader h2 {
+    font-size: 16px;
+  }
+  
+  .submissionForm {
+    padding: 14px;
+  }
+}

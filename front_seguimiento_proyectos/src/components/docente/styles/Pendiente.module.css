@@ -82,3 +82,125 @@
   margin: 2px 0;
   font-size: 13px;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .pendiente {
+    margin-bottom: 10px;
+    border-radius: 6px;
+  }
+  
+  .leftSection,
+  .rightSection {
+    padding: 14px 20px;
+  }
+  
+  .title {
+    font-size: 16px;
+  }
+  
+  .button {
+    padding: 5px 14px;
+    font-size: 13px;
+  }
+  
+  .studentName {
+    font-size: 14px;
+  }
+  
+  .carrera,
+  .cu {
+    font-size: 12px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .pendiente {
+    flex-direction: column;
+    margin-bottom: 8px;
+    border-radius: 4px;
+  }
+  
+  .leftSection,
+  .rightSection {
+    flex: none;
+    width: 100%;
+    padding: 12px 16px;
+  }
+  
+  .leftSection {
+    order: 2;
+  }
+  
+  .rightSection {
+    order: 1;
+    background-color: #2d3748;
+  }
+  
+  .titleContainer {
+    margin-bottom: 6px;
+  }
+  
+  .title {
+    font-size: 15px;
+  }
+  
+  .button {
+    padding: 4px 12px;
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .studentName {
+    font-size: 13px;
+  }
+  
+  .carrera,
+  .cu {
+    font-size: 11px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .leftSection,
+  .rightSection {
+    padding: 10px 12px;
+  }
+  
+  .title {
+    font-size: 14px;
+  }
+  
+  .button {
+    padding: 3px 10px;
+    font-size: 11px;
+  }
+  
+  .studentName {
+    font-size: 12px;
+  }
+  
+  .carrera,
+  .cu {
+    font-size: 10px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .pendiente {
+    transition: none;
+  }
+  
+  .leftSection {
+    transition: none;
+  }
+  
+  .button:hover {
+    transition: none;
+  }
+}

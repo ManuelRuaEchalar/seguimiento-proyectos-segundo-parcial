@@ -510,3 +510,269 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .navbar {
+    padding: 12px 20px;
+    gap: 20px;
+  }
+  
+  .navbarWrapper .navbar {
+    padding: 10px 20px 3px 20px;
+    min-height: 90px;
+  }
+  
+  .iconButton {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .buttonIcon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .teacherName,
+  .studentName {
+    font-size: 16px;
+  }
+  
+  .teacherEmail,
+  .studentDetails {
+    font-size: 13px;
+  }
+  
+  .activityTitle {
+    font-size: 16px;
+  }
+  
+  .tag {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+  
+  .closeActivityBtn {
+    padding: 6px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .navbar {
+    padding: 10px 16px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  
+  .navbarWrapper .navbar {
+    padding: 8px 16px 3px 16px;
+    min-height: 80px;
+  }
+  
+  .backButton {
+    top: 12px;
+    left: 12px;
+    padding: 6px;
+  }
+  
+  .backIcon {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .buttonsGroup {
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+  
+  .iconButton {
+    padding: 5px 10px;
+    font-size: 12px;
+    gap: 6px;
+  }
+  
+  .buttonIcon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .teacherInfo,
+  .studentInfo {
+    gap: 8px;
+  }
+  
+  .teacherName,
+  .studentName {
+    font-size: 14px;
+  }
+  
+  .teacherEmail,
+  .studentDetails {
+    font-size: 12px;
+  }
+  
+  .logoutIcon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .navbarCenterActividad {
+    min-height: 80px;
+    gap: 6px;
+  }
+  
+  .activityTitle {
+    font-size: 14px;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .activityStatus {
+    font-size: 11px;
+    padding: 2px 6px;
+    margin-left: 0;
+  }
+  
+  .tag {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  
+  .closeActivityBtn {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+  
+  /* Modal mobile */
+  .modalContent {
+    padding: 20px;
+    margin: 1rem;
+  }
+  
+  .modalTitle {
+    font-size: 18px;
+  }
+  
+  .modalText {
+    font-size: 14px;
+  }
+  
+  .modalButtons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .modalCancelBtn,
+  .modalConfirmBtn {
+    width: 100%;
+    padding: 8px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 8px 12px;
+    gap: 12px;
+  }
+  
+  .navbarWrapper .navbar {
+    padding: 6px 12px 3px 12px;
+    min-height: 70px;
+  }
+  
+  .backButton {
+    top: 8px;
+    left: 8px;
+  }
+  
+  .buttonsGroup {
+    gap: 6px;
+  }
+  
+  .iconButton {
+    padding: 4px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  
+  .buttonIcon {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .teacherContent,
+  .studentContent {
+    text-align: center;
+  }
+  
+  .teacherName,
+  .studentName {
+    font-size: 13px;
+  }
+  
+  .teacherEmail,
+  .studentDetails {
+    font-size: 11px;
+  }
+  
+  .logoutIcon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .navbarCenterActividad {
+    min-height: 70px;
+  }
+  
+  .activityTitle {
+    font-size: 13px;
+  }
+  
+  .activityStatus {
+    font-size: 10px;
+  }
+  
+  .tag {
+    font-size: 10px;
+  }
+  
+  .closeActivityBtn {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+  
+  .modalContent {
+    padding: 16px;
+    margin: 0.5rem;
+  }
+  
+  .modalTitle {
+    font-size: 16px;
+  }
+  
+  .modalText {
+    font-size: 13px;
+  }
+}
+
+/* Navbar para actividades en mobile */
+@media (max-width: 767px) {
+  .navbar:not(.navbarWrapper .navbar) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .navbarLeft,
+  .navbarRight {
+    justify-content: center;
+  }
+  
+  .navbarCenter {
+    order: -1;
+  }
+}

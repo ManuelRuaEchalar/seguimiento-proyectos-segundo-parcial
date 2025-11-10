@@ -70,3 +70,86 @@
     background-color: var(--azul);
     color: var(--blanco);
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .calendarSection {
+    padding: 14px;
+  }
+  
+  .calendarTitle {
+    font-size: 15px;
+  }
+  
+  .calendarNavBtn {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+  
+  .calendarDayHeader {
+    font-size: 11px;
+    padding: 3px;
+  }
+  
+  .calendarDay {
+    padding: 6px 3px;
+    font-size: 11px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .calendarSection {
+    padding: 12px;
+  }
+  
+  .calendarHeader {
+    margin-bottom: 12px;
+  }
+  
+  .calendarTitle {
+    font-size: 14px;
+  }
+  
+  .calendarNav {
+    gap: 6px;
+  }
+  
+  .calendarNavBtn {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+  
+  .calendarGrid {
+    gap: 3px;
+  }
+  
+  .calendarDayHeader {
+    font-size: 10px;
+    padding: 2px;
+  }
+  
+  .calendarDay {
+    padding: 4px 2px;
+    font-size: 10px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .calendarSection {
+    padding: 10px;
+  }
+  
+  .calendarTitle {
+    font-size: 13px;
+  }
+  
+  .calendarDay {
+    padding: 3px 1px;
+    font-size: 9px;
+  }
+}

@@ -97,3 +97,141 @@
     margin-top: 0.5rem;
     text-align: center;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .dateSelector {
+    min-width: 280px;
+    max-width: 400px;
+    margin: 0.875rem auto;
+  }
+  
+  .dateCard {
+    padding: 0.7rem 0.9rem;
+  }
+  
+  .dateTitle {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .dateInputs {
+    gap: 0.5rem;
+  }
+  
+  .dateInputGroup label {
+    font-size: 0.7rem;
+  }
+  
+  .dateInput {
+    padding: 4px 5px;
+    font-size: 0.75rem;
+  }
+  
+  .dateButton {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .dateSelector {
+    min-width: 100%;
+    max-width: 100%;
+    margin: 0.75rem auto;
+  }
+  
+  .dateCard {
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+  }
+  
+  .dateTitle {
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .dateInputs {
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: stretch;
+  }
+  
+  .dateInputGroup {
+    width: 100%;
+  }
+  
+  .dateInputGroup label {
+    font-size: 0.65rem;
+  }
+  
+  .dateInput {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    width: 100%;
+  }
+  
+  .dateButton {
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+  }
+  
+  .error {
+    font-size: 0.7rem;
+    margin-top: 0.4rem;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .dateCard {
+    padding: 0.5rem 0.6rem;
+  }
+  
+  .dateTitle {
+    font-size: 0.75rem;
+  }
+  
+  .dateInput {
+    padding: 5px 6px;
+    font-size: 0.75rem;
+  }
+  
+  .dateButton {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 374px) {
+  .dateCard {
+    padding: 0.4rem 0.5rem;
+  }
+  
+  .dateInputs {
+    gap: 0.3rem;
+  }
+  
+  .dateInput {
+    padding: 4px 5px;
+    font-size: 0.7rem;
+  }
+  
+  .dateButton {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .dateInput,
+  .dateButton {
+    transition: none;
+  }
+}

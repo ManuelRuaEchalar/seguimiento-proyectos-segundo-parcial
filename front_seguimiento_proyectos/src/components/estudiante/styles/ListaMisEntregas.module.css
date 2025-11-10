@@ -22,3 +22,61 @@
   font-size: 14px;
   opacity: 0.7;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .listaEntregas {
+    gap: 1rem;
+  }
+  
+  .emptyState {
+    padding: 2rem 1.5rem;
+  }
+  
+  .emptyState p {
+    font-size: 15px;
+  }
+  
+  .emptyHint {
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .listaEntregas {
+    gap: 0.75rem;
+  }
+  
+  .emptyState {
+    padding: 1.5rem 1rem;
+    margin: 0 0.5rem;
+  }
+  
+  .emptyState p {
+    font-size: 14px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .emptyHint {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .emptyState {
+    padding: 1rem;
+    border-radius: 6px;
+  }
+  
+  .emptyState p {
+    font-size: 13px;
+  }
+  
+  .emptyHint {
+    font-size: 11px;
+  }
+}

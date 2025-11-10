@@ -178,3 +178,168 @@
   padding-left: 132px;
   background: #f0f0f0;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .hiloCompleto {
+    margin-bottom: 1.5rem;
+  }
+  
+  .item {
+    padding: 1.25rem;
+  }
+  
+  .headerLinea {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .tipoDoc {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .nivel-1 {
+    padding-left: 2rem;
+  }
+  
+  .nivel-2 {
+    padding-left: 3rem;
+  }
+  
+  .nivel-3 {
+    padding-left: 4rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .hiloCompleto {
+    margin-bottom: 1rem;
+    border-radius: 6px;
+  }
+  
+  .item {
+    padding: 1rem;
+  }
+  
+  .tipoDoc {
+    font-size: 12px;
+  }
+  
+  .docBadge {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+  
+  .estadoChip {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+  
+  .textoPrincipal {
+    font-size: 13px;
+  }
+  
+  .comentario {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  
+  .toggleBtn {
+    margin: 0.5rem 1rem;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .nivel-1 {
+    padding-left: 1.5rem;
+  }
+  
+  .nivel-2 {
+    padding-left: 2.5rem;
+  }
+  
+  .nivel-3 {
+    padding-left: 3.5rem;
+  }
+  
+  .emptyState {
+    padding: 2rem 1rem;
+    font-size: 14px;
+  }
+}
+
+/* Mobile Pequeño */
+@media (max-width: 480px) {
+  .item {
+    padding: 0.75rem;
+  }
+  
+  .headerLinea {
+    gap: 0.25rem;
+  }
+  
+  .tipoDoc {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .docBadge {
+    font-size: 10px;
+  }
+  
+  .estadoChip {
+    align-self: flex-start;
+  }
+  
+  .textoPrincipal {
+    font-size: 12px;
+  }
+  
+  .comentario {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .toggleBtn {
+    margin: 0.5rem;
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+  
+  .nivel-1 {
+    padding-left: 1rem;
+  }
+  
+  .nivel-2 {
+    padding-left: 2rem;
+  }
+  
+  .nivel-3 {
+    padding-left: 3rem;
+  }
+  
+  .emptyState {
+    padding: 1.5rem 1rem;
+    font-size: 13px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+  
+  .toggleBtn {
+    transition: none;
+  }
+}

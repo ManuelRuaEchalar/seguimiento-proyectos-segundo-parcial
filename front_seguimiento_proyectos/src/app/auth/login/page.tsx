@@ -43,8 +43,8 @@ export default function LoginPage() {
           <Image
             src="/usfx.png"
             alt="Logo USFX"
-            width={120}
-            height={120}
+            width={160}
+            height={160}
             priority
             style={{ cursor: 'pointer' }}
           />

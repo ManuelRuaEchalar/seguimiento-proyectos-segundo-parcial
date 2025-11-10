@@ -17,3 +17,55 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 16px;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .groupsSection {
+    padding: 14px;
+    border-radius: 6px;
+  }
+  
+  .sectionTitle {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+  
+  .groupsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .groupsSection {
+    padding: 12px;
+    border-radius: 4px;
+  }
+  
+  .sectionTitle {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  
+  .groupsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .groupsSection {
+    padding: 10px;
+  }
+  
+  .sectionTitle {
+    font-size: 14px;
+  }
+  
+  .groupsGrid {
+    gap: 10px;
+  }
+}

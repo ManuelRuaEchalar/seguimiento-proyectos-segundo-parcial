@@ -163,3 +163,140 @@
     max-width: 100%;
   }
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .requestsSection {
+    max-width: 100%;
+  }
+  
+  .sectionTitle {
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+  
+  .requestItem {
+    padding: 10px 14px;
+  }
+  
+  .requestTitle {
+    font-size: 13px;
+  }
+  
+  .requestDate {
+    font-size: 10px;
+  }
+  
+  .requestMessage {
+    font-size: 12px;
+  }
+  
+  .statusLabel,
+  .statusValue {
+    font-size: 10px;
+  }
+  
+  .acceptBtn,
+  .rejectBtn {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  
+  .emptyState {
+    padding: 32px 16px;
+  }
+  
+  .emptyState p {
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .sectionTitle {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .requestItem {
+    padding: 8px 12px;
+  }
+  
+  .requestHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  
+  .requestTitle {
+    font-size: 12px;
+  }
+  
+  .requestDate {
+    font-size: 9px;
+  }
+  
+  .requestMessage {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  
+  .requestStatus {
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  
+  .statusItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  
+  .statusLabel,
+  .statusValue {
+    font-size: 9px;
+  }
+  
+  .requestActions {
+    justify-content: flex-start;
+  }
+  
+  .acceptBtn,
+  .rejectBtn {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+  
+  .emptyState {
+    padding: 24px 12px;
+  }
+  
+  .emptyState p {
+    font-size: 12px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .requestItem {
+    padding: 6px 10px;
+  }
+  
+  .requestTitle {
+    font-size: 11px;
+  }
+  
+  .requestMessage {
+    font-size: 10px;
+  }
+  
+  .emptyState {
+    padding: 20px 10px;
+  }
+  
+  .emptyState p {
+    font-size: 11px;
+  }
+}

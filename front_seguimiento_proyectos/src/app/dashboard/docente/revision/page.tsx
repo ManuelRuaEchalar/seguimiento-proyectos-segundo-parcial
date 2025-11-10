@@ -467,7 +467,6 @@ export default function RevisionDocentePage() {
                 <VisualizadorPDF
                   blob={secondBlob}
                   observaciones={secondObservaciones ?? []}
-                  correcciones={secondCorrecciones ?? []}
                   doc_actual_id={infoProyecto.codigoDoc}
                   infoProyecto={secondInfoProyecto}
                   selectedObservation={selectedObservation}

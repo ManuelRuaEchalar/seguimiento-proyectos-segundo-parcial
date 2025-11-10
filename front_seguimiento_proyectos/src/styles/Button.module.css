@@ -16,3 +16,38 @@
   background-color: #9ca3af;
   cursor: not-allowed;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet (768px - 1023px) */
+@media (max-width: 1023px) {
+  .button {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Mobile Grande (576px - 767px) */
+@media (max-width: 767px) {
+  .button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Mobile Pequeño (< 576px) */
+@media (max-width: 575px) {
+  .button {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Pantallas muy pequeñas (< 375px) */
+@media (max-width: 374px) {
+  .button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}

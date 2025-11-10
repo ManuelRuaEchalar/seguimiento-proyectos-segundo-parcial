@@ -38,3 +38,60 @@
     font-size: 20px;
   }
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .sectionTitle {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  
+  .emptyState {
+    padding: 32px 20px;
+  }
+  
+  .emptyState p:last-child {
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .sectionTitle {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .emptyState {
+    padding: 24px 16px;
+    border-radius: 6px;
+  }
+  
+  .emptyState p {
+    font-size: 14px;
+  }
+  
+  .emptyState p:last-child {
+    font-size: 12px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .sectionTitle {
+    font-size: 18px;
+  }
+  
+  .emptyState {
+    padding: 20px 12px;
+  }
+  
+  .emptyState p {
+    font-size: 13px;
+  }
+  
+  .emptyState p:last-child {
+    font-size: 11px;
+  }
+}

@@ -58,3 +58,156 @@
 .loading {
   padding: 2rem;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet (768px - 1023px) */
+@media (max-width: 1023px) {
+  .main {
+    padding: 1.5rem;
+  }
+  
+  .headerContent {
+    padding: 0 1rem;
+  }
+  
+  .headerTitle {
+    font-size: 1.35rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.15rem;
+  }
+  
+  .table {
+    font-size: 0.95rem;
+  }
+  
+  .tableCell {
+    padding: 0.45rem 0.4rem;
+  }
+}
+
+/* Mobile Grande (576px - 767px) */
+@media (max-width: 767px) {
+  .main {
+    padding: 1rem;
+  }
+  
+  .header {
+    padding: 0.875rem 1rem;
+  }
+  
+  .headerTitle {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+  
+  .sectionTitle {
+    font-size: 1.1rem;
+    margin-bottom: 0.875rem;
+  }
+  
+  .tableContainer {
+    overflow-x: auto;
+  }
+  
+  .table {
+    min-width: 600px;
+    font-size: 0.9rem;
+  }
+  
+  .tableCell {
+    padding: 0.4rem 0.35rem;
+  }
+  
+  .unauthorized {
+    padding: 1.5rem;
+    text-align: center;
+  }
+  
+  .unauthorizedTitle {
+    font-size: 1.35rem;
+  }
+  
+  .loading {
+    padding: 1.5rem;
+    text-align: center;
+  }
+}
+
+/* Mobile Pequeño (< 576px) */
+@media (max-width: 575px) {
+  .main {
+    padding: 0.75rem;
+  }
+  
+  .header {
+    padding: 0.75rem;
+  }
+  
+  .headerTitle {
+    font-size: 1.1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .table {
+    min-width: 550px;
+    font-size: 0.85rem;
+  }
+  
+  .tableCell {
+    padding: 0.35rem 0.3rem;
+  }
+  
+  .unauthorized {
+    padding: 1rem;
+  }
+  
+  .unauthorizedTitle {
+    font-size: 1.25rem;
+  }
+  
+  .loading {
+    padding: 1rem;
+  }
+}
+
+/* Pantallas muy pequeñas (< 375px) */
+@media (max-width: 374px) {
+  .main {
+    padding: 0.5rem;
+  }
+  
+  .header {
+    padding: 0.625rem;
+  }
+  
+  .headerTitle {
+    font-size: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 0.95rem;
+  }
+  
+  .table {
+    min-width: 500px;
+    font-size: 0.8rem;
+  }
+  
+  .tableCell {
+    padding: 0.3rem 0.25rem;
+  }
+  
+  .unauthorized {
+    padding: 0.75rem;
+  }
+  
+  .unauthorizedTitle {
+    font-size: 1.1rem;
+  }
+}

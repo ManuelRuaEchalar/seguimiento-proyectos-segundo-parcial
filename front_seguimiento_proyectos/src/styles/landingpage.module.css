@@ -55,3 +55,53 @@
   color: #6b7280;
   margin-right: 8px;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 1199px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 48px 200px;
+    text-align: center;
+    gap: 24px;
+  }
+  
+  .heroImage {
+    order: -1;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .hero {
+    padding: 32px 1rem;
+  }
+  
+  .heroTitle {
+    font-size: 28px;
+  }
+  
+  .heroSubtitle {
+    font-size: 14px;
+  }
+  
+  .searchBar {
+    width: 100%;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .hero {
+    padding: 24px 1rem;
+  }
+  
+  .heroTitle {
+    font-size: 24px;
+  }
+  
+  .heroImage img {
+    width: 280px;
+    height: auto;
+  }
+}

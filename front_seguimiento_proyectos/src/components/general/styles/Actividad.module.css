@@ -460,3 +460,239 @@
     padding: 20px;
   }
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .activityCard {
+    margin-bottom: 12px;
+  }
+  
+  .activityLeft,
+  .activityRight {
+    padding: 16px;
+  }
+  
+  .activityTitle {
+    font-size: 16px;
+  }
+  
+  .activityStatus,
+  .activityStatusActual {
+    font-size: 13px;
+  }
+  
+  .activityDate {
+    font-size: 12px;
+  }
+  
+  .viewBtn,
+  .closeActivityBtn,
+  .newSubmissionBtn {
+    padding: 6px 16px;
+    font-size: 13px;
+  }
+  
+  .tag {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  
+  .activityMeta {
+    font-size: 12px;
+  }
+  
+  .activityMeta.number {
+    font-size: 14px;
+  }
+  
+  .activityDescription {
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .activityCard {
+    margin-bottom: 10px;
+    border-radius: 6px;
+  }
+  
+  .activityLeft,
+  .activityRight {
+    padding: 14px;
+  }
+  
+  .activityHeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  
+  .activityTitle {
+    font-size: 15px;
+  }
+  
+  .activityStatus,
+  .activityStatusActual {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  
+  .activityDate {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  
+  .activityButtons {
+    gap: 8px;
+  }
+  
+  .viewBtn,
+  .closeActivityBtn,
+  .newSubmissionBtn {
+    padding: 5px 12px;
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .tag {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  
+  .activityMeta {
+    font-size: 11px;
+  }
+  
+  .activityMeta.number {
+    font-size: 13px;
+  }
+  
+  .activityDescription {
+    font-size: 12px;
+  }
+  
+  /* Modal mobile */
+  .modalContent {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modalHeader {
+    padding: 16px 20px;
+  }
+  
+  .modalHeader h2 {
+    font-size: 18px;
+  }
+  
+  .closeModal {
+    font-size: 24px;
+  }
+  
+  .submissionForm {
+    padding: 16px;
+  }
+  
+  .formGroup {
+    margin-bottom: 16px;
+  }
+  
+  .formGroup label {
+    font-size: 13px;
+  }
+  
+  .formGroup input[type="text"] {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .fileInputWrapper {
+    padding: 16px;
+  }
+  
+  .fileName {
+    font-size: 13px;
+  }
+  
+  .modalFooter {
+    margin-top: 20px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .cancelBtn,
+  .submitBtn {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .errorMessage {
+    font-size: 13px;
+    padding: 8px;
+  }
+  
+  /* Confirmation modal mobile */
+  .modalContent.confirmation {
+    padding: 30px 20px;
+  }
+  
+  .successIcon {
+    width: 60px;
+    height: 60px;
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+  
+  .modalContent.confirmation h2 {
+    font-size: 20px;
+  }
+  
+  .modalContent.confirmation p {
+    font-size: 14px;
+  }
+  
+  .okBtn {
+    padding: 10px 24px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .activityLeft,
+  .activityRight {
+    padding: 12px;
+  }
+  
+  .activityTitle {
+    font-size: 14px;
+  }
+  
+  .viewBtn,
+  .closeActivityBtn,
+  .newSubmissionBtn {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+  
+  .modalContent {
+    margin: 5px;
+  }
+  
+  .modalHeader {
+    padding: 14px 16px;
+  }
+  
+  .modalHeader h2 {
+    font-size: 16px;
+  }
+  
+  .submissionForm {
+    padding: 14px;
+  }
+}

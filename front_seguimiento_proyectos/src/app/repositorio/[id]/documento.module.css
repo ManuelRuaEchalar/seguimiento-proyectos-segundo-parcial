@@ -1,5 +1,4 @@
-/* Use global color variables from `globals.css`. */
-/* Removed local CSS variables so this module uses the project's global palette. */
+/* documento.module.css */
 
 /* === Container === */
 .container {
@@ -7,197 +6,297 @@
   background: var(--color-background);
   display: flex;
   flex-direction: column;
-  background: var(--color-bg);
+}
 
-  /* === Header === */
-  .header {
-    background: var(--color-white);
-    border-bottom: 2px solid var(--color-border);
-    padding: 1.5rem 2rem;
-    background: var(--white);
-    border-bottom: 2px solid var(--plata);
-    gap: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+/* === Viewer Container === */
+.viewerContainer {
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+  position: relative;
+}
+
+/* === Loading State === */
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  padding: 2rem;
+}
+
+.loadingSpinner {
+  width: 64px;
+  height: 64px;
+  border: 4px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loadingText {
+  margin-top: 1.5rem;
+  color: var(--color-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* === Error State === */
+.errorContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  padding: 2rem;
+}
+
+.errorContent {
+  background: var(--white);
+  border-radius: 12px;
+  border: 2px solid var(--color-error);
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.errorIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.errorTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 1rem 0;
+}
+
+.errorMessage {
+  color: var(--color-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+}
+
+.backButton {
+  background: var(--color-primary);
+  color: var(--white);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 200px;
+}
+
+.backButton:hover {
+  background: var(--color-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* === Animations === */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
+}
 
-  .backBtn {
-    background: transparent;
-    border: 2px solid var(--color-primary);
-    color: var(--color-primary);
-    padding: 0.625rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-  }
+/* === RESPONSIVE DESIGN === */
 
-  .backBtn:hover {
-    background: var(--color-primary);
-    color: var(--white);
-    transform: translateX(-4px);
-  }
-
-  .headerTitle {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    margin: 0;
-  }
-
-  /* === Viewer Container === */
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
   .viewerContainer {
-    flex: 1;
-    width: 100%;
-    height: calc(100vh - 80px);
-    overflow: hidden;
+    height: calc(100vh - 70px);
   }
-
-  /* === Loading State === */
-  .loadingContainer {
-    background: var(--color-bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-background);
-    border: 4px solid var(--plata);
-
-    .loadingSpinner {
-      width: 64px;
-      height: 64px;
-      border: 4px solid var(--color-border);
-      border-top-color: var(--color-primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    .loadingText {
-      margin-top: 1.5rem;
-      color: var(--color-primary);
-      font-size: 1.125rem;
-      font-weight: 600;
-    }
-
-    /* === Error State === */
-    background: var(--color-bg);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--background);
-    padding: 2rem;
-  }
-
+  
   .errorContent {
-    background: var(--white);
-    border-radius: 12px;
-    border: 2px solid var(--rechazado);
-    max-width: 500px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    border: 2px solid var(--color-error);
+    padding: 1.5rem;
+    margin: 1rem;
   }
-
-  .errorIcon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-
+  
   .errorTitle {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
   }
-
-  .errorMessage {
-    color: var(--color-muted);
+  
+  .loadingText {
     font-size: 1rem;
-    line-height: 1.6;
-    margin: 0 0 2rem 0;
+    padding: 0 1rem;
   }
+}
 
-  .backButton {
-    background: var(--color-primary);
-    color: var(--white);
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    border: none;
-    font-weight: 600;
+/* Mobile Grande (576px - 767px) */
+@media (max-width: 767px) {
+  .viewerContainer {
+    height: calc(100vh - 60px);
+  }
+  
+  .loadingContainer {
+    padding: 1rem;
+  }
+  
+  .loadingSpinner {
+    width: 48px;
+    height: 48px;
+    border-width: 3px;
+  }
+  
+  .loadingText {
     font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-top: 1rem;
   }
+  
+  .errorContainer {
+    padding: 1rem;
+  }
+  
+  .errorContent {
+    padding: 1.25rem;
+    margin: 0.5rem;
+  }
+  
+  .errorIcon {
+    font-size: 3rem;
+  }
+  
+  .errorTitle {
+    font-size: 1.25rem;
+  }
+  
+  .errorMessage {
+    font-size: 0.9rem;
+  }
+  
+  .backButton {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
 
+/* Mobile Pequeño (hasta 575px) */
+@media (max-width: 575px) {
+  .viewerContainer {
+    height: calc(100vh - 55px);
+  }
+  
+  .loadingContainer {
+    padding: 0.5rem;
+  }
+  
+  .loadingSpinner {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .loadingText {
+    font-size: 0.875rem;
+    margin-top: 0.75rem;
+    padding: 0 0.5rem;
+  }
+  
+  .errorContainer {
+    padding: 0.5rem;
+  }
+  
+  .errorContent {
+    padding: 1rem;
+  }
+  
+  .errorIcon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .errorTitle {
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .errorMessage {
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .backButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    max-width: 180px;
+  }
+}
+
+/* Orientación landscape en móviles */
+@media (max-width: 767px) and (orientation: landscape) {
+  .viewerContainer {
+    height: calc(100vh - 50px);
+  }
+  
+  .loadingContainer,
+  .errorContainer {
+    padding: 0.5rem;
+  }
+  
+  .loadingSpinner {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .loadingText {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Mejoras de alto contraste para accesibilidad */
+@media (prefers-contrast: high) {
+  .backButton {
+    border: 2px solid currentColor;
+  }
+  
+  .loadingSpinner {
+    border-color: var(--color-border);
+    border-top-color: currentColor;
+  }
+}
+
+/* Modo oscuro (si tu aplicación lo soporta) */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background: var(--color-bg-dark);
+  }
+  
+  .loadingContainer,
+  .errorContainer {
+    background: var(--color-bg-dark);
+  }
+  
+  .errorContent {
+    background: var(--color-surface-dark);
+    color: var(--color-text-dark);
+  }
+  
+  .loadingText {
+    color: var(--color-text-dark);
+  }
+}
+
+/* Accesibilidad - reducir animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .loadingSpinner {
+    animation: none;
+  }
+  
   .backButton:hover {
-    background: var(--color-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  }
-
-  /* === Animations === */
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* === Responsive === */
-  @media (max-width: 968px) {
-    .header {
-      padding: 1rem 1.5rem;
-    }
-
-    .headerTitle {
-      font-size: 1.25rem;
-    }
-
-    .viewerContainer {
-      height: calc(100vh - 70px);
-    }
-  }
-
-  @media (max-width: 640px) {
-    .header {
-      padding: 1rem;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.75rem;
-    }
-
-    .headerTitle {
-      font-size: 1.125rem;
-    }
-
-    .backBtn {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .viewerContainer {
-      flex: 1;
-      width: 100%;
-      height: calc(100vh - 80px); /* Altura completa menos el header */
-      overflow: hidden;
-    }
-  }
-
-  /* === Accesibilidad === */
-  @media (prefers-reduced-motion: reduce) {
-    .loadingSpinner,
-    .backBtn:hover,
-    .backButton:hover {
-      animation: none;
-      transform: none;
-    }
+    transform: none;
   }
 }

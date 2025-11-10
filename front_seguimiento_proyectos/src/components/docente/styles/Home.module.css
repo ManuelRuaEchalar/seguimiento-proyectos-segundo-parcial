@@ -28,3 +28,73 @@
     flex-direction: column;
     gap: 24px;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .container {
+    padding: 20px;
+  }
+  
+  .welcomeTitle {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .contentLayout {
+    gap: 20px;
+  }
+  
+  .leftColumn,
+  .rightColumn {
+    gap: 20px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .welcomeTitle {
+    font-size: 22px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  
+  .contentLayout {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .leftColumn,
+  .rightColumn {
+    flex: none;
+    width: 100%;
+    gap: 16px;
+  }
+  
+  .leftColumn {
+    order: 1;
+  }
+  
+  .rightColumn {
+    order: 2;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .welcomeTitle {
+    font-size: 20px;
+  }
+  
+  .contentLayout {
+    gap: 12px;
+  }
+}

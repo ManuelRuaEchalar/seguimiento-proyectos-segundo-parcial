@@ -11,7 +11,7 @@ import {
 
 interface UseHighlightManagementProps {
   observaciones: Observacion[] | null;
-  correcciones: any[] | null;
+  correcciones?: any[] | null;
   infoProyecto: {
     codigoProyecto: number;
     codigoDoc: number;

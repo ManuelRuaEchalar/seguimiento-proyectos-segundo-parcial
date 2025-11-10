@@ -569,3 +569,224 @@
   cursor: not-allowed !important;
   transform: none !important;
 }
+/* === RESPONSIVE STYLES - MEJORADAS === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .navbar {
+    padding: 14px 20px;
+    gap: 20px;
+  }
+  
+  .activityTitle {
+    font-size: 15px;
+  }
+  
+  .documentVersion {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+  
+  .activityMeta {
+    font-size: 13px;
+  }
+  
+  .backButton,
+  .approveButton,
+  .rejectButton,
+  .finishButton {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  
+  .finalBadge {
+    font-size: 11px;
+    padding: 2px 4px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .navbar {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .navbarLeft,
+  .navbarCenter,
+  .navbarRight {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .navbarLeft {
+    order: 1;
+  }
+  
+  .navbarCenter {
+    order: 2;
+    text-align: center;
+  }
+  
+  .navbarRight {
+    order: 3;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .activityTitle {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  
+  .documentVersion {
+    font-size: 11px;
+    padding: 2px 6px;
+    margin-right: 8px;
+  }
+  
+  .activityMeta {
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  
+  .backButton,
+  .approveButton,
+  .rejectButton,
+  .finishButton {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .finalBadge {
+    font-size: 10px;
+  }
+  
+  /* Modal mobile */
+  .modalContent {
+    min-width: 90%;
+    max-width: 90%;
+    margin: 20px;
+  }
+  
+  .modalHeader {
+    padding: 16px 20px;
+  }
+  
+  .modalHeader h3 {
+    font-size: 18px;
+  }
+  
+  .modalBody {
+    padding: 20px;
+  }
+  
+  .modalBody p {
+    font-size: 14px;
+  }
+  
+  .rejectionTextarea {
+    font-size: 14px;
+    min-height: 100px;
+  }
+  
+  .modalFooter {
+    padding: 12px 20px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .modalCancelButton,
+  .modalConfirmButton,
+  .modalRejectButton {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  
+  .activityTitle {
+    font-size: 13px;
+  }
+  
+  .documentVersion {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+  
+  .activityMeta {
+    font-size: 11px;
+  }
+  
+  .backButton,
+  .approveButton,
+  .rejectButton,
+  .finishButton {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .modalContent {
+    margin: 10px;
+  }
+  
+  .modalHeader {
+    padding: 14px 16px;
+  }
+  
+  .modalHeader h3 {
+    font-size: 16px;
+  }
+  
+  .modalBody {
+    padding: 16px;
+  }
+  
+  .modalBody p {
+    font-size: 13px;
+  }
+  
+  .rejectionTextarea {
+    font-size: 13px;
+    min-height: 80px;
+  }
+  
+  .warningText,
+  .infoText {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
+/* Ajustes para botones deshabilitados en mobile */
+@media (max-width: 767px) {
+  .finishButtonDisabled {
+    opacity: 0.5;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .modalOverlay,
+  .modalContent {
+    animation: none;
+  }
+  
+  .backButton:hover,
+  .approveButton:hover,
+  .rejectButton:hover,
+  .finishButton:hover {
+    transform: none;
+  }
+}

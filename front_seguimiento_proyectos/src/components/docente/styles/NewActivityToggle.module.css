@@ -34,3 +34,75 @@
 .newActivityPlusBtn:hover {
   background-color: #272D3A;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .newActivityToggle {
+    margin-bottom: 20px;
+  }
+  
+  .newActivityBtn,
+  .newActivityPlusBtn {
+    padding: 7px 14px;
+    font-size: 13px;
+  }
+  
+  .newActivityPlusBtn {
+    width: 36px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .newActivityToggle {
+    margin-bottom: 16px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .newActivityBtn {
+    flex: none;
+    width: calc(100% - 48px);
+  }
+  
+  .newActivityPlusBtn {
+    width: 40px;
+  }
+  
+  .newActivityBtn,
+  .newActivityPlusBtn {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .newActivityToggle {
+    margin-bottom: 12px;
+  }
+  
+  .newActivityBtn {
+    width: calc(100% - 44px);
+  }
+  
+  .newActivityPlusBtn {
+    width: 36px;
+  }
+  
+  .newActivityBtn,
+  .newActivityPlusBtn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .newActivityBtn:hover,
+  .newActivityPlusBtn:hover {
+    transition: none;
+  }
+}

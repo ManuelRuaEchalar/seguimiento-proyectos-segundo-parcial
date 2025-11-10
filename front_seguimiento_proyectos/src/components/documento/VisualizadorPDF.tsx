@@ -28,7 +28,7 @@ interface VisualizadorPDFProps {
   observaciones: Observacion[] | null;
   observacionesOtrasVersiones?: any[];
   observacionesProyecto?: any[];
-  correcciones: any[] | null;
+  correcciones?: any[] | null;
   infoProyecto: infoProyecto;
   selectedObservation?: any;
   doc_actual_id?: number;

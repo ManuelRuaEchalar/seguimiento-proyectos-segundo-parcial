@@ -3,20 +3,24 @@
   padding: 28px 40px;
   background-color: var(--color-bg);
 }
+
 .topBar {
   padding: 0px 40px;
   margin-bottom: 32px;
 }
+
 .filterRow {
   display: flex;
   gap: 10px;
   align-items: center;
 }
+
 .filterLabel {
   font-size: 13px;
   color: var(--color-primary);
   margin-right: 8px;
 }
+
 .filterSelect {
   padding: 6px 12px;
   border-radius: 999px;
@@ -26,12 +30,129 @@
   color: var(--color-dark);
   box-shadow: 0 2px 6px rgba(16, 24, 40, 0.03);
 }
+
+/* Estilos para filtro de temas */
+.tagsFilterSection {
+  margin-top: 20px;
+}
+
+.tagsFilterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.clearButton {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  background: var(--white);
+  font-size: 12px;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearButton:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.searchInput {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--white);
+  font-size: 13px;
+  color: var(--color-dark);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05);
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.searchInput::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-dark);
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.1);
+}
+
+.tagsContainer {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tagButton {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--white);
+  font-size: 13px;
+  color: var(--color-dark);
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 400;
+}
+
+.tagButton:hover:not(:disabled) {
+  box-shadow: 0 4px 8px rgba(16, 24, 40, 0.08);
+  transform: translateY(-1px);
+}
+
+.tagButtonSelected {
+  background: var(--color-dark);
+  color: var(--white);
+  border: 1px solid var(--color-dark);
+  font-weight: 600;
+}
+
+.tagButtonDisabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.tagsPaginacion {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.verMasButton,
+.verMenosButton {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--white);
+  font-size: 13px;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.verMasButton:hover,
+.verMenosButton:hover {
+  background: var(--color-dark);
+  color: var(--white);
+  border-color: var(--color-dark);
+}
+
 .grid {
   margin: 0 200px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 80px;
 }
+
 .card {
   background: var(--white);
   border-radius: 12px;
@@ -41,38 +162,48 @@
   display: flex;
   flex-direction: column;
 }
+
 .cardHeader {
   background: var(--white);
   padding: 14px 16px;
   border-bottom: 1px solid var(--color-muted);
 }
+
 .cardTitle {
   font-weight: 700;
   font-size: 15px;
   color: var(--color-dark);
   margin: 0;
 }
+
 .cardBody {
   padding: 12px 16px 0 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
 .cardDesc {
   font-size: 12px;
   color: var(--color-primary);
   line-height: 1.4;
   margin: 0;
 }
+
+.advisorContainer {
+  margin-top: 6px;
+}
+
 .meta {
-  /* Hacemos que las badges ocupen todo el espacio de la fila */
   display: block;
   margin-top: 8px;
 }
+
 .advisor {
   font-size: 12px;
   color: var(--color-dark);
 }
+
 .badges {
   display: flex;
   gap: 6px;
@@ -81,6 +212,7 @@
   align-items: center;
   flex-wrap: wrap;
 }
+
 .year {
   background: var(--color-dark);
   color: var(--white);
@@ -88,6 +220,7 @@
   border-radius: 999px;
   font-size: 11px;
 }
+
 .tag {
   background: var(--color-muted);
   padding: 4px 8px;
@@ -95,33 +228,40 @@
   font-size: 11px;
   color: var(--color-dark);
 }
+
 .statusRow {
   margin-top: 4px;
 }
+
 .status {
   font-size: 11px;
   padding: 4px 8px;
   border-radius: 999px;
   font-weight: 500;
 }
+
 .statusPending {
   background: var(--color-accent);
   color: #92400e;
 }
+
 .statusDone {
   background: var(--color-success);
   color: #065f46;
 }
+
 .statusProgress {
   background: #cce3f8;
   color: #0369a1;
 }
+
 .cardFooter {
   margin-top: 12px;
   padding: 16px;
   display: flex;
   justify-content: center;
 }
+
 .viewBtn {
   background: var(--color-dark);
   color: var(--color-bg);
@@ -132,4 +272,69 @@
   width: 100%;
   max-width: 160px;
   font-size: 13px;
+}
+
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 1199px) {
+  .grid {
+    margin: 0 100px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .topBar {
+    padding: 0 1rem;
+  }
+  
+  .grid {
+    margin: 0 1rem;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .filterRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .tagsContainer {
+    justify-content: flex-start;
+  }
+
+  .searchInput {
+    max-width: 100%;
+  }
+
+  .tagsFilterHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .card {
+    margin: 0 0.5rem;
+  }
+
+  .tagsPaginacion {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .verMasButton,
+  .verMenosButton {
+    width: 100%;
+  }
 }

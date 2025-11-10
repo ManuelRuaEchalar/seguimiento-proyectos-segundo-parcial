@@ -250,3 +250,193 @@
     transform: none;
   }
 }
+/* === RESPONSIVE STYLES - MEJORADAS === */
+
+/* Tablet (768px - 968px) */
+@media (max-width: 968px) {
+  .groupsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+  
+  .groupCard {
+    padding: 1.25rem;
+  }
+  
+  .groupName {
+    font-size: 1.35rem;
+  }
+  
+  .alertError {
+    margin: 1.5rem;
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+/* Mobile Grande (576px - 767px) */
+@media (max-width: 767px) {
+  .groupsGrid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .groupCard {
+    padding: 1rem;
+  }
+  
+  .groupName {
+    font-size: 1.25rem;
+  }
+  
+  .groupDocente {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  
+  .groupFooter {
+    margin-bottom: 1rem;
+  }
+  
+  .alertError {
+    margin: 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .joinButton {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Loading States */
+  .loadingContainer {
+    padding: 2rem 1rem;
+  }
+  
+  .loadingSpinner {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .loadingText {
+    font-size: 1rem;
+  }
+  
+  /* Error States */
+  .errorContainer {
+    padding: 1rem;
+  }
+  
+  .errorContent {
+    padding: 2rem 1.5rem;
+  }
+  
+  .errorTitle {
+    font-size: 1.5rem;
+  }
+  
+  .emptyState {
+    padding: 3rem 1rem;
+  }
+  
+  .emptyStateTitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* Mobile Pequeño (< 576px) */
+@media (max-width: 575px) {
+  .groupsGrid {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .groupCard {
+    padding: 0.875rem;
+  }
+  
+  .groupName {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .groupDocente {
+    font-size: 0.85rem;
+    margin-bottom: 0.875rem;
+  }
+  
+  .groupFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.875rem;
+  }
+  
+  .groupGrado, .activeBadge {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.75rem;
+  }
+  
+  .joinButton {
+    padding: 0.625rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .alertError {
+    margin: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.85rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .emptyState {
+    padding: 2rem 1rem;
+  }
+  
+  .emptyStateIcon {
+    font-size: 3rem;
+  }
+  
+  .emptyStateTitle {
+    font-size: 1.1rem;
+  }
+  
+  .emptyStateText {
+    font-size: 0.9rem;
+  }
+}
+
+/* Pantallas muy pequeñas (< 375px) */
+@media (max-width: 374px) {
+  .groupsGrid {
+    padding: 0.5rem;
+  }
+  
+  .groupCard {
+    padding: 0.75rem;
+  }
+  
+  .groupName {
+    font-size: 1rem;
+  }
+  
+  .joinButton {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Mejoras de accesibilidad y rendimiento */
+@media (prefers-reduced-motion: reduce) {
+  .groupCard {
+    transition: none;
+  }
+  
+  .joinButton {
+    transition: none;
+  }
+}

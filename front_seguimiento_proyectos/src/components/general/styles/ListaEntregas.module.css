@@ -83,3 +83,127 @@
   color: var(--carbon);
   font-size: 16px;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .entregasContainer {
+    padding: 20px;
+  }
+  
+  .sectionTitle {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .toggleOption {
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+  
+  .cicloTitle {
+    font-size: 18px;
+    padding: 10px 16px;
+    margin-top: 28px;
+    margin-bottom: 14px;
+  }
+  
+  .cicloIcon {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .emptyState {
+    padding: 40px 20px;
+  }
+  
+  .emptyState p {
+    font-size: 15px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .entregasContainer {
+    padding: 16px;
+  }
+  
+  .sectionTitle {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+  
+  .toggleContainer {
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+  .toggleOption {
+    padding: 6px 16px;
+    font-size: 12px;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .cicloTitle {
+    font-size: 16px;
+    padding: 8px 14px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .cicloIconWrapper {
+    padding: 6px;
+  }
+  
+  .cicloIcon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .emptyState {
+    padding: 32px 16px;
+    border-radius: 6px;
+  }
+  
+  .emptyState p {
+    font-size: 14px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .entregasContainer {
+    padding: 12px;
+  }
+  
+  .sectionTitle {
+    font-size: 20px;
+  }
+  
+  .toggleOption {
+    padding: 5px 12px;
+    font-size: 11px;
+  }
+  
+  .cicloTitle {
+    font-size: 15px;
+    padding: 6px 12px;
+  }
+  
+  .cicloIcon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .emptyState {
+    padding: 24px 12px;
+  }
+  
+  .emptyState p {
+    font-size: 13px;
+  }
+}

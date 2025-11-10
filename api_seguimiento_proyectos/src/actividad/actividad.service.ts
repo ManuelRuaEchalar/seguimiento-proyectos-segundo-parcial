@@ -83,8 +83,8 @@ async crearActividad(data: {
     // ✨ Verificar si elementos quedó vacío y crear "Trabajo Final"
     if (elementosRestantes.length === 0 && nuevosElementosHechos.length > 0) {
       // Determinar el grado y la fase final
-      const grado = grupo.nombre === 'grado1' ? 'Grado 1' : 'Grado 2';
-      const faseFinal = grupo.nombre === 'grado1' ? 'perfil' : 'proyecto';
+      const grado = grupo.grado === 'grado1' ? 'Grado 1' : 'Grado 2';
+      const faseFinal = data.fase;
 
       const descripcionFinal = `Ya se han trabajado todos los apartados definidos al inicio del curso de ${grado} para la fase de ${data.fase}. 
             Es momento de subir el documento final, que contiene todos los apartados trabajados durante el curso, 

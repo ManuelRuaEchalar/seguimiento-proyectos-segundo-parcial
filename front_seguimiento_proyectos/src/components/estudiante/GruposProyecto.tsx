@@ -90,25 +90,35 @@ export default function GruposProyecto({ onGrupoUnido }: GruposProyectoProps) {
     <div className={styles.gruposSection}>
       <h2 className={styles.sectionTitle}>Grupos Disponibles</h2>
       <p className={styles.descripcion}>
-        Selecciona un grupo de <b>grado II</b> para continuar con con tu proyecto de grado.
+        Selecciona un grupo de <b>grado II</b> para continuar con tu proyecto de grado.
       </p>
       <div className={styles.gruposList}>
         {grupos.map((grupo) => (
-          <div key={grupo.id} className={styles.grupoItem}>
-            <div className={styles.grupoInfo}>
-              <div className={styles.grupoHeader}>
-                <h3 className={styles.grupoNombre}>{grupo.nombre}</h3>
-              </div>
-              <p className={styles.grupoDetalle}>
-                Asesor: {grupo.docente_nombre_completo}
-              </p>
+          <div key={grupo.id} className={styles.groupCard}>
+            <h3 className={styles.groupName}>{grupo.nombre}</h3>
+            
+            <div className={styles.groupDocente}>
+              <span>Asesor: {grupo.docente_nombre_completo}</span>
             </div>
-            <button
-              className={styles.unirseBtn}
+            
+            <div className={styles.groupFooter}>
+              <span className={styles.groupGrado}>2do Grado</span>
+              <span className={styles.activeBadge}>Activo</span>
+            </div>
+            
+            <button 
               onClick={() => handleUnirse(grupo.id)}
+              className={styles.joinButton}
               disabled={uniendose === grupo.id}
             >
-              {uniendose === grupo.id ? 'Uniéndose...' : 'Unirse'}
+              {uniendose === grupo.id ? (
+                <>
+                  <div className={styles.buttonSpinner}></div>
+                  Uniéndose...
+                </>
+              ) : (
+                'Unirse al grupo'
+              )}
             </button>
           </div>
         ))}

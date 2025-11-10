@@ -166,3 +166,38 @@
   text-decoration: underline;
   font-weight: 600;
 }
+/* === RESPONSIVE STYLES === */
+
+@media (max-width: 968px) {
+  .container {
+    flex-direction: column;
+  }
+  
+  .leftSection, .rightSection {
+    padding: 2rem 1rem;
+  }
+  
+  .leftSection {
+    border-right: none;
+    border-bottom: 1px solid var(--color-muted);
+  }
+  
+  .card {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+  }
+  
+  .leftTitle {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+}

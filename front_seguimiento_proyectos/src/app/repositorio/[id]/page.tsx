@@ -74,32 +74,19 @@ export default function RepositorioDocumentoPage() {
     cargarDocumento();
   }, [documentoId]);
 
-  // 🆕 Mostrar estado de carga siempre visible
+  // Estado de carga mejorado
   if (state.isLoading) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: '#f5f7fa'
-      }}>
-        <div style={{
-          width: '64px',
-          height: '64px',
-          border: '4px solid #e1e8ed',
-          borderTopColor: '#2c3e50',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite'
-        }}></div>
-        <p style={{ marginTop: '1.5rem', color: '#2c3e50', fontSize: '1.125rem', fontWeight: 600 }}>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p className={styles.loadingText}>
           Cargando documento ID: {documentoId}...
         </p>
       </div>
     );
   }
 
+  // Estado de error mejorado
   if (state.error || !state.blob) {
     return (
       <div className={styles.errorContainer}>
@@ -122,14 +109,14 @@ export default function RepositorioDocumentoPage() {
 
   return (
     <div className={styles.container}>
-      {/* Usar NavbarRepositorio en lugar del header original */}
+      {/* Navbar responsive */}
       <NavbarRepositorio 
         titulo={state.titulo || "Proyecto de Investigación"}
         carrera={state.carrera || "Carrera no especificada"}
         estudiantes={state.estudiantes}
       />
 
-      {/* Visualizador de PDF */}
+      {/* Visualizador de PDF responsive */}
       <div className={styles.viewerContainer}>
         <VisualizadorPDFFinal
           blob={state.blob}

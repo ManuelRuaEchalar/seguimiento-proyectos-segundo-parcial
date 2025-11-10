@@ -40,3 +40,78 @@
     font-size: 13px;
     color: var(--plata);
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .groupCard {
+    padding: 14px;
+  }
+  
+  .groupName {
+    font-size: 15px;
+  }
+  
+  .groupDetails {
+    gap: 6px;
+  }
+  
+  .groupDetail {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  
+  .groupMeta {
+    font-size: 12px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .groupCard {
+    padding: 12px;
+    border-radius: 6px;
+  }
+  
+  .groupName {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  
+  .groupDetails {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  
+  .groupDetail {
+    font-size: 10px;
+    padding: 2px 5px;
+    width: fit-content;
+  }
+  
+  .groupMeta {
+    font-size: 11px;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .groupCard {
+    padding: 10px;
+  }
+  
+  .groupName {
+    font-size: 13px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .groupCard:hover {
+    transform: none;
+  }
+}

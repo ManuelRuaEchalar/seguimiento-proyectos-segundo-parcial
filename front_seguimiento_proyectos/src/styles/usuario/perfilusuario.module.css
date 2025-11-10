@@ -91,3 +91,171 @@
   color: var(--color-danger);
   font-weight: 600;
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .section__modal {
+    padding: 0.75rem;
+  }
+  
+  .section__modal-content {
+    width: 480px;
+    padding: 1.5rem;
+  }
+  
+  .section__modal-title {
+    font-size: 1.6rem;
+    margin-bottom: 0.875rem;
+  }
+  
+  .headerRow {
+    gap: 14px;
+  }
+  
+  .avatar {
+    width: 76px;
+    height: 76px;
+    font-size: 32px;
+  }
+  
+  .section-form__input {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.9rem;
+  }
+  
+  .section__button {
+    padding: 0.55rem 0.85rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .section__modal {
+    padding: 0.5rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+  
+  .section__modal-content {
+    width: 100%;
+    max-width: 400px;
+    padding: 1.25rem;
+    margin: 0 auto;
+  }
+  
+  .section__modal-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .headerRow {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .headerActions {
+    width: 100%;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .avatar {
+    width: 70px;
+    height: 70px;
+    font-size: 30px;
+  }
+  
+  .section-form__input {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .section__button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .section__button--cancel {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .section__modal {
+    padding: 0.25rem;
+    padding-top: 1rem;
+  }
+  
+  .section__modal-content {
+    padding: 1rem;
+    max-width: 350px;
+  }
+  
+  .section__modal-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .headerRow {
+    gap: 10px;
+  }
+  
+  .avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
+  }
+  
+  .section-form__input {
+    padding: 0.6rem 0.7rem;
+    font-size: 0.8rem;
+  }
+  
+  .section__button {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.75rem;
+    max-width: 180px;
+  }
+  
+  .error {
+    font-size: 0.8rem;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 374px) {
+  .section__modal-content {
+    padding: 0.75rem;
+    max-width: 300px;
+  }
+  
+  .section__modal-title {
+    font-size: 1.2rem;
+  }
+  
+  .avatar {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+  
+  .section__button {
+    max-width: 160px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .section__modal {
+    animation: none;
+  }
+}
+

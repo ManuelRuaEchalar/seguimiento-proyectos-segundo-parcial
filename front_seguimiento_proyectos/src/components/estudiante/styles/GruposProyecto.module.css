@@ -1,90 +1,121 @@
 .gruposSection {
   width: 100%;
-  max-width: 600px;
-  background-color: var(--blanco);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  max-width: 800px;
   margin: 20px auto;
+  padding: 20px;
 }
 
 .sectionTitle {
-  color: var(--azul-oscuro);
-  font-size: 20px;
-  font-weight: 600;
+  color: #0e0f14;
+  font-size: 24px;
+  font-weight: 700;
   margin-bottom: 8px;
   text-align: center;
 }
 
 .descripcion {
-  color: var(--carbon);
+  color: #63708B;
   font-size: 14px;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .gruposList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
-.grupoItem {
+.groupCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.groupCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.groupName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0e0f14;
+  margin: 0 0 1rem 0;
+}
+
+.groupDocente {
+  color: #63708B;
+  font-size: 0.95rem;
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+}
+
+.groupFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--fondo);
+  margin-bottom: 1.5rem;
 }
 
-.grupoItem:last-child {
-  border-bottom: none;
+.groupGrado {
+  background: #D9D9D9;
+  color: #0e0f14;
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.875rem;
 }
 
-.grupoInfo {
-  flex: 1;
+.activeBadge {
+  background: #7CCA81;
+  color: #ffffff;
+  padding: 0.375rem 0.875rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.875rem;
 }
 
-.grupoHeader {
+.joinButton {
+  background: #272D3A;
+  color: #ffffff;
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.3s ease;
 }
 
-.grupoNombre {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--azul-oscuro);
-  margin: 0;
+.joinButton:hover:not(:disabled) {
+  background: #3a4254;
 }
 
-.grupoDetalle {
-  font-size: 13px;
-  color: var(--carbon);
-  margin: 0;
-}
-
-.unirseBtn {
-  background-color: var(--celeste);
-  color: black;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.unirseBtn:hover:not(:disabled) {
-  background-color: var(--azul-oscuro);
-  color: var(--blanco);
-}
-
-.unirseBtn:disabled {
+.joinButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.buttonSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading,
@@ -92,11 +123,11 @@
 .noGrupos {
   text-align: center;
   padding: 2rem 1rem;
-  color: var(--carbon);
+  color: #63708B;
 }
 
 .error {
-  color: var(--rojo);
+  color: #ef4444;
 }
 
 .error p {
@@ -104,37 +135,32 @@
 }
 
 .retryBtn {
-  background-color: var(--azul);
-  color: var(--blanco);
+  background: #272D3A;
+  color: #ffffff;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+  font-weight: 600;
+  transition: background 0.3s ease;
 }
 
 .retryBtn:hover {
-  background-color: var(--azul-oscuro);
+  background: #3a4254;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .gruposSection {
-    max-width: 100%;
     padding: 16px;
   }
 
-  .grupoItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 12px 0;
+  .gruposList {
+    grid-template-columns: 1fr;
   }
 
-  .unirseBtn {
-    width: 100%;
-    padding: 8px;
+  .groupCard {
+    padding: 1.25rem;
   }
 }

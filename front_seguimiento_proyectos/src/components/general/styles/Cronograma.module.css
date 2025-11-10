@@ -114,3 +114,107 @@
 .phaseCard.blocked .phaseDates {
   color: var(--plata, #c4c4c4);
 }
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .cronogramaSection {
+    width: 280px;
+    padding: 14px;
+  }
+  
+  .cronogramaTitle {
+    font-size: 16px;
+  }
+  
+  .phaseCard {
+    padding: 10px;
+  }
+  
+  .phaseTitle {
+    font-size: 13px;
+    margin-right: 60px;
+  }
+  
+  .phaseStatus {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  
+  .phaseDates {
+    font-size: 11px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .cronogramaSection {
+    width: 260px;
+    padding: 12px;
+    margin-top: 6px;
+  }
+  
+  .cronogramaHeader {
+    margin-bottom: 10px;
+  }
+  
+  .cronogramaTitle {
+    font-size: 15px;
+  }
+  
+  .progressContainer {
+    margin-bottom: 14px;
+  }
+  
+  .phasesContainer {
+    gap: 8px;
+  }
+  
+  .phaseCard {
+    padding: 8px;
+  }
+  
+  .phaseTitle {
+    font-size: 12px;
+    margin-right: 55px;
+    margin-bottom: 4px;
+  }
+  
+  .phaseStatus {
+    top: 8px;
+    right: 8px;
+    font-size: 8px;
+    padding: 2px 5px;
+  }
+  
+  .phaseDates {
+    font-size: 10px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .cronogramaSection {
+    width: 240px;
+    padding: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .cronogramaTitle {
+    font-size: 14px;
+  }
+  
+  .phaseCard {
+    padding: 6px;
+  }
+  
+  .phaseTitle {
+    font-size: 11px;
+    margin-right: 50px;
+  }
+  
+  .phaseDates {
+    font-size: 9px;
+  }
+}

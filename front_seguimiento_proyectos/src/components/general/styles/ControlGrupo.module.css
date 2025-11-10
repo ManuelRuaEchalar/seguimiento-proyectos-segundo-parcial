@@ -122,3 +122,82 @@
   background-color: var(--azul-oscuro);
   color: var(--blanco);
 }
+
+/* === RESPONSIVE STYLES === */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .groupInfo {
+    margin-bottom: 20px;
+  }
+  
+  .groupCard {
+    padding: 0.6rem 1rem;
+    max-width: 350px;
+  }
+  
+  .groupItem {
+    font-size: 0.85rem;
+  }
+  
+  .phaseButton {
+    font-size: 0.85rem;
+    padding: 3px 10px;
+  }
+  
+  .phaseOption {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .groupInfo {
+    margin-bottom: 16px;
+  }
+  
+  .groupCard {
+    padding: 0.5rem 0.8rem;
+    max-width: 300px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .groupItem {
+    font-size: 0.8rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .phaseButton {
+    font-size: 0.8rem;
+    padding: 2px 8px;
+  }
+  
+  .phaseDropdown {
+    min-width: 100px;
+  }
+  
+  .phaseOption {
+    font-size: 0.8rem;
+    padding: 5px 8px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .groupCard {
+    max-width: 100%;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .groupItem {
+    font-size: 0.75rem;
+  }
+  
+  .phaseButton {
+    font-size: 0.75rem;
+  }
+}
