@@ -263,7 +263,12 @@ export class GrupoService {
 
   async obtenerEstudiantesDeGrupo(grupoId: number) {
     const estudiantes = await this.prisma.estudiante.findMany({
-      where: { grupo_id: grupoId },
+      where: { 
+        OR: [
+          { grupo_id: grupoId },
+          { grupo_dos_id: grupoId }
+        ]
+      },
       select: {
         id: true,
         cu: true,
