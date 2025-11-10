@@ -63,7 +63,20 @@ async crearActividad(data: {
         grupo: {
           select: {
             id: true,
-            nombre: true
+            nombre: true,
+            grado: true,
+            elementos: true,
+            elementos_hechos: true,
+            total_actividades: true,
+            total_estudiantes: true,
+            fase: true,
+            fecha_ultima_actividad: true,
+            fecha_inicio_tema: true,
+            fecha_fin_tema: true,
+            fecha_inicio_perfil: true,
+            fecha_fin_perfil: true,
+            fecha_inicio_proyecto: true,
+            fecha_fin_proyecto: true,
           }
         }
       }
@@ -112,9 +125,32 @@ async crearActividad(data: {
       });
     }
 
+    // Obtener el grupo actualizado después de todas las operaciones
+    const grupoActualizado = await prisma.grupo.findUnique({
+      where: { id: data.grupo_id },
+      select: {
+        id: true,
+        nombre: true,
+        grado: true,
+        elementos: true,
+        elementos_hechos: true,
+        total_actividades: true,
+        total_estudiantes: true,
+        fase: true,
+        fecha_ultima_actividad: true,
+        fecha_inicio_tema: true,
+        fecha_fin_tema: true,
+        fecha_inicio_perfil: true,
+        fecha_fin_perfil: true,
+        fecha_inicio_proyecto: true,
+        fecha_fin_proyecto: true,
+      },
+    });
+
     return {
       message: 'Actividad creada exitosamente',
-      actividad
+      actividad,
+      grupo: grupoActualizado
     };
   } catch (error) {
     if (error instanceof HttpException) {

@@ -4,7 +4,7 @@ export async function crearActividad(actividadData: {
   descripcion?: string;
   grupo_id: number;
   es_final: boolean;
-  fase: 'tema' | 'perfil' | 'proyecto'; // 👈 Nuevo parámetro con tipos específicos
+  fase: 'tema' | 'perfil' | 'proyecto';
 }) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL no está configurada');
@@ -41,7 +41,9 @@ export async function crearActividad(actividadData: {
 
   const data = await response.json();
   console.log('✅ Actividad creada:', data);
-  return data;
+
+  // La respuesta ahora incluye actividad y grupo
+  return data; // { message, actividad, grupo }
 }
 
 export async function borrarActividad(actividadId: number) {

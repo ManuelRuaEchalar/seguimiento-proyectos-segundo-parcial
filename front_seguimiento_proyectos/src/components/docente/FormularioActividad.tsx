@@ -8,7 +8,7 @@ interface FormularioActividadProps {
   grupoId: number;
   elementosGrupo: string[];
   fase: 'tema' | 'perfil' | 'proyecto';
-  onActividadCreada: (actividad: any) => void;
+  onActividadCreada: (actividad: any, grupo: any) => void; // Cambiado para recibir grupo
 }
 
 interface Elemento {
@@ -144,61 +144,63 @@ export default function FormularioActividad({ grupoId, elementosGrupo,fase, onAc
   };
 
   const manejarCrearActividad = async () => {
-    if (!nombreActividad.trim()) {
-      alert('Debe ingresar un nombre para la actividad');
-      return;
-    }
+  if (!nombreActividad.trim()) {
+    alert('Debe ingresar un nombre para la actividad');
+    return;
+  }
 
-    if (elementosTablero.length === 0) {
-      alert('Debe agregar al menos un elemento a la actividad');
-      return;
-    }
+  if (elementosTablero.length === 0) {
+    alert('Debe agregar al menos un elemento a la actividad');
+    return;
+  }
 
-    setCreando(true);
-    try {
-      const actividadData = {
-        nombre: nombreActividad.trim(),
-        elementos: elementosTablero.map(el => el.texto),
-        fase:fase,
-        descripcion: notas,
-        es_final: false,
-        grupo_id: grupoId,
-      };
+  setCreando(true);
+  try {
+    const actividadData = {
+      nombre: nombreActividad.trim(),
+      elementos: elementosTablero.map(el => el.texto),
+      fase: fase,
+      descripcion: notas,
+      es_final: false,
+      grupo_id: grupoId,
+    };
 
-      const nuevaActividad = await crearActividad(actividadData);
-      onActividadCreada(nuevaActividad.actividad);
+    const respuesta = await crearActividad(actividadData);
+    
+    // Pasar tanto la actividad como el grupo actualizado
+    onActividadCreada(respuesta.actividad, respuesta.grupo);
+    
+    // Resetear formulario a estado inicial
+    setNombreActividad('');
+    setNotas('');
+    
+    // Reinicializar elementos con los datos actualizados del grupo
+    if (respuesta.grupo && respuesta.grupo.elementos) {
+      const elementosRestantes = respuesta.grupo.elementos as string[];
       
-      // Resetear formulario a estado inicial
-      setNombreActividad('');
-      setNotas('');
+      // Mapear los elementos restantes con nuevos IDs
+      const elementos = elementosRestantes.map((texto, index) => ({
+        id: `elemento-restante-${Date.now()}-${index}`,
+        texto: texto
+      }));
       
-      // Reinicializar elementos
-      if (elementosGrupo && elementosGrupo.length > 0) {
-        // Obtener los textos de los elementos usados en el tablero
-        const textosUsados = elementosTablero.map(el => el.texto);
-        
-        // Filtrar elementosGrupo para quitar los elementos usados
-        const elementosRestantes = elementosGrupo.filter(texto => !textosUsados.includes(texto));
-        
-        // Mapear los elementos restantes con nuevos IDs
-        const elementos = elementosRestantes.map((texto, index) => ({
-          id: `elemento-restante-${Date.now()}-${index}`,
-          texto: texto
-        }));
-        
-        // Repartir los elementos restantes
-        const elementosIniciales = elementos.slice(0, Math.min(3, elementos.length));
-        const opcionesIniciales = elementos.slice(Math.min(3, elementos.length));
-        setElementosTablero(elementosIniciales);
-        setOpciones(opcionesIniciales);
-      }
-    } catch (error) {
-      console.error('Error creando actividad:', error);
-      alert('Error al crear la actividad');
-    } finally {
-      setCreando(false);
+      // Repartir los elementos restantes
+      const elementosIniciales = elementos.slice(0, Math.min(3, elementos.length));
+      const opcionesIniciales = elementos.slice(Math.min(3, elementos.length));
+      setElementosTablero(elementosIniciales);
+      setOpciones(opcionesIniciales);
+    } else {
+      // Si no hay elementos restantes, limpiar todo
+      setElementosTablero([]);
+      setOpciones([]);
     }
-  };
+  } catch (error) {
+    console.error('Error creando actividad:', error);
+    alert('Error al crear la actividad');
+  } finally {
+    setCreando(false);
+  }
+};
 
   return (
     <div className={styles.presentationSection}>

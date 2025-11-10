@@ -128,10 +128,22 @@ export default function GrupoPage() {
     setMostrarFormulario(!mostrarFormulario);
   };
 
-  const handleActividadCreada = (nuevaActividad: Actividad) => {
-    setActividades(prev => [nuevaActividad, ...prev]);
-    setMostrarFormulario(false);
-  };
+  const handleActividadCreada = (nuevaActividad: Actividad, grupoActualizado: Grupo) => {
+  setActividades(prev => [nuevaActividad, ...prev]);
+  setMostrarFormulario(false);
+  
+  // Actualizar el estado del grupo con los datos actualizados
+  if (grupoActualizado) {
+    setGrupo(grupoActualizado);
+    // Actualizar también en localStorage
+    localStorage.setItem('grupoActual', JSON.stringify(grupoActualizado));
+    
+    console.log('✅ Grupo actualizado después de crear actividad:', grupoActualizado);
+  }
+  
+  // Recargar actividades para asegurar consistencia
+  cargarDatos();
+};
 
   const handleActividadClick = (actividadId: number) => {
     const actividadSeleccionada = actividades.find(actividad => actividad.id === actividadId);
@@ -257,11 +269,11 @@ export default function GrupoPage() {
                         <div className={`${styles.activitiesWrapper} ${!mostrarTrabajoFinal && mostrarFormulario ? styles.withForm : ''}`}>
                           {!mostrarTrabajoFinal && mostrarFormulario && grupo && grupo.elementos && (
                             <FormularioActividad
-                              grupoId={grupo.id}
-                              fase={grupo.grado === 'grado1' ? 'perfil' : grupo.grado === 'grado2' ? 'proyecto' : grupo.fase}
-                              elementosGrupo={grupo.elementos}
-                              onActividadCreada={handleActividadCreada}
-                            />
+  grupoId={grupo.id}
+  fase={grupo.grado === 'grado1' ? 'perfil' : grupo.grado === 'grado2' ? 'proyecto' : grupo.fase}
+  elementosGrupo={grupo.elementos as string[] || []}
+  onActividadCreada={handleActividadCreada}
+/>
                           )}
 
                           {mostrarTrabajoFinal && actividadFinal && grupo && (
@@ -337,11 +349,11 @@ export default function GrupoPage() {
                         <div className={`${styles.activitiesWrapper} ${!mostrarTrabajoFinal && mostrarFormulario ? styles.withForm : ''}`}>
                           {!mostrarTrabajoFinal && mostrarFormulario && grupo && grupo.elementos && (
                             <FormularioActividad
-                              grupoId={grupo.id}
-                              fase={grupo.grado === 'grado1' ? 'perfil' : grupo.grado === 'grado2' ? 'proyecto' : grupo.fase}
-                              elementosGrupo={grupo.elementos}
-                              onActividadCreada={handleActividadCreada}
-                            />
+  grupoId={grupo.id}
+  fase={grupo.grado === 'grado1' ? 'perfil' : grupo.grado === 'grado2' ? 'proyecto' : grupo.fase}
+  elementosGrupo={grupo.elementos as string[] || []}
+  onActividadCreada={handleActividadCreada}
+/>
                           )}
 
                           {mostrarTrabajoFinal && actividadFinal && grupo && (
